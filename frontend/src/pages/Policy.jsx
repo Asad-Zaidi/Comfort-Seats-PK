@@ -10,15 +10,22 @@ const PolicyPage = () => {
     const [privacyPolicy, setPrivacyPolicy] = useState("");
     const [returnPolicy, setReturnPolicy] = useState("");
     const [warrantyPolicy, setWarrantyPolicy] = useState("");
+    const [contactEmail, setContactEmail] = useState("");
 
     useEffect(() => {
         const fetchPolicies = async () => {
             try {
-                const res = await api.get("/site-content");
-                if (res.data?.success && res.data.data) {
-                    setPrivacyPolicy(res.data.data.privacyPolicy || "");
-                    setReturnPolicy(res.data.data.returnPolicy || "");
-                    setWarrantyPolicy(res.data.data.warrantyPolicy || "");
+                const [contentRes, contactRes] = await Promise.all([
+                    api.get("/site-content"),
+                    api.get("/contact"),
+                ]);
+                if (contentRes.data?.success && contentRes.data.data) {
+                    setPrivacyPolicy(contentRes.data.data.privacyPolicy || "");
+                    setReturnPolicy(contentRes.data.data.returnPolicy || "");
+                    setWarrantyPolicy(contentRes.data.data.warrantyPolicy || "");
+                }
+                if (contactRes.data?.success && contactRes.data.data?.email) {
+                    setContactEmail(contactRes.data.data.email);
                 }
             } catch (err) {
                 console.error("Failed to load policies:", err);
@@ -63,21 +70,22 @@ const PolicyPage = () => {
 
             {/* Hero */}
             <section className="border-b border-gray-100 bg-gray-50/60">
-                <div className="mx-auto max-w-7xl px-5 py-10 text-center lg:px-8">
+                <div className="mx-auto max-w-full px-5 py-10 text-center lg:px-32">
                     <span className="inline-block border-2 border-blue-400 rounded-full bg-[#2F6FED]/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#2F6FED] hover:bg-[#2F6FED]/20 transition">
                         Our Policies
                     </span>
                     <h1 className="mt-5 text-4xl font-bold text-[#12131A] sm:text-5xl">
-                        Privacy & Return Policy
+                        Privacy, Return & Warranty Policy
                     </h1>
-                    <p className="mx-auto mt-4 max-w-xl text-gray-500">
-                        We are committed to protecting your privacy and ensuring a seamless shopping experience. Please review our policies below.
+                    <p className="mx-auto mt-4 max-w-5xl text-gray-500">
+                        We are committed to protecting your privacy and ensuring a seamless shopping experience. <br /> Please review our policies below.
+                        If you have any questions, feel free to contact us at <a href="mailto:{contactEmail}" className="text-[#2F6FED]">{contactEmail}</a>.
                     </p>
                 </div>
             </section>
 
-            <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8">
-                <div className="mx-auto max-w-4xl space-y-16">
+            <div className="mx-auto max-w-full px-5 py-16 lg:px-32">
+                <div className="mx-auto max-w-full space-y-16">
 
                     {/* Privacy Policy */}
                     <section>
@@ -135,10 +143,10 @@ const PolicyPage = () => {
                                 Contact Us
                             </a>
                             <a
-                                href="mailto:support@comfortseats.pk"
+                                href={contactEmail ? `mailto:${contactEmail}` : "/contact"}
                                 className="inline-flex items-center justify-center rounded-xl border border-gray-200 px-6 py-3 text-sm font-semibold text-[#12131A] transition hover:border-gray-300"
                             >
-                                support@comfortseats.pk
+                                {contactEmail || "Email Us"}
                             </a>
                         </div>
                     </section>
