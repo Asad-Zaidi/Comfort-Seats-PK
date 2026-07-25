@@ -1,0 +1,13 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Disallow admin and private API/auth routes from being crawled
+Disallow: /admin
+Disallow: /api/
+
+# Sitemaps - both the static frontend sitemap and the dynamic backend
+# sitemap (which includes all product pages). Update the host below to
+# match your deployed domain.
+Sitemap: https://comfortseatspk.com/sitemap.xml
+Sitemap: https://comfortseatspk.com/api/sitemap.xml 

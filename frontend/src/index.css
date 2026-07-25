@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap');
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+:root {
+  --primary: #2F6FED;
+  --primary-hover: #1d4ed8;
+  --secondary: #F5A524;
+  --secondary-hover: #d48c1a;
+  --accent: #f97316;
+
+  --text: #12131A;
+  --text-secondary: #6b7280;
+  --text-light: #9ca3af;
+
+  --bg: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #FAF9F6;
+
+  --border: #e5e7eb;
+  --success: #10B981;
+  --error: #E5484D;
+
+  --header-bg: #ffffff;
+  --header-text: #1f2937;
+  --footer-bg: #12131A;
+  --footer-text: #ffffff;
+  --btn-text: #ffffff;
+  --card-bg: #ffffff;
+  --announcement-bg: #12131A;
+  --announcement-text: #ffffff;
+}
+
+/* Smooth scrolling */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Google Sans', sans-serif;
+}
+
+/* ============================================
+   Dynamic Color Utility Classes
+   These are powered by CSS custom properties
+   set by the ColorApplier component in App.js
+   ============================================ */
+
+/* Background colors */
+.bg-theme-primary { background-color: var(--primary); }
+.bg-theme-primary-hover { background-color: var(--primary-hover); }
+.bg-theme-secondary { background-color: var(--secondary); }
+.bg-theme-secondary-hover { background-color: var(--secondary-hover); }
+.bg-theme-accent { background-color: var(--accent); }
+.bg-theme-bg { background-color: var(--bg); }
+.bg-theme-bg-secondary { background-color: var(--bg-secondary); }
+.bg-theme-bg-tertiary { background-color: var(--bg-tertiary); }
+.bg-theme-header { background-color: var(--header-bg); }
+.bg-theme-footer { background-color: var(--footer-bg); }
+.bg-theme-card { background-color: var(--card-bg); }
+.bg-theme-announcement { background-color: var(--announcement-bg); }
+.bg-theme-success { background-color: var(--success); }
+.bg-theme-error { background-color: var(--error); }
+.bg-theme-primary-10 { background-color: color-mix(in srgb, var(--primary) 10%, transparent); }
+.bg-theme-secondary-10 { background-color: color-mix(in srgb, var(--secondary) 10%, transparent); }
+.bg-theme-success-10 { background-color: color-mix(in srgb, var(--success) 10%, transparent); }
+.bg-theme-error-10 { background-color: color-mix(in srgb, var(--error) 10%, transparent); }
+
+/* Text colors */
+.text-theme-primary { color: var(--primary); }
+.text-theme-secondary { color: var(--secondary); }
+.text-theme-accent { color: var(--accent); }
+.text-theme-text { color: var(--text); }
+.text-theme-text-secondary { color: var(--text-secondary); }
+.text-theme-text-light { color: var(--text-light); }
+.text-theme-header-text { color: var(--header-text); }
+.text-theme-footer-text { color: var(--footer-text); }
+.text-theme-btn-text { color: var(--btn-text); }
+.text-theme-announcement-text { color: var(--announcement-text); }
+.text-theme-success { color: var(--success); }
+.text-theme-error { color: var(--error); }
+
+/* Border colors */
+.border-theme-border { border-color: var(--border); }
+.border-theme-primary { border-color: var(--primary); }
+.border-theme-secondary { border-color: var(--secondary); }
+
+/* Hover variants for buttons/links */
+.hover\:bg-theme-primary:hover { background-color: var(--primary); }
+.hover\:bg-theme-primary-hover:hover { background-color: var(--primary-hover); }
+.hover\:bg-theme-secondary-hover:hover { background-color: var(--secondary-hover); }
+.hover\:text-theme-primary:hover { color: var(--primary); }
+.hover\:text-theme-secondary:hover { color: var(--secondary); }
+
+/* Announcement bar marquee animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(100vw);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 10s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}

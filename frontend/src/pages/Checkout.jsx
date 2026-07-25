@@ -1,0 +1,608 @@
+import { useEffect, useMemo, useState, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import SEO from "../components/SEO";
+import {
+    FiUser,
+    FiPhone,
+    FiMapPin,
+    FiCreditCard,
+    FiChevronLeft,
+    FiShoppingBag,
+    FiCheck,
+    FiTruck,
+    FiZap,
+    FiShield,
+    FiMail,
+    FiCheckCircle,
+} from "react-icons/fi";
+import { FaMoneyBillWave, FaUniversity, FaUpload, FaTimes } from "react-icons/fa";
+import api from "../api/api";
+import { getColorName, isHexColor } from "../utils/ColorName";
+import { useToast } from "../components/ToastNotification";
+import { useSiteConfig } from "../utils/siteConfig";
+import OrderModal from "../components/OrderModal";
+import { formatPrice } from "../utils/priceCalculator";
+import PaymentMethodSelector from "../components/checkout/PaymentMethods";
+
+const paymentOptions = [
+    { key: "cod", label: "Cash on Delivery", icon: FaMoneyBillWave, desc: "Pay when you receive" },
+    { key: "online", label: "Bank Transfer", icon: FaUniversity, desc: "Pay via bank transfer" },
+];
+
+const deliveryOptions = [
+    { key: "standard", label: "Standard Delivery", icon: FiTruck, desc: "Free delivery across Pakistan" },
+    { key: "fast", label: "Express Delivery", icon: FiZap, desc: "Priority handling & shipping" },
+];
+
+const InputField = ({ id, name, label, icon: Icon, type = "text", value, onChange, placeholder, required = false, ...props }) => (
+    <div className="space-y-1.5">
+        <label htmlFor={id} className="block text-sm font-medium text-[#12131A]">
+            {label}
+            {required && <span className="ml-1 text-red-500">*</span>}
+        </label>
+        <div className="relative">
+            {Icon && (
+                <Icon className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors group-focus-within:text-[#2F6FED]" size={17} />
+            )}
+            <input
+                id={id}
+                name={name}
+                type={type}
+                value={value}
+                onChange={onChange}
+                placeholder={placeholder}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#12131A] outline-none transition-all placeholder:text-gray-400 focus:border-[#2F6FED] focus:ring-4 focus:ring-[#2F6FED]/10 hover:border-gray-300"
+                style={{ paddingLeft: Icon ? "2.75rem" : "1rem" }}
+                {...props}
+            />
+        </div>
+    </div>
+);
+
+const Checkout = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { product, quantity: initialQuantity, selectedColor, selectedSize, selectedStandType } = location.state || {};
+    const { siteUrl, siteName } = useSiteConfig();
+
+    const [quantity, setQuantity] = useState(initialQuantity || 1);
+    const [form, setForm] = useState({ fullName: "", phone: "", email: "", address: "", city: "" });
+    const [paymentMethod, setPaymentMethod] = useState("cod");
+    const [paymentSettings, setPaymentSettings] = useState(null);
+    const [paymentInstructions, setPaymentInstructions] = useState("");
+    const [deliverySettings, setDeliverySettings] = useState({ fastDeliveryCharge: 200 });
+    const [deliveryMethod, setDeliveryMethod] = useState("standard");
+    const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+    const [receiptFile, setReceiptFile] = useState(null);
+    const [receiptPreview, setReceiptPreview] = useState("");
+    const [isSubmitting] = useState(false);
+    const [receiptError, setReceiptError] = useState("");
+    const [selectedOnlineMethodId, setSelectedOnlineMethodId] = useState(null);
+    const receiptInputRef = useRef(null);
+    const toast = useToast();
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const res = await api.get("/payment-settings");
+                if (res.data?.success) {
+                    setPaymentSettings(res.data.data);
+                    setPaymentInstructions(res.data.data?.instructions || "");
+                }
+            } catch (err) {
+                console.error("Failed to load payment settings:", err);
+            }
+            try {
+                const res = await api.get("/site-content");
+                if (res.data?.success) {
+                    setDeliverySettings({
+                        fastDeliveryCharge: res.data.data?.delivery?.fastDeliveryCharge ?? 200,
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to load delivery settings:", err);
+            }
+        };
+        fetchSettings();
+    }, []);
+
+    const handleReceiptChange = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (!/image\/(jpeg|jpg|png|gif|webp)/.test(file.type)) {
+            toast.error("Only image files are allowed for the receipt.");
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Receipt image must be under 5MB.");
+            return;
+        }
+        setReceiptFile(file);
+        setReceiptPreview(URL.createObjectURL(file));
+        setReceiptError(""); // Clear error when file is uploaded
+    };
+
+    const removeReceipt = () => {
+        setReceiptFile(null);
+        setReceiptPreview("");
+        if (receiptInputRef.current) receiptInputRef.current.value = "";
+    };
+
+    const subtotal = useMemo(() => (product ? product.price * quantity : 0), [product, quantity]);
+    const deliveryCharge = deliveryMethod === "fast" ? Number(deliverySettings.fastDeliveryCharge) || 0 : 0;
+    const total = subtotal + deliveryCharge;
+    const displayPrice = product?.price || 0;
+
+    // Determine if discount is enabled for display
+    const isDiscountEnabled = product?.isDiscountEnabled === true;
+    const actualPrice = product?.actualPrice || 0;
+
+    if (!product) {
+        return (
+            <>
+                <SEO title={`Checkout - ${siteName}`} description="Complete your order." canonicalUrl={`${siteUrl}/checkout`} />
+                <div className="min-h-[60vh] flex items-center justify-center px-5">
+                    <div className="text-center max-w-md">
+                        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-50">
+                            <FiShoppingBag className="text-gray-300" size={32} />
+                        </div>
+                        <h1 className="mt-6 text-2xl font-bold text-[#12131A]">No product selected</h1>
+                        <p className="mt-2 text-gray-500">Please choose a product before proceeding to checkout.</p>
+                        <Link to="/products" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#2F6FED] px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-[#2F6FED]/90">
+                            Browse Products
+                        </Link>
+                    </div>
+                </div>
+            </>
+        );
+    }
+
+    const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+
+    const handlePlaceOrder = (e) => {
+        e.preventDefault();
+        if (!form.fullName.trim() || !form.phone.trim() || !form.address.trim()) {
+            toast.error("Please fill in your name, phone number, and address.");
+            return;
+        }
+        if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+            toast.error("Please enter a valid email address.");
+            return;
+        }
+        if (paymentMethod === "online" && !receiptFile) {
+            setReceiptError("Payment receipt is required for bank transfer.");
+            toast.error("Please upload your payment receipt.");
+            return;
+        }
+        setReceiptError("");
+        setIsOrderModalOpen(true);
+    };
+
+    const checkoutPaymentMethod = paymentMethod === "cod" ? "cod" : "bank";
+    // Build selectedOnlineMethod object for the order
+    const selectedOnlineMethodData = (() => {
+        if (paymentMethod !== "online" || !selectedOnlineMethodId) return null;
+        const m = paymentSettings?.paymentMethods?.find(pm => pm._id === selectedOnlineMethodId);
+        if (!m) return null;
+        return { methodId: m._id, name: m.name, type: m.type || 'Bank', icon: m.logo || m.icon || '' };
+    })();
+    const productImage = product.imageUrl || "https://images.unsplash.com/photo-1505843490701-5be5d6f48db6?w=500";
+
+    return (
+        <div className="min-h-screen bg-gradient-to-b from-gray-50/50 to-white">
+            <SEO title={`Checkout - ${siteName}`} canonicalUrl={`${siteUrl}/checkout`} />
+
+            <div className="mx-auto max-w-full px-5 py-10 lg:px-32">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="group inline-flex items-center gap-2 text-sm font-medium text-gray-500 transition hover:text-[#2F6FED]"
+                    >
+                        <FiChevronLeft className="transition-transform group-hover:-translate-x-0.5" size={18} />
+                        Back
+                    </button>
+                    <div className="flex items-center gap-2">
+                        <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-gray-400">
+                            <FiShield size={14} />
+                            Secure Checkout
+                        </span>
+                        <span className="h-5 w-px bg-gray-200 hidden sm:block" />
+                        <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
+                            ✓ 100% Secure
+                        </span>
+                    </div>
+                </div>
+
+                <h1 className="text-2xl text-center sm:text-3xl lg:text-4xl font-bold text-[#12131A] tracking-tight">
+                    Complete Your Order
+                </h1>
+                <p className="mt-1.5 text-sm text-center text-gray-500">Fill in your details to place your order</p>
+
+                <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-5">
+                    {/* Left Column - Form */}
+                    <form id="checkout-form" onSubmit={handlePlaceOrder} className="space-y-6 lg:col-span-3">
+                        {/* Delivery Details */}
+                        <div className="rounded-2xl border border-gray-200/80 bg-white p-5 sm:p-6 shadow-sm">
+                            <div className="flex items-center gap-2.5 mb-5">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2F6FED]/10 text-[#2F6FED]">
+                                    <FiUser size={18} />
+                                </div>
+                                <div>
+                                    <h2 className="text-base font-semibold text-[#12131A]">Delivery Details</h2>
+                                    <p className="text-xs text-gray-400">Where should we ship your order?</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <InputField
+                                        id="checkout-full-name"
+                                        name="fullName"
+                                        label="Full Name"
+                                        icon={FiUser}
+                                        value={form.fullName}
+                                        onChange={handleChange}
+                                        placeholder="Your Name"
+                                        required
+                                    />
+                                    <InputField
+                                        id="checkout-phone"
+                                        name="phone"
+                                        label="Phone Number"
+                                        icon={FiPhone}
+                                        value={form.phone}
+                                        onChange={handleChange}
+                                        placeholder="Phone Number"
+                                        required
+                                    />
+                                </div>
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <InputField
+                                        id="checkout-email"
+                                        name="email"
+                                        label="Email Address"
+                                        icon={FiMail}
+                                        type="email"
+                                        value={form.email}
+                                        onChange={handleChange}
+                                        placeholder="Enter your email"
+                                    />
+                                    <InputField
+                                        id="checkout-city"
+                                        name="city"
+                                        label="City"
+                                        icon={FiMapPin}
+                                        value={form.city}
+                                        onChange={handleChange}
+                                        placeholder="Lahore"
+                                    />
+                                </div>
+
+
+                                <div className="space-y-1.5">
+                                    <label htmlFor="checkout-address" className="block text-sm font-medium text-[#12131A]">
+                                        Address <span className="ml-1 text-red-500">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <FiMapPin className="pointer-events-none absolute left-3.5 top-3.5 text-gray-400" size={17} />
+                                        <textarea
+                                            id="checkout-address"
+                                            name="address"
+                                            value={form.address}
+                                            onChange={handleChange}
+                                            rows={3}
+                                            placeholder="House #, Street, Area"
+                                            className="w-full resize-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#12131A] outline-none transition-all placeholder:text-gray-400 focus:border-[#2F6FED] focus:ring-4 focus:ring-[#2F6FED]/10 hover:border-gray-300"
+                                            style={{ paddingLeft: "2.75rem" }}
+                                        />
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        {/* Delivery Method */}
+
+
+                        {/* Payment Method */}
+                        <div className="rounded-2xl border border-gray-200/80 bg-white p-5 sm:p-6 shadow-sm">
+                            <div className="flex items-center justify-between mb-5">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
+                                        <FiCreditCard size={18} />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-base font-semibold text-[#12131A]">Payment Method</h2>
+                                        <p className="text-xs text-gray-400">Choose how you'd like to pay</p>
+                                    </div>
+                                </div>
+                                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-medium text-emerald-700">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                    Secure
+                                </span>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                {paymentOptions.map(({ key, label, icon: Icon, desc }) => {
+                                    const active = paymentMethod === key;
+                                    return (
+                                        <button
+                                            key={key}
+                                            type="button"
+                                            onClick={() => setPaymentMethod(key)}
+                                            className={`group relative flex items-center gap-4 rounded-xl border-2 p-4 text-left transition-all duration-200 ${active
+                                                ? "border-[#2F6FED] bg-gradient-to-br from-[#2F6FED]/5 to-[#2F6FED]/10 shadow-md shadow-[#2F6FED]/10"
+                                                : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
+                                                }`}
+                                        >
+                                            {active && (
+                                                <div className="absolute -right-1 -top-1">
+                                                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#2F6FED] shadow-lg shadow-[#2F6FED]/30">
+                                                        <FiCheck className="h-3 w-3 text-white" />
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <span className={`flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-200 ${active
+                                                ? "bg-[#2F6FED] text-white shadow-lg shadow-[#2F6FED]/30"
+                                                : "bg-gray-50 text-gray-500 group-hover:bg-gray-100"
+                                                }`}>
+                                                <Icon size={18} />
+                                            </span>
+                                            <div>
+                                                <p className="text-sm font-semibold text-[#12131A]">{label}</p>
+                                                {desc && <p className="text-xs text-gray-400 mt-0.5">{desc}</p>}
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {paymentMethod === "online" && (
+                                <div className="mt-4 rounded-xl bg-gradient-to-br from-gray-50/80 to-white p-5 sm:p-6 border border-gray-200/50">
+                                    {/* Dynamic Payment Method Selector */}
+                                    <PaymentMethodSelector
+                                        methods={paymentSettings?.paymentMethods || []}
+                                        selectedMethodId={selectedOnlineMethodId}
+                                        onSelectMethod={setSelectedOnlineMethodId}
+                                        paymentInstructions={paymentInstructions}
+                                    />
+
+                                    {/* Receipt Upload */}
+                                    <div className="mt-5">
+                                        <label className="mb-2 flex items-center gap-2 text-sm font-medium text-[#12131A]">
+                                            Payment Receipt <span className="text-red-500">*</span>
+                                        </label>
+
+                                        {!receiptPreview ? (
+                                            <label className="group flex cursor-pointer flex-col items-center justify-center gap-3 w-full rounded-xl border-2 border-dashed border-gray-300 bg-white/80 px-4 py-6 text-center transition-all duration-200 hover:border-[#2F6FED] hover:bg-[#2F6FED]/5">
+                                                <div className="rounded-full bg-gray-50 p-3 transition-colors group-hover:bg-[#2F6FED]/10">
+                                                    <FaUpload className="text-gray-400 transition-colors group-hover:text-[#2F6FED]" size={20} />
+                                                </div>
+                                                <div>
+                                                    <span className="text-sm font-medium text-gray-600 group-hover:text-[#12131A]">Click to upload receipt</span>
+                                                    <p className="mt-1 text-xs text-gray-400">JPG, PNG or WEBP (max 5MB)</p>
+                                                </div>
+                                                <input
+                                                    ref={receiptInputRef}
+                                                    type="file"
+                                                    accept="image/jpeg,image/png,image/gif,image/webp"
+                                                    onChange={handleReceiptChange}
+                                                    className="hidden"
+                                                />
+                                            </label>
+                                        ) : (
+                                            <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                                                <img src={receiptPreview} alt="Receipt preview" className="max-h-56 w-full object-contain p-2" />
+                                                <button
+                                                    type="button"
+                                                    onClick={removeReceipt}
+                                                    className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/70 text-white shadow-lg transition-all hover:bg-black/90"
+                                                    aria-label="Remove receipt"
+                                                >
+                                                    <FaTimes size={13} />
+                                                </button>
+                                            </div>
+                                        )}
+                                        {receiptError && (
+                                            <p className="mt-2 text-xs text-red-500 flex items-center gap-1.5">
+                                                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                                </svg>
+                                                {receiptError}
+                                            </p>
+                                        )}
+                                        <p className="mt-1.5 text-xs text-gray-400 flex items-center gap-1.5">
+                                            <FiCheckCircle className="text-gray-300" size={13} />
+                                            Attach a screenshot or photo of your payment confirmation.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </form>
+
+                    {/* Right Column - Order Summary */}
+                    <div className="lg:col-span-2 space-y-6">
+
+                        <div className="rounded-2xl border border-gray-200/80 bg-white p-5 sm:p-6 shadow-sm">
+                            <div className="flex items-center gap-2.5 mb-5">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                                    <FiTruck size={18} />
+                                </div>
+                                <div>
+                                    <h2 className="text-base font-semibold text-[#12131A]">Delivery Method</h2>
+                                    <p className="text-xs text-gray-400">Choose your preferred shipping option</p>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 gap-3">
+                                {deliveryOptions.map(({ key, label, icon: Icon, desc, time }) => {
+                                    const active = deliveryMethod === key;
+                                    const priceText = key === "fast"
+                                        ? `Rs. ${Number(deliverySettings.fastDeliveryCharge) || 0}`
+                                        : "Free";
+                                    return (
+                                        <button
+                                            key={key}
+                                            type="button"
+                                            onClick={() => setDeliveryMethod(key)}
+                                            className={`group relative flex items-start gap-3 rounded-xl border-2 p-4 text-left transition-all duration-200 ${active
+                                                ? "border-[#2F6FED] bg-gradient-to-br from-[#2F6FED]/5 to-[#2F6FED]/10 shadow-md shadow-[#2F6FED]/10"
+                                                : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
+                                                }`}
+                                        >
+                                            {active && (
+                                                <div className="absolute -right-1 -top-1">
+                                                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#2F6FED] shadow-lg">
+                                                        <FiCheck className="h-3 w-3 text-white" />
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-all duration-200 ${active
+                                                ? "bg-[#2F6FED] text-white shadow-lg shadow-[#2F6FED]/30"
+                                                : "bg-gray-50 text-gray-500 group-hover:bg-gray-100"
+                                                }`}>
+                                                <Icon size={18} />
+                                            </span>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <p className="text-sm font-semibold text-[#12131A]">{label}</p>
+                                                    <p className={`text-xs font-semibold whitespace-nowrap ${key === "fast" ? "text-[#2F6FED]" : "text-emerald-500"
+                                                        }`}>
+                                                        {priceText}
+                                                    </p>
+                                                </div>
+                                                <p className="mt-0.5 text-xs text-gray-400">{desc}</p>
+
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <div className="sticky top-6 space-y-6">
+                            <div className="rounded-2xl border border-gray-200/80 bg-white p-5 sm:p-6 shadow-sm">
+                                <h2 className="text-base font-semibold text-[#12131A]">Order Summary</h2>
+
+                                <div className="mt-5 flex gap-4">
+                                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100 ring-1 ring-gray-200/50">
+                                        <img src={productImage} alt={product.name} className="h-full w-full object-cover" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-semibold text-[#12131A] truncate">{product.name}</p>
+                                        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500">
+                                            {selectedColor && (
+                                                <span className="inline-flex items-center gap-1.5">
+                                                    <span className="h-3 w-3 rounded-full border border-gray-200" style={{ backgroundColor: isHexColor(selectedColor) ? selectedColor : "#E5E7EB" }} />
+                                                    {getColorName(selectedColor)}
+                                                </span>
+                                            )}
+                                            {selectedSize && <span>Size: {selectedSize}</span>}
+                                            {selectedStandType && <span>Stand: {selectedStandType}</span>}
+                                        </div>
+                                        <div className="mt-2 flex items-center gap-3">
+                                            <div className="flex items-center overflow-hidden rounded-lg border border-gray-200 bg-white">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                                                    className="px-3 py-1.5 text-gray-500 transition hover:bg-gray-50 hover:text-[#2F6FED]"
+                                                >
+                                                    −
+                                                </button>
+                                                <span className="w-8 text-center text-sm font-medium">{quantity}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setQuantity((q) => q + 1)}
+                                                    className="px-3 py-1.5 text-gray-500 transition hover:bg-gray-50 hover:text-[#2F6FED]"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+                                            <div className="flex flex-col items-end">
+                                                <span className="text-sm font-semibold text-[#12131A]">Rs. {formatPrice(product.price)}</span>
+                                                {isDiscountEnabled && actualPrice > 0 && (
+                                                    <span className="text-xs text-gray-400 line-through">Rs. {formatPrice(actualPrice)}</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mt-6 space-y-2.5 border-t border-gray-200 pt-5 text-sm">
+                                    <div className="flex justify-between text-gray-500">
+                                        <span>Subtotal ({quantity} items)</span>
+                                        <span className="font-medium text-[#12131A]">Rs. {formatPrice(subtotal)}</span>
+                                    </div>
+                                    <div className="flex justify-between text-gray-500">
+                                        <span className="flex items-center gap-1.5">
+                                            {deliveryMethod === "fast" ? <FiZap size={14} /> : <FiTruck size={14} />}
+                                            {deliveryMethod === "fast" ? "Express Delivery" : "Standard Delivery"}
+                                        </span>
+                                        <span className={deliveryCharge > 0 ? "font-medium text-[#2F6FED]" : "font-medium text-emerald-500"}>
+                                            {deliveryCharge > 0 ? `Rs. ${formatPrice(deliveryCharge)}` : "Free"}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between border-t border-gray-200 pt-3 text-base font-bold text-[#12131A]">
+                                        <span>Total</span>
+                                        <span className="text-[#2F6FED]">Rs. {formatPrice(total)}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button
+                                form="checkout-form"
+                                type="submit"
+                                className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-[#2F6FED] px-6 py-4 text-sm font-semibold text-white shadow-lg shadow-[#2F6FED]/25 transition-all hover:bg-[#2F6FED]/90 hover:shadow-xl hover:shadow-[#2F6FED]/30 active:scale-[0.98] disabled:opacity-70"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                                        Processing...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FiShoppingBag size={18} />
+                                        Place Order - Rs. {formatPrice(total)}
+                                    </>
+                                )}
+                            </button>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <OrderModal
+                isOpen={isOrderModalOpen}
+                onClose={() => setIsOrderModalOpen(false)}
+                product={product}
+                quantity={quantity}
+                selectedColor={selectedColor}
+                selectedSize={selectedSize}
+                selectedStandType={selectedStandType}
+                displayPrice={displayPrice}
+                deliveryMethod={deliveryMethod}
+                deliveryCharge={deliveryCharge}
+                prefillShipping={{
+                    fullName: form.fullName,
+                    phone: form.phone,
+                    email: form.email,
+                    address: form.address,
+                    city: form.city,
+                    state: form.city,
+                    zipCode: "",
+                }}
+                prefillPaymentMethod={checkoutPaymentMethod}
+                skipShippingForm={true}
+                prefillReceiptFile={receiptFile}
+                prefillReceiptPreview={receiptPreview}
+                selectedOnlineMethod={selectedOnlineMethodData}
+            />
+        </div>
+    );
+};
+
+export default Checkout;
