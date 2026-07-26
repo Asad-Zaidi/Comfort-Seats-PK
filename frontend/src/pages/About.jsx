@@ -450,7 +450,6 @@ import {
     FiGrid,
     FiArrowRight,
     FiBook,
-    FiMenu,
 } from "react-icons/fi";
 import SEO from "../components/SEO";
 import { useSiteConfig } from "../utils/siteConfig";
@@ -463,7 +462,6 @@ import {
     CardIcon,
     PageTransition,
     AnimatedModal,
-    AnimatedMenu,
 } from "../components/animations";
 
 const iconMap = {
@@ -625,32 +623,32 @@ const AboutUs = () => {
                                     className="h-full w-full object-cover"
                                 />
                             </div>
-                            <AnimatedItem delay={0.3}>
-                                <div className="absolute -bottom-6 -left-6 hidden rounded-2xl bg-white p-5 shadow-xl ring-1 ring-black/5 sm:block">
-                                    <p className="text-sm text-gray-500">25+ Years of craftsmanship</p>
-                                </div>
-                            </AnimatedItem>
+
                         </AnimatedSection>
                     </div>
                 </section>
 
                 {/* Stats bar */}
                 <section className="bg-[#0F1320]">
-                    <div className="mx-auto grid max-w-full grid-cols-2 gap-10 px-5 py-20 sm:grid-cols-4 lg:px-32">
+                    <div className="mx-auto grid w-full max-w-full grid-cols-2 gap-6 px-5 py-4 sm:grid-cols-5 lg:px-32">
                         {stats.map(({ icon: Icon, label, value }, idx) => (
                             <AnimatedSection
                                 key={label}
                                 direction="up"
                                 delay={0.1 + idx * 0.1}
-                                className="flex flex-col items-center text-center sm:items-start sm:text-left"
+                                className="flex flex-col items-center justify-center p-6 text-center"
                             >
                                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-[#F5A524]">
                                     <Icon size={18} />
                                 </span>
+
                                 <p className="mt-3 text-2xl font-bold text-white sm:text-3xl">
                                     {value}
                                 </p>
-                                <p className="mt-1 text-sm text-gray-400">{label}</p>
+
+                                <p className="mt-1 text-sm text-gray-400">
+                                    {label}
+                                </p>
                             </AnimatedSection>
                         ))}
                     </div>

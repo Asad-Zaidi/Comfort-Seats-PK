@@ -148,189 +148,185 @@ const FiltersContent = ({
   };
 
   return (
-  <div className="space-y-7">
-    {/* Search */}
-    <div>
-      <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-        Search
-      </label>
-      <div className="relative">
-        <FiSearch
-          size={16}
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-        />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => onSearch(e.target.value)}
-          placeholder="Search products..."
-          className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-9 pr-3 text-sm text-[#12131A] outline-none transition focus:border-[#2F6FED] focus:bg-white focus:ring-4 focus:ring-[#2F6FED]/10"
-        />
+    <div className="space-y-7">
+      {/* Search */}
+      <div>
+        <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+          Search
+        </label>
+        <div className="relative">
+          <FiSearch
+            size={16}
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => onSearch(e.target.value)}
+            placeholder="Search products..."
+            className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-9 pr-3 text-sm text-[#12131A] outline-none transition focus:border-[#2F6FED] focus:bg-white focus:ring-4 focus:ring-[#2F6FED]/10"
+          />
+        </div>
       </div>
-    </div>
 
-    {/* Categories */}
-    <div>
-      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
-        Categories
-      </h3>
-      <ul className="space-y-1">
-        <li>
-          <button
-            type="button"
-            onClick={() => onSelectCategory("")}
-            className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition ${
-              selectedCategory === ""
+      {/* Categories */}
+      <div>
+        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          Categories
+        </h3>
+        <ul className="space-y-1">
+          <li>
+            <button
+              type="button"
+              onClick={() => onSelectCategory("")}
+              className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition ${selectedCategory === ""
                 ? "bg-[#2F6FED] text-white"
                 : "text-gray-600 hover:bg-gray-100"
-            }`}
-          >
-            All Products
-            {selectedCategory === "" && <FiChevronDown size={14} className="rotate-90" />}
-          </button>
-        </li>
-        {categories.map((cat) => {
-          const name = cat.name || cat;
-          const active = selectedCategory === name;
-          const subs = subcategoriesByCategory[name] || [];
-          return (
-            <li key={name} className="relative">
-              <button
-                type="button"
-                onClick={(e) => {
-                  if (subs.length === 0) {
-                    onSelectCategory(name);
-                    return;
-                  }
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  setOpenFlyout((prev) => (prev === name ? null : name));
-                  setAnchorRect((prev) =>
-                    prev && openFlyout === name ? null : rect
-                  );
-                }}
-                className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition ${
-                  active
+                }`}
+            >
+              All Products
+              {selectedCategory === "" && <FiChevronDown size={14} className="rotate-90" />}
+            </button>
+          </li>
+          {categories.map((cat) => {
+            const name = cat.name || cat;
+            const active = selectedCategory === name;
+            const subs = subcategoriesByCategory[name] || [];
+            return (
+              <li key={name} className="relative">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    if (subs.length === 0) {
+                      onSelectCategory(name);
+                      return;
+                    }
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setOpenFlyout((prev) => (prev === name ? null : name));
+                    setAnchorRect((prev) =>
+                      prev && openFlyout === name ? null : rect
+                    );
+                  }}
+                  className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition ${active
                     ? "bg-[#2F6FED] text-white"
                     : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                <span>{name}</span>
-                {subs.length > 0 ? (
-                  <FiChevronDown
-                    size={14}
-                    className={`transition ${
-                      openFlyout === name ? "rotate-180" : ""
-                    } ${active ? "text-white" : "text-gray-400"}`}
-                  />
-                ) : (
-                  active && <FiChevronDown size={14} className="rotate-90" />
-                )}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+                    }`}
+                >
+                  <span>{name}</span>
+                  {subs.length > 0 ? (
+                    <FiChevronDown
+                      size={14}
+                      className={`transition ${openFlyout === name ? "rotate-180" : ""
+                        } ${active ? "text-white" : "text-gray-400"}`}
+                    />
+                  ) : (
+                    active && <FiChevronDown size={14} className="rotate-90" />
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
 
-      {/* Subcategory popup rendered in a portal to <body> so it escapes the
+        {/* Subcategory popup rendered in a portal to <body> so it escapes the
           sidebar's stacking context and always appears above other content */}
-      {openFlyout && anchorRect && subcategoriesByCategory[openFlyout] && createPortal(
-        (() => {
-          const subs = subcategoriesByCategory[openFlyout] || [];
-          const activeCat = selectedCategory === openFlyout;
-          const left = Math.min(
-            anchorRect.right + 8,
-            (typeof window !== "undefined" ? window.innerWidth : 9999) - 220
-          );
-          return (
-            <>
-              <div
-                className="fixed inset-0 z-[999]"
-                onClick={closeFlyout}
-                aria-hidden="true"
-              />
-              <ul
-                className="fixed z-[1000] w-52 rounded-xl border border-gray-100 bg-white p-2 shadow-xl"
-                style={{ top: anchorRect.top, left }}
-              >
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onSelectCategoryAndSub(openFlyout, "");
-                      closeFlyout();
-                    }}
-                    className="mb-1 block w-full rounded-lg px-3 py-1.5 text-left text-sm font-semibold text-[#2F6FED] transition hover:bg-[#2F6FED]/10"
-                  >
-                    All {openFlyout}
-                  </button>
-                </li>
-                {subs.map((sub) => {
-                  const subActive = activeCat && selectedSubcategory === sub;
-                  return (
-                    <li key={sub}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onSelectCategoryAndSub(openFlyout, sub);
-                          closeFlyout();
-                        }}
-                        className={`block w-full rounded-lg px-3 py-1.5 text-left text-sm transition ${
-                          subActive
+        {openFlyout && anchorRect && subcategoriesByCategory[openFlyout] && createPortal(
+          (() => {
+            const subs = subcategoriesByCategory[openFlyout] || [];
+            const activeCat = selectedCategory === openFlyout;
+            const left = Math.min(
+              anchorRect.right + 8,
+              (typeof window !== "undefined" ? window.innerWidth : 9999) - 220
+            );
+            return (
+              <>
+                <div
+                  className="fixed inset-0 z-[999]"
+                  onClick={closeFlyout}
+                  aria-hidden="true"
+                />
+                <ul
+                  className="fixed z-[1000] w-52 rounded-xl border border-gray-100 bg-white p-2 shadow-xl"
+                  style={{ top: anchorRect.top, left }}
+                >
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onSelectCategoryAndSub(openFlyout, "");
+                        closeFlyout();
+                      }}
+                      className="mb-1 block w-full rounded-lg px-3 py-1.5 text-left text-sm font-semibold text-[#2F6FED] transition hover:bg-[#2F6FED]/10"
+                    >
+                      All {openFlyout}
+                    </button>
+                  </li>
+                  {subs.map((sub) => {
+                    const subActive = activeCat && selectedSubcategory === sub;
+                    return (
+                      <li key={sub}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onSelectCategoryAndSub(openFlyout, sub);
+                            closeFlyout();
+                          }}
+                          className={`block w-full rounded-lg px-3 py-1.5 text-left text-sm transition ${subActive
                             ? "bg-[#2F6FED]/10 font-semibold text-[#2F6FED]"
                             : "text-gray-600 hover:bg-gray-100"
-                        }`}
-                      >
-                        {sub}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </>
-          );
-        })(),
-        document.body
-      )}
-    </div>
+                            }`}
+                        >
+                          {sub}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </>
+            );
+          })(),
+          document.body
+        )}
+      </div>
 
-    {/* Price Range */}
-    <div>
-      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
-        Price Range
-      </h3>
-      <PriceRangeSlider
-        min={priceBounds[0]}
-        max={priceBounds[1]}
-        value={priceValue}
-        onChange={onPriceChange}
-      />
-    </div>
+      {/* Price Range */}
+      <div>
+        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          Price Range
+        </h3>
+        <PriceRangeSlider
+          min={priceBounds[0]}
+          max={priceBounds[1]}
+          value={priceValue}
+          onChange={onPriceChange}
+        />
+      </div>
 
-    {/* Sort */}
-    <div>
-      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
-        Sort By
-      </h3>
-      <select
-        value={sort}
-        onChange={(e) => onSortChange(e.target.value)}
-        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-[#12131A] outline-none transition focus:border-[#2F6FED] focus:bg-white focus:ring-4 focus:ring-[#2F6FED]/10"
+      {/* Sort */}
+      <div>
+        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          Sort By
+        </h3>
+        <select
+          value={sort}
+          onChange={(e) => onSortChange(e.target.value)}
+          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-[#12131A] outline-none transition focus:border-[#2F6FED] focus:bg-white focus:ring-4 focus:ring-[#2F6FED]/10"
+        >
+          <option value="default">Featured</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="rating">Top Rated</option>
+        </select>
+      </div>
+
+      <button
+        type="button"
+        onClick={onClearAll}
+        className="w-full rounded-xl border border-gray-200 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-100"
       >
-        <option value="default">Featured</option>
-        <option value="price-asc">Price: Low to High</option>
-        <option value="price-desc">Price: High to Low</option>
-        <option value="rating">Top Rated</option>
-      </select>
+        Clear All Filters
+      </button>
     </div>
-
-    <button
-      type="button"
-      onClick={onClearAll}
-      className="w-full rounded-xl border border-gray-200 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-100"
-    >
-      Clear All Filters
-    </button>
-  </div>
   );
 };
 
@@ -342,23 +338,17 @@ const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const toast = useToast();
   const { siteUrl, siteName } = useSiteConfig();
-  const [pageLoaded, setPageLoaded] = useState(false);
 
-	const initialCategory = searchParams.get("category") || "";
-	const initialSubcategory = searchParams.get("subcategory") || "";
+  const initialCategory = searchParams.get("category") || "";
+  const initialSubcategory = searchParams.get("subcategory") || "";
 
   const [search, setSearch] = useState(searchParams.get("search") || "");
-	const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-	const [selectedSubcategory, setSelectedSubcategory] = useState(initialSubcategory);
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+  const [selectedSubcategory, setSelectedSubcategory] = useState(initialSubcategory);
   const [priceValue, setPriceValue] = useState([0, 0]);
   const [priceBounds, setPriceBounds] = useState([0, 0]);
   const [sort, setSort] = useState("default");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setPageLoaded(true), 300);
-    return () => clearTimeout(timer);
-  }, []);
 
   const isSearchResultsPage = useMemo(() => {
     const q = searchParams.get("search");
@@ -368,59 +358,59 @@ const Products = () => {
   // Sync selected category with URL ?category= param
   useEffect(() => {
     setSelectedCategory(searchParams.get("category") || "");
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [searchParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
-	const handleSelectCategory = useCallback(
-		(cat) => {
-			setSelectedCategory(cat);
-			setSelectedSubcategory("");
-			if (cat) {
-				setSearchParams({ category: cat }, { replace: true });
-			} else {
-				setSearchParams({}, { replace: true });
-			}
-			setMobileFiltersOpen(false);
-		},
-		[setSearchParams]
-	);
+  const handleSelectCategory = useCallback(
+    (cat) => {
+      setSelectedCategory(cat);
+      setSelectedSubcategory("");
+      if (cat) {
+        setSearchParams({ category: cat }, { replace: true });
+      } else {
+        setSearchParams({}, { replace: true });
+      }
+      setMobileFiltersOpen(false);
+    },
+    [setSearchParams]
+  );
 
-	// Handler for subcategory filter (preserves the parent category).
-	const handleSelectSubcategory = useCallback(
-		(sub) => {
-			setSelectedSubcategory(sub);
-			if (sub) {
-				setSearchParams(
-					{ category: selectedCategory, subcategory: sub },
-					{ replace: true }
-				);
-			} else {
-				setSearchParams(
-					selectedCategory ? { category: selectedCategory } : {},
-					{ replace: true }
-				);
-			}
-			setMobileFiltersOpen(false);
-		},
-		[setSearchParams, selectedCategory]
-	);
+  // Handler for subcategory filter (preserves the parent category).
+  const handleSelectSubcategory = useCallback(
+    (sub) => {
+      setSelectedSubcategory(sub);
+      if (sub) {
+        setSearchParams(
+          { category: selectedCategory, subcategory: sub },
+          { replace: true }
+        );
+      } else {
+        setSearchParams(
+          selectedCategory ? { category: selectedCategory } : {},
+          { replace: true }
+        );
+      }
+      setMobileFiltersOpen(false);
+    },
+    [setSearchParams, selectedCategory]
+  );
 
-	// Handler for picking a subcategory from a category's right-side flyout popup.
-	const handleSelectCategoryAndSub = useCallback(
-		(category, sub) => {
-			setSelectedCategory(category);
-			setSelectedSubcategory(sub || "");
-			if (category && sub) {
-				setSearchParams({ category, subcategory: sub }, { replace: true });
-			} else if (category) {
-				setSearchParams({ category }, { replace: true });
-			} else {
-				setSearchParams({}, { replace: true });
-			}
-			setMobileFiltersOpen(false);
-		},
-		[setSearchParams]
-	);
+  // Handler for picking a subcategory from a category's right-side flyout popup.
+  const handleSelectCategoryAndSub = useCallback(
+    (category, sub) => {
+      setSelectedCategory(category);
+      setSelectedSubcategory(sub || "");
+      if (category && sub) {
+        setSearchParams({ category, subcategory: sub }, { replace: true });
+      } else if (category) {
+        setSearchParams({ category }, { replace: true });
+      } else {
+        setSearchParams({}, { replace: true });
+      }
+      setMobileFiltersOpen(false);
+    },
+    [setSearchParams]
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -473,16 +463,16 @@ const Products = () => {
           (Array.isArray(p.category) ? p.category.join(" ") : (p.category || "")).toLowerCase().includes(q)
       );
     }
-		if (selectedCategory) {
-			result = result.filter(
-				(p) => (Array.isArray(p.category) ? p.category[0] : p.category || "") === selectedCategory
-			);
-		}
-		if (selectedSubcategory) {
-			result = result.filter(
-				(p) => (p.subcategory || "") === selectedSubcategory
-			);
-		}
+    if (selectedCategory) {
+      result = result.filter(
+        (p) => (Array.isArray(p.category) ? p.category[0] : p.category || "") === selectedCategory
+      );
+    }
+    if (selectedSubcategory) {
+      result = result.filter(
+        (p) => (p.subcategory || "") === selectedSubcategory
+      );
+    }
     result = result.filter((p) => {
       const price = Number(p.price) || 0;
       return price >= priceValue[0] && price <= priceValue[1];
@@ -495,29 +485,29 @@ const Products = () => {
     return result;
   }, [products, search, selectedCategory, selectedSubcategory, priceValue, sort]);
 
-	const handleClearAll = () => {
-		setSearch("");
-		setSelectedCategory("");
-		setSelectedSubcategory("");
-		setPriceValue(priceBounds);
-		setSort("default");
-		setSearchParams({}, { replace: true });
-		setMobileFiltersOpen(false);
-	};
+  const handleClearAll = () => {
+    setSearch("");
+    setSelectedCategory("");
+    setSelectedSubcategory("");
+    setPriceValue(priceBounds);
+    setSort("default");
+    setSearchParams({}, { replace: true });
+    setMobileFiltersOpen(false);
+  };
 
   const breadcrumbs = useMemo(() => {
-		const crumbs = [{ name: "Home", url: `${siteUrl}/` }];
-		if (selectedCategory) {
-			crumbs.push({ name: "Products", url: `${siteUrl}/products` });
-			crumbs.push({ name: selectedCategory, url: `${siteUrl}/products?category=${encodeURIComponent(selectedCategory)}` });
-			if (selectedSubcategory) {
-				crumbs.push({ name: selectedSubcategory, url: `${siteUrl}/products?category=${encodeURIComponent(selectedCategory)}&subcategory=${encodeURIComponent(selectedSubcategory)}` });
-			}
-		} else {
-			crumbs.push({ name: "Products", url: `${siteUrl}/products` });
-		}
-		return crumbs;
-	}, [selectedCategory, selectedSubcategory, siteUrl]);
+    const crumbs = [{ name: "Home", url: `${siteUrl}/` }];
+    if (selectedCategory) {
+      crumbs.push({ name: "Products", url: `${siteUrl}/products` });
+      crumbs.push({ name: selectedCategory, url: `${siteUrl}/products?category=${encodeURIComponent(selectedCategory)}` });
+      if (selectedSubcategory) {
+        crumbs.push({ name: selectedSubcategory, url: `${siteUrl}/products?category=${encodeURIComponent(selectedCategory)}&subcategory=${encodeURIComponent(selectedSubcategory)}` });
+      }
+    } else {
+      crumbs.push({ name: "Products", url: `${siteUrl}/products` });
+    }
+    return crumbs;
+  }, [selectedCategory, selectedSubcategory, siteUrl]);
 
   // Derive the list of subcategories for the currently selected category.
   const subcategoryOptions = useMemo(() => {
@@ -550,7 +540,7 @@ const Products = () => {
   const productSkeletons = useMemo(() => [...Array(6)], []);
 
   return (
-    <div className="mx-auto max-w-full py-6 px-12 lg:px-32">
+    <div className="mx-auto max-w-full py-6 px-8 sm:px-6 lg:px-32">
       <Breadcrumb crumbs={breadcrumbs.map(b => ({ name: b.name, path: b.url.replace(siteUrl, '') }))} />
       <SEO
         title={`Products${selectedCategory ? ` - ${selectedCategory}` : ""} - ${siteName}`}
@@ -589,8 +579,8 @@ const Products = () => {
 
       <div className="mt-6 flex gap-8">
         {/* Desktop Sidebar */}
-        <AnimatedSection direction="right">
-          <aside className="hidden w-64 shrink-0 lg:block">
+        <AnimatedSection direction="right" className="hidden w-64 shrink-0 lg:block">
+          <aside className="w-full">
             <motion.div variants={sectionHeading} className="sticky top-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
               <FiltersContent
                 categories={categories}
@@ -619,7 +609,7 @@ const Products = () => {
           <AnimatePresence mode="wait">
             {loading ? (
               <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 3xl:grid-cols-4">
                   {productSkeletons.map((_, i) => (
                     <SkeletonProductCard key={i} />
                   ))}
@@ -634,12 +624,13 @@ const Products = () => {
                   : <>No products match your filters.<div className="mt-4"><button type="button" onClick={handleClearAll} className="rounded-xl bg-[#2F6FED] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2F6FED]/90">Clear Filters</button></div></>}
               </motion.div>
             ) : (
-              <motion.div key="products" variants={staggerContainer} initial="initial" animate="animate" className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
+              <motion.div key="products" variants={staggerContainer} initial="initial" animate="animate" 
+              className="grid grid-cols-1 justify-items-center sm:justify-items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 3xl:grid-cols-4">
                 {filtered.map((product) => {
                   const { primaryImage, hoverImage } = getProductCardImages(product);
 
                   return (
-                    <motion.div key={product._id} variants={prefersReducedMotion() ? staggerItem : productCardReveal}>
+                    <motion.div key={product._id} className="w-full flex justify-center" variants={prefersReducedMotion() ? staggerItem : productCardReveal}>
                       <ProductCard
                         to={product.slug ? `/products/${product.slug}` : `/products/${product.slug}`}
                         image={primaryImage || product.imageUrl || "https://images.unsplash.com/photo-1505843490701-5be5d6f48db6?w=500"}

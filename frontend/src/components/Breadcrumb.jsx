@@ -7,37 +7,37 @@ const Breadcrumb = ({ category, subcategory, productName, crumbs }) => {
     const items = Array.isArray(crumbs)
         ? crumbs
         : (() => {
-              const list = [
-                  { name: "Home", to: "/" },
-                  { name: "Products", to: "/products" },
-              ];
-              if (category) {
-                  list.push({
-                      name: category,
-                      to: `/products?category=${encodeURIComponent(category)}`,
-                  });
-              }
-              if (subcategory) {
-                  list.push({
-                      name: subcategory,
-                      to: `/products?category=${encodeURIComponent(
-                          category || ""
-                      )}&subcategory=${encodeURIComponent(subcategory)}`,
-                  });
-              }
-              if (productName) {
-                  list.push({ name: productName });
-              }
-              return list;
-          })();
+            const list = [
+                { name: "Home", to: "/" },
+                { name: "Products", to: "/products" },
+            ];
+            if (category) {
+                list.push({
+                    name: category,
+                    to: `/products?category=${encodeURIComponent(category)}`,
+                });
+            }
+            if (subcategory) {
+                list.push({
+                    name: subcategory,
+                    to: `/products?category=${encodeURIComponent(
+                        category || ""
+                    )}&subcategory=${encodeURIComponent(subcategory)}`,
+                });
+            }
+            if (productName) {
+                list.push({ name: productName });
+            }
+            return list;
+        })();
 
     return (
         <>
             <nav
-                className=" dark:border-gray-600 py-3 "
+                className=" dark:border-gray-600 py-1 "
                 aria-label="breadcrumb"
             >
-                <ol className="flex flex-wrap items-center max-w-7xl mx-auto px-4 text-xs sm:text-sm">
+                <ol className="flex flex-wrap items-center max-w-full mx-auto text-xs sm:text-sm">
                     {items.map((item, idx) => {
                         const isLast = idx === items.length - 1;
                         return (

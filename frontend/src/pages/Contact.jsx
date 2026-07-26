@@ -490,14 +490,14 @@ const ContactPage = () => {
                             </h1>
                         </AnimatedItem>
                         <AnimatedItem delay={0.2}>
-                            <p className="mx-auto mt-4 max-w-xl text-gray-500">
+                            <p className="mx-auto mt-4 max-w-2xl text-gray-500">
                                 Have a question about a product, a bulk order, or anything else? We'd love to hear from you.
                             </p>
                         </AnimatedItem>
                     </AnimatedSection>
                 </section>
 
-                <div className="mx-auto max-w-7xl px-8 py-16 lg:px-8">
+                <div className="mx-auto max-w-full px-8 py-16 lg:px-32">
                     <div className="grid grid-cols-1 gap-12 lg:grid-cols-5 lg:gap-16">
 
                         {/* Contact info */}

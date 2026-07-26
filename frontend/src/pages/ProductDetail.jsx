@@ -1252,7 +1252,7 @@ const ProductDetail = () => {
                 ogType="product"
                 product={product}
             />
-            <div className="mx-auto max-w-full px-5 py-6 lg:px-32 sm:py-8">
+            <div className="mx-auto max-w-full px-8 py-6 lg:px-32 sm:py-8">
                 {/* Breadcrumb */}
                 <FadeInUp>
                     <Breadcrumb category={category} subcategory={product.subcategory} productName={product.name} />

@@ -170,13 +170,13 @@ const AnimatedProductGallery = ({
                 onTouchEnd={handleTouchEnd}
             >
                 {/* Main Image */}
-                <div className="relative aspect-square">
+                <div className="relative w-full aspect-square overflow-hidden bg-white">
                     <AnimatePresence mode="wait">
                         <motion.img
                             key={displayedIndex}
                             src={currentImage}
                             alt={`${productName || 'Product'}`}
-                            className="h-full w-full object-cover"
+                            className="absolute inset-0 h-full w-full object-cover object-center"
                             loading="lazy"
                             initial={shouldAnimate ? { opacity: 0 } : false}
                             animate={{ opacity: 1 }}

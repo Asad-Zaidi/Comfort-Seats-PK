@@ -582,13 +582,13 @@ const AdminHomeScreen = () => {
                                         <img
                                             src={mobileImagePreview}
                                             alt="Mobile banner preview"
-                                            className="aspect-[1080/1350] w-full max-w-[250px] rounded-lg border border-gray-200 object-cover"
+                                        className="aspect-[3/4] w-full max-w-[250px] rounded-lg border border-gray-200 object-cover"
                                             onError={(e) => { e.target.style.display = 'none'; }}
                                         />
                                     </div>
                                 )}
                                 <p className="mt-2 text-xs text-gray-400">
-                                    Recommended: 1080 × 1350 px — Recommended for mobile devices.
+                                    Recommended: 900 × 1200 px or 1080 × 1350 px (3:4 ratio) — Recommended for mobile devices.
                                 </p>
                                 {mobileImageFile && (
                                     <p className="mt-1 text-xs text-gray-400">
@@ -685,11 +685,11 @@ const AdminHomeScreen = () => {
                                     <img
                                         src={mobileImagePreview}
                                         alt="Mobile banner preview"
-                                        className="aspect-[1080/1350] w-full rounded-lg object-cover"
+                                        className="aspect-[3/4] w-full rounded-lg object-cover"
                                         onError={(e) => { e.target.style.display = 'none'; }}
                                     />
                                 ) : (
-                                    <div className="flex aspect-[1080/1350] w-full items-center justify-center rounded-lg bg-gray-50 text-xs text-gray-400">
+                                    <div className="flex aspect-[3/4] w-full items-center justify-center rounded-lg bg-gray-50 text-xs text-gray-400">
                                         No Mobile Banner Uploaded
                                     </div>
                                 )}

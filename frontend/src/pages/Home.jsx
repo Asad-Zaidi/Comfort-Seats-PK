@@ -297,7 +297,7 @@ const Home = () => {
       <WhatsappFloatingButton />
 
       {/* Hero Banner */}
-      <section className="relative h-[600px] w-full md:h-[700px] lg:h-[800px]">
+      <section className="relative aspect-[3/4] w-full md:h-[600px] lg:h-[600px]">
         <AnimatePresence mode="wait">
           {!pageLoaded ? (
             <motion.div key="skeleton" exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
@@ -323,7 +323,7 @@ const Home = () => {
                       <img
                         src={mobileSrc}
                         alt={homeBanner.imageAlt || "Home banner"}
-                        className="h-full w-full object-contain"
+                        className="h-full w-full object-cover"
                         loading="eager"
                         fetchpriority="high"
                       />
@@ -416,7 +416,7 @@ const Home = () => {
       <AnimatedSection>
         <section className="py-8" style={{ backgroundColor: bgSecondary }}>
           {categories && categories.length > 0 && (
-            <div className="mx-auto max-w-7xl px-5 lg:px-8">
+            <div className="mx-auto max-w-full px-5 lg:px-32">
               <motion.div className="flex items-end justify-between" variants={sectionHeading}>
                 <div>
                   <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: secondary }}>Browse Our Collection</span>
@@ -452,7 +452,7 @@ const Home = () => {
 
       <AnimatedSection>
         <section className="py-8" style={{ backgroundColor: bgTertiary }}>
-          <div className="mx-auto max-w-7xl px-12 lg:px-8">
+          <div className="mx-auto max-w-full px-12 lg:px-32">
             <motion.div className="flex items-end justify-between" variants={sectionHeading}>
               <div>
                 <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: secondary }}>Just Landed</span>

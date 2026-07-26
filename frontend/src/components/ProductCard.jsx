@@ -31,12 +31,12 @@ const ProductCard = ({
     return (
         <Link
             to={to}
-            className="group flex flex-col h-full bg-white rounded-2xl border border-gray-200 shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="group flex flex-col h-full w-full max-w-xl mx-auto bg-white rounded-2xl border border-gray-200 shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
             {/* Product Image */}
-            <div className="relative overflow-hidden">
+            <div className="relative w-full aspect-square overflow-hidden bg-gray-50">
                 {/* Category Badge - Top Left */}
                 {category && (
                     <div className="absolute left-3 top-3 z-10">
@@ -78,7 +78,7 @@ const ProductCard = ({
                     loading="lazy"
                     decoding="async"
                     onLoad={() => setImageLoaded(true)}
-                    className={`w-full h-72 object-center object-cover transition-all duration-500 group-hover:scale-105 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    className={`w-full h-full object-center object-cover transition-all duration-500 group-hover:scale-105 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: imageLoaded ? 1 : 0 }}
                     transition={{ duration: 0.4 }}

@@ -14,6 +14,7 @@ import {
     FiShield,
     FiMail,
     FiCheckCircle,
+    FiClock,
 } from "react-icons/fi";
 import { FaMoneyBillWave, FaUniversity, FaUpload, FaTimes } from "react-icons/fa";
 import api from "../api/api";
@@ -30,8 +31,22 @@ const paymentOptions = [
 ];
 
 const deliveryOptions = [
-    { key: "standard", label: "Standard Delivery", icon: FiTruck, desc: "Free delivery across Pakistan" },
-    { key: "fast", label: "Express Delivery", icon: FiZap, desc: "Priority handling & shipping" },
+    {
+        key: "standard",
+        label: "Standard Delivery",
+        icon: FiTruck,
+        desc: "Free delivery across Pakistan",
+        time: "3 to 5 Days Delivery Time",
+        timeIcon: FiClock,
+    },
+    {
+        key: "fast",
+        label: "Express Delivery",
+        icon: FiZap,
+        desc: "Priority handling & shipping",
+        time: "1 to 2 Days Delivery Time",
+        timeIcon: FiClock,
+    },
 ];
 
 const InputField = ({ id, name, label, icon: Icon, type = "text", value, onChange, placeholder, required = false, ...props }) => (
@@ -435,7 +450,7 @@ const Checkout = () => {
                                     <p className="text-xs text-gray-400">Choose your preferred shipping option</p>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-1 gap-3">
+                            <div className="grid grid-cols-1 gap-2">
                                 {deliveryOptions.map(({ key, label, icon: Icon, desc, time }) => {
                                     const active = deliveryMethod === key;
                                     const priceText = key === "fast"
@@ -446,7 +461,7 @@ const Checkout = () => {
                                             key={key}
                                             type="button"
                                             onClick={() => setDeliveryMethod(key)}
-                                            className={`group relative flex items-start gap-3 rounded-xl border-2 p-4 text-left transition-all duration-200 ${active
+                                            className={`group relative flex items-start gap-3 rounded-xl border-2 p-3 text-left transition-all duration-200 ${active
                                                 ? "border-[#2F6FED] bg-gradient-to-br from-[#2F6FED]/5 to-[#2F6FED]/10 shadow-md shadow-[#2F6FED]/10"
                                                 : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
                                                 }`}
@@ -458,11 +473,11 @@ const Checkout = () => {
                                                     </div>
                                                 </div>
                                             )}
-                                            <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-all duration-200 ${active
+                                            <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl transition-all duration-200 ${active
                                                 ? "bg-[#2F6FED] text-white shadow-lg shadow-[#2F6FED]/30"
                                                 : "bg-gray-50 text-gray-500 group-hover:bg-gray-100"
                                                 }`}>
-                                                <Icon size={18} />
+                                                <Icon size={20} />
                                             </span>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-start justify-between gap-2">
@@ -472,7 +487,16 @@ const Checkout = () => {
                                                         {priceText}
                                                     </p>
                                                 </div>
-                                                <p className="mt-0.5 text-xs text-gray-400">{desc}</p>
+                                                <div>
+                                                    <p className="text-xs text-gray-400">
+                                                        {desc}
+                                                    </p>
+
+                                                    <div className="flex items-center gap-1.5 text-xs font-medium text-[#2F6FED]">
+                                                        <FiClock className="h-3.5 w-3.5" />
+                                                        <span>{time}</span>
+                                                    </div>
+                                                </div>
 
                                             </div>
                                         </button>
