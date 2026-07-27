@@ -3,6 +3,7 @@ import SEO from "../components/SEO";
 import { useSiteConfig } from "../utils/siteConfig";
 import api from "../api/api";
 import { FiLoader } from "react-icons/fi";
+import { sanitizeHtml, isHtmlContent } from "../utils/sanitizeHtml";
 
 const PolicyPage = () => {
     const { siteUrl, siteName } = useSiteConfig();
@@ -86,15 +87,21 @@ const PolicyPage = () => {
 
             <div className="mx-auto max-w-full px-5 py-16 lg:px-32">
                 <div className="mx-auto max-w-full space-y-16">
-
                     {/* Privacy Policy */}
                     <section>
                         <h2 className="text-3xl font-bold text-[#12131A]">Privacy Policy</h2>
                         <p className="mt-2 text-sm text-gray-500">Last updated: July 2026</p>
 
-                        <div className="mt-8 space-y-8 text-sm text-gray-700 leading-7">
+                        <div className="mt-8 text-sm text-gray-700 leading-7">
                             {privacyPolicy ? (
-                                <div>{formatPolicyText(privacyPolicy)}</div>
+                                isHtmlContent(privacyPolicy) ? (
+                                    <div
+                                        className="prose-theme leading-relaxed"
+                                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(privacyPolicy) }}
+                                    />
+                                ) : (
+                                    <div>{formatPolicyText(privacyPolicy)}</div>
+                                )
                             ) : (
                                 <p className="text-gray-500">Privacy policy content not available.</p>
                             )}
@@ -106,9 +113,16 @@ const PolicyPage = () => {
                         <h2 className="text-3xl font-bold text-[#12131A]">Return Policy</h2>
                         <p className="mt-2 text-sm text-gray-500">Last updated: July 2026</p>
 
-                        <div className="mt-8 space-y-8 text-sm text-gray-700 leading-7">
+                        <div className="mt-8 text-sm text-gray-700 leading-7">
                             {returnPolicy ? (
-                                <div>{formatPolicyText(returnPolicy)}</div>
+                                isHtmlContent(returnPolicy) ? (
+                                    <div
+                                        className="prose-theme leading-relaxed"
+                                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(returnPolicy) }}
+                                    />
+                                ) : (
+                                    <div>{formatPolicyText(returnPolicy)}</div>
+                                )
                             ) : (
                                 <p className="text-gray-500">Return policy content not available.</p>
                             )}
@@ -120,9 +134,16 @@ const PolicyPage = () => {
                         <h2 className="text-3xl font-bold text-[#12131A]">Warranty Policy</h2>
                         <p className="mt-2 text-sm text-gray-500">Last updated: July 2026</p>
 
-                        <div className="mt-8 space-y-8 text-sm text-gray-700 leading-7">
+                        <div className="mt-8 text-sm text-gray-700 leading-7">
                             {warrantyPolicy ? (
-                                <div>{formatPolicyText(warrantyPolicy)}</div>
+                                isHtmlContent(warrantyPolicy) ? (
+                                    <div
+                                        className="prose-theme leading-relaxed"
+                                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(warrantyPolicy) }}
+                                    />
+                                ) : (
+                                    <div>{formatPolicyText(warrantyPolicy)}</div>
+                                )
                             ) : (
                                 <p className="text-gray-500">Warranty policy content not available.</p>
                             )}

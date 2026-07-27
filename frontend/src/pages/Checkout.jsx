@@ -51,13 +51,13 @@ const deliveryOptions = [
 
 const InputField = ({ id, name, label, icon: Icon, type = "text", value, onChange, placeholder, required = false, ...props }) => (
     <div className="space-y-1.5">
-        <label htmlFor={id} className="block text-sm font-medium text-[#12131A]">
+        <label htmlFor={id} className="block text-sm font-medium" style={{ color: 'var(--text)' }}>
             {label}
-            {required && <span className="ml-1 text-red-500">*</span>}
+            {required && <span className="ml-1" style={{ color: 'var(--error)' }}>*</span>}
         </label>
         <div className="relative">
             {Icon && (
-                <Icon className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors group-focus-within:text-[#2F6FED]" size={17} />
+                <Icon className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors" style={{ color: 'var(--text-secondary)' }} size={17} />
             )}
             <input
                 id={id}
@@ -66,8 +66,8 @@ const InputField = ({ id, name, label, icon: Icon, type = "text", value, onChang
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#12131A] outline-none transition-all placeholder:text-gray-400 focus:border-[#2F6FED] focus:ring-4 focus:ring-[#2F6FED]/10 hover:border-gray-300"
-                style={{ paddingLeft: Icon ? "2.75rem" : "1rem" }}
+                className="w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all focus:ring-4 focus:ring-[var(--primary)]/10"
+                style={{ paddingLeft: Icon ? "2.75rem" : "1rem", backgroundColor: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text)' }}
                 {...props}
             />
         </div>
@@ -204,7 +204,7 @@ const Checkout = () => {
     const productImage = product.imageUrl || "https://images.unsplash.com/photo-1505843490701-5be5d6f48db6?w=500";
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-50/50 to-white">
+        <div className="min-h-screen transition-colors duration-300" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
             <SEO title={`Checkout - ${siteName}`} canonicalUrl={`${siteUrl}/checkout`} />
 
             <div className="mx-auto max-w-full px-5 py-10 lg:px-32">
@@ -212,40 +212,41 @@ const Checkout = () => {
                 <div className="flex items-center justify-between mb-6">
                     <button
                         onClick={() => navigate(-1)}
-                        className="group inline-flex items-center gap-2 text-sm font-medium text-gray-500 transition hover:text-[#2F6FED]"
+                        style={{ color: 'var(--text-secondary)' }}
+                        className="group inline-flex items-center gap-2 text-sm font-medium transition hover:opacity-80"
                     >
                         <FiChevronLeft className="transition-transform group-hover:-translate-x-0.5" size={18} />
                         Back
                     </button>
                     <div className="flex items-center gap-2">
-                        <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-gray-400">
+                        <span className="hidden sm:inline-flex items-center gap-1.5 text-xs opacity-70" style={{ color: 'var(--text-secondary)' }}>
                             <FiShield size={14} />
                             Secure Checkout
                         </span>
-                        <span className="h-5 w-px bg-gray-200 hidden sm:block" />
-                        <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
+                        <span className="h-5 w-px border-r hidden sm:block" style={{ borderColor: 'var(--border)' }} />
+                        <span className="text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--success) 12%, transparent)', color: 'var(--success)' }}>
                             ✓ 100% Secure
                         </span>
                     </div>
                 </div>
 
-                <h1 className="text-2xl text-center sm:text-3xl lg:text-4xl font-bold text-[#12131A] tracking-tight">
+                <h1 className="text-2xl text-center sm:text-3xl lg:text-4xl font-bold tracking-tight" style={{ color: 'var(--text)' }}>
                     Complete Your Order
                 </h1>
-                <p className="mt-1.5 text-sm text-center text-gray-500">Fill in your details to place your order</p>
+                <p className="mt-1.5 text-sm text-center" style={{ color: 'var(--text-secondary)' }}>Fill in your details to place your order</p>
 
                 <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-5">
                     {/* Left Column - Form */}
                     <form id="checkout-form" onSubmit={handlePlaceOrder} className="space-y-6 lg:col-span-3">
                         {/* Delivery Details */}
-                        <div className="rounded-2xl border border-gray-200/80 bg-white p-5 sm:p-6 shadow-sm">
+                        <div className="rounded-2xl border p-5 sm:p-6 shadow-xs transition-colors duration-300" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)' }}>
                             <div className="flex items-center gap-2.5 mb-5">
-                                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2F6FED]/10 text-[#2F6FED]">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: 'color-mix(in srgb, var(--primary) 12%, transparent)', color: 'var(--primary)' }}>
                                     <FiUser size={18} />
                                 </div>
                                 <div>
-                                    <h2 className="text-base font-semibold text-[#12131A]">Delivery Details</h2>
-                                    <p className="text-xs text-gray-400">Where should we ship your order?</p>
+                                    <h2 className="text-base font-semibold" style={{ color: 'var(--text)' }}>Delivery Details</h2>
+                                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Where should we ship your order?</p>
                                 </div>
                             </div>
 
@@ -296,11 +297,11 @@ const Checkout = () => {
 
 
                                 <div className="space-y-1.5">
-                                    <label htmlFor="checkout-address" className="block text-sm font-medium text-[#12131A]">
-                                        Address <span className="ml-1 text-red-500">*</span>
+                                    <label htmlFor="checkout-address" className="block text-sm font-medium" style={{ color: 'var(--text)' }}>
+                                        Address <span className="ml-1" style={{ color: 'var(--error)' }}>*</span>
                                     </label>
                                     <div className="relative">
-                                        <FiMapPin className="pointer-events-none absolute left-3.5 top-3.5 text-gray-400" size={17} />
+                                        <FiMapPin className="pointer-events-none absolute left-3.5 top-3.5" style={{ color: 'var(--text-secondary)' }} size={17} />
                                         <textarea
                                             id="checkout-address"
                                             name="address"
@@ -308,8 +309,8 @@ const Checkout = () => {
                                             onChange={handleChange}
                                             rows={3}
                                             placeholder="House #, Street, Area"
-                                            className="w-full resize-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#12131A] outline-none transition-all placeholder:text-gray-400 focus:border-[#2F6FED] focus:ring-4 focus:ring-[#2F6FED]/10 hover:border-gray-300"
-                                            style={{ paddingLeft: "2.75rem" }}
+                                            style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text)', paddingLeft: '2.75rem' }}
+                                            className="w-full resize-none rounded-xl border px-4 py-3 text-sm outline-none transition-all focus:ring-4 focus:ring-[var(--primary)]/10"
                                         />
                                     </div>
                                 </div>
@@ -321,19 +322,19 @@ const Checkout = () => {
 
 
                         {/* Payment Method */}
-                        <div className="rounded-2xl border border-gray-200/80 bg-white p-5 sm:p-6 shadow-sm">
+                        <div className="rounded-2xl border p-5 sm:p-6 shadow-xs transition-colors duration-300" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)' }}>
                             <div className="flex items-center justify-between mb-5">
                                 <div className="flex items-center gap-2.5">
-                                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: 'color-mix(in srgb, var(--primary) 12%, transparent)', color: 'var(--primary)' }}>
                                         <FiCreditCard size={18} />
                                     </div>
                                     <div>
-                                        <h2 className="text-base font-semibold text-[#12131A]">Payment Method</h2>
-                                        <p className="text-xs text-gray-400">Choose how you'd like to pay</p>
+                                        <h2 className="text-base font-semibold" style={{ color: 'var(--text)' }}>Payment Method</h2>
+                                        <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Choose how you'd like to pay</p>
                                     </div>
                                 </div>
-                                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-medium text-emerald-700">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium" style={{ backgroundColor: 'color-mix(in srgb, var(--success) 12%, transparent)', color: 'var(--success)' }}>
+                                    <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: 'var(--success)' }} />
                                     Secure
                                 </span>
                             </div>
@@ -346,27 +347,25 @@ const Checkout = () => {
                                             key={key}
                                             type="button"
                                             onClick={() => setPaymentMethod(key)}
-                                            className={`group relative flex items-center gap-4 rounded-xl border-2 p-4 text-left transition-all duration-200 ${active
-                                                ? "border-[#2F6FED] bg-gradient-to-br from-[#2F6FED]/5 to-[#2F6FED]/10 shadow-md shadow-[#2F6FED]/10"
-                                                : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
-                                                }`}
+                                            style={{
+                                                backgroundColor: active ? 'color-mix(in srgb, var(--primary) 8%, var(--card-bg))' : 'var(--card-bg)',
+                                                borderColor: active ? 'var(--primary)' : 'var(--border)',
+                                            }}
+                                            className="group relative flex items-center gap-4 rounded-xl border-2 p-4 text-left transition-all duration-200"
                                         >
                                             {active && (
                                                 <div className="absolute -right-1 -top-1">
-                                                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#2F6FED] shadow-lg shadow-[#2F6FED]/30">
+                                                    <div className="flex h-5 w-5 items-center justify-center rounded-full shadow-lg" style={{ backgroundColor: 'var(--primary)' }}>
                                                         <FiCheck className="h-3 w-3 text-white" />
                                                     </div>
                                                 </div>
                                             )}
-                                            <span className={`flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-200 ${active
-                                                ? "bg-[#2F6FED] text-white shadow-lg shadow-[#2F6FED]/30"
-                                                : "bg-gray-50 text-gray-500 group-hover:bg-gray-100"
-                                                }`}>
+                                            <span style={{ backgroundColor: active ? 'var(--primary)' : 'var(--bg-secondary)', color: active ? '#ffffff' : 'var(--text-secondary)' }} className="flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-200">
                                                 <Icon size={18} />
                                             </span>
                                             <div>
-                                                <p className="text-sm font-semibold text-[#12131A]">{label}</p>
-                                                {desc && <p className="text-xs text-gray-400 mt-0.5">{desc}</p>}
+                                                <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>{label}</p>
+                                                {desc && <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>{desc}</p>}
                                             </div>
                                         </button>
                                     );
@@ -440,14 +439,14 @@ const Checkout = () => {
                     {/* Right Column - Order Summary */}
                     <div className="lg:col-span-2 space-y-6">
 
-                        <div className="rounded-2xl border border-gray-200/80 bg-white p-5 sm:p-6 shadow-sm">
+                        <div className="rounded-2xl border p-5 sm:p-6 shadow-xs transition-colors duration-300" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)' }}>
                             <div className="flex items-center gap-2.5 mb-5">
-                                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: 'color-mix(in srgb, var(--primary) 12%, transparent)', color: 'var(--primary)' }}>
                                     <FiTruck size={18} />
                                 </div>
                                 <div>
-                                    <h2 className="text-base font-semibold text-[#12131A]">Delivery Method</h2>
-                                    <p className="text-xs text-gray-400">Choose your preferred shipping option</p>
+                                    <h2 className="text-base font-semibold" style={{ color: 'var(--text)' }}>Delivery Method</h2>
+                                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Choose your preferred shipping option</p>
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 gap-2">
@@ -461,38 +460,35 @@ const Checkout = () => {
                                             key={key}
                                             type="button"
                                             onClick={() => setDeliveryMethod(key)}
-                                            className={`group relative flex items-start gap-3 rounded-xl border-2 p-3 text-left transition-all duration-200 ${active
-                                                ? "border-[#2F6FED] bg-gradient-to-br from-[#2F6FED]/5 to-[#2F6FED]/10 shadow-md shadow-[#2F6FED]/10"
-                                                : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
-                                                }`}
+                                            style={{
+                                                backgroundColor: active ? 'color-mix(in srgb, var(--primary) 8%, var(--card-bg))' : 'var(--card-bg)',
+                                                borderColor: active ? 'var(--primary)' : 'var(--border)',
+                                            }}
+                                            className="group relative flex items-start gap-3 rounded-xl border-2 p-3 text-left transition-all duration-200"
                                         >
                                             {active && (
                                                 <div className="absolute -right-1 -top-1">
-                                                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#2F6FED] shadow-lg">
+                                                    <div className="flex h-5 w-5 items-center justify-center rounded-full shadow-lg" style={{ backgroundColor: 'var(--primary)' }}>
                                                         <FiCheck className="h-3 w-3 text-white" />
                                                     </div>
                                                 </div>
                                             )}
-                                            <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl transition-all duration-200 ${active
-                                                ? "bg-[#2F6FED] text-white shadow-lg shadow-[#2F6FED]/30"
-                                                : "bg-gray-50 text-gray-500 group-hover:bg-gray-100"
-                                                }`}>
+                                            <span style={{ backgroundColor: active ? 'var(--primary)' : 'var(--bg-secondary)', color: active ? '#ffffff' : 'var(--text-secondary)' }} className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl transition-all duration-200">
                                                 <Icon size={20} />
                                             </span>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-start justify-between gap-2">
-                                                    <p className="text-sm font-semibold text-[#12131A]">{label}</p>
-                                                    <p className={`text-xs font-semibold whitespace-nowrap ${key === "fast" ? "text-[#2F6FED]" : "text-emerald-500"
-                                                        }`}>
+                                                    <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>{label}</p>
+                                                    <p className="text-xs font-semibold whitespace-nowrap" style={{ color: key === "fast" ? 'var(--primary)' : 'var(--success)' }}>
                                                         {priceText}
                                                     </p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs text-gray-400">
+                                                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                                                         {desc}
                                                     </p>
 
-                                                    <div className="flex items-center gap-1.5 text-xs font-medium text-[#2F6FED]">
+                                                    <div className="flex items-center gap-1.5 text-xs font-medium" style={{ color: 'var(--primary)' }}>
                                                         <FiClock className="h-3.5 w-3.5" />
                                                         <span>{time}</span>
                                                     </div>
@@ -506,19 +502,19 @@ const Checkout = () => {
                         </div>
 
                         <div className="sticky top-6 space-y-6">
-                            <div className="rounded-2xl border border-gray-200/80 bg-white p-5 sm:p-6 shadow-sm">
-                                <h2 className="text-base font-semibold text-[#12131A]">Order Summary</h2>
+                            <div className="rounded-2xl border p-5 sm:p-6 shadow-xs transition-colors duration-300" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)' }}>
+                                <h2 className="text-base font-semibold" style={{ color: 'var(--text)' }}>Order Summary</h2>
 
                                 <div className="mt-5 flex gap-4">
-                                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100 ring-1 ring-gray-200/50">
+                                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
                                         <img src={productImage} alt={product.name} className="h-full w-full object-cover" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-semibold text-[#12131A] truncate">{product.name}</p>
-                                        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500">
+                                        <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{product.name}</p>
+                                        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
                                             {selectedColor && (
                                                 <span className="inline-flex items-center gap-1.5">
-                                                    <span className="h-3 w-3 rounded-full border border-gray-200" style={{ backgroundColor: isHexColor(selectedColor) ? selectedColor : "#E5E7EB" }} />
+                                                    <span className="h-3 w-3 rounded-full border" style={{ borderColor: 'var(--border)', backgroundColor: isHexColor(selectedColor) ? selectedColor : "#E5E7EB" }} />
                                                     {getColorName(selectedColor)}
                                                 </span>
                                             )}
@@ -526,50 +522,52 @@ const Checkout = () => {
                                             {selectedStandType && <span>Stand: {selectedStandType}</span>}
                                         </div>
                                         <div className="mt-2 flex items-center gap-3">
-                                            <div className="flex items-center overflow-hidden rounded-lg border border-gray-200 bg-white">
+                                            <div className="flex items-center overflow-hidden rounded-lg border" style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--border)' }}>
                                                 <button
                                                     type="button"
                                                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                                                    className="px-3 py-1.5 text-gray-500 transition hover:bg-gray-50 hover:text-[#2F6FED]"
+                                                    style={{ color: 'var(--text-secondary)' }}
+                                                    className="px-3 py-1.5 transition hover:opacity-80"
                                                 >
                                                     −
                                                 </button>
-                                                <span className="w-8 text-center text-sm font-medium">{quantity}</span>
+                                                <span className="w-8 text-center text-sm font-medium" style={{ color: 'var(--text)' }}>{quantity}</span>
                                                 <button
                                                     type="button"
                                                     onClick={() => setQuantity((q) => q + 1)}
-                                                    className="px-3 py-1.5 text-gray-500 transition hover:bg-gray-50 hover:text-[#2F6FED]"
+                                                    style={{ color: 'var(--text-secondary)' }}
+                                                    className="px-3 py-1.5 transition hover:opacity-80"
                                                 >
                                                     +
                                                 </button>
                                             </div>
                                             <div className="flex flex-col items-end">
-                                                <span className="text-sm font-semibold text-[#12131A]">Rs. {formatPrice(product.price)}</span>
+                                                <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Rs. {formatPrice(product.price)}</span>
                                                 {isDiscountEnabled && actualPrice > 0 && (
-                                                    <span className="text-xs text-gray-400 line-through">Rs. {formatPrice(actualPrice)}</span>
+                                                    <span className="text-xs line-through" style={{ color: 'var(--text-light, #9ca3af)' }}>Rs. {formatPrice(actualPrice)}</span>
                                                 )}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="mt-6 space-y-2.5 border-t border-gray-200 pt-5 text-sm">
-                                    <div className="flex justify-between text-gray-500">
+                                <div className="mt-6 space-y-2.5 border-t pt-5 text-sm" style={{ borderColor: 'var(--border)' }}>
+                                    <div className="flex justify-between" style={{ color: 'var(--text-secondary)' }}>
                                         <span>Subtotal ({quantity} items)</span>
-                                        <span className="font-medium text-[#12131A]">Rs. {formatPrice(subtotal)}</span>
+                                        <span className="font-medium" style={{ color: 'var(--text)' }}>Rs. {formatPrice(subtotal)}</span>
                                     </div>
-                                    <div className="flex justify-between text-gray-500">
+                                    <div className="flex justify-between" style={{ color: 'var(--text-secondary)' }}>
                                         <span className="flex items-center gap-1.5">
                                             {deliveryMethod === "fast" ? <FiZap size={14} /> : <FiTruck size={14} />}
                                             {deliveryMethod === "fast" ? "Express Delivery" : "Standard Delivery"}
                                         </span>
-                                        <span className={deliveryCharge > 0 ? "font-medium text-[#2F6FED]" : "font-medium text-emerald-500"}>
+                                        <span className="font-medium" style={{ color: deliveryCharge > 0 ? 'var(--primary)' : 'var(--success)' }}>
                                             {deliveryCharge > 0 ? `Rs. ${formatPrice(deliveryCharge)}` : "Free"}
                                         </span>
                                     </div>
-                                    <div className="flex justify-between border-t border-gray-200 pt-3 text-base font-bold text-[#12131A]">
+                                    <div className="flex justify-between border-t pt-3 text-base font-bold" style={{ borderColor: 'var(--border)', color: 'var(--text)' }}>
                                         <span>Total</span>
-                                        <span className="text-[#2F6FED]">Rs. {formatPrice(total)}</span>
+                                        <span style={{ color: 'var(--primary)' }}>Rs. {formatPrice(total)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -577,7 +575,8 @@ const Checkout = () => {
                             <button
                                 form="checkout-form"
                                 type="submit"
-                                className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-[#2F6FED] px-6 py-4 text-sm font-semibold text-white shadow-lg shadow-[#2F6FED]/25 transition-all hover:bg-[#2F6FED]/90 hover:shadow-xl hover:shadow-[#2F6FED]/30 active:scale-[0.98] disabled:opacity-70"
+                                style={{ backgroundColor: 'var(--btn-primary-bg, var(--primary))', color: 'var(--btn-primary-text, #fff)' }}
+                                className="flex w-full items-center justify-center gap-2.5 rounded-xl px-6 py-4 text-sm font-semibold shadow-lg transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-70"
                                 disabled={isSubmitting}
                             >
                                 {isSubmitting ? (

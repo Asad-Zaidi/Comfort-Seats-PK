@@ -547,9 +547,13 @@ const ProductWizard = ({
             if (formData.size) fd.append("size", formData.size);
 
             // Specifications
-            const validSpecs = (formData.specifications || []).filter(s => s && s.trim() !== "");
-            if (validSpecs.length > 0) {
-                fd.append("specifications", JSON.stringify(validSpecs));
+            if (typeof formData.specifications === 'string' && formData.specifications.trim()) {
+                fd.append("specifications", JSON.stringify([formData.specifications.trim()]));
+            } else {
+                const validSpecs = (Array.isArray(formData.specifications) ? formData.specifications : []).filter(s => s && s.trim() !== "");
+                if (validSpecs.length > 0) {
+                    fd.append("specifications", JSON.stringify(validSpecs));
+                }
             }
 
             // SEO Metadata

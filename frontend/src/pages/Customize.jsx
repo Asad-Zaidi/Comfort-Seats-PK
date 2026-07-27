@@ -108,18 +108,19 @@ const Customize = () => {
 
     if (submitted) {
         return (
-            <div className="bg-gray-50/50 min-h-screen">
+            <div className="min-h-screen transition-colors duration-300" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
                 <div className="max-w-lg mx-auto px-5 py-24 text-center">
-                    <span className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-600 mx-auto">
+                    <span className="flex h-16 w-16 items-center justify-center rounded-full mx-auto" style={{ backgroundColor: 'color-mix(in srgb, var(--success) 15%, transparent)', color: 'var(--success)' }}>
                         <FiCheckCircle size={32} />
                     </span>
-                    <h2 className="mt-6 text-2xl font-bold text-[#12131A]">Request Submitted!</h2>
-                    <p className="mt-2 text-gray-500">
+                    <h2 className="mt-6 text-2xl font-bold" style={{ color: 'var(--text)' }}>Request Submitted!</h2>
+                    <p className="mt-2" style={{ color: 'var(--text-secondary)' }}>
                         We've received your customization request and will contact you shortly.
                     </p>
                     <button
                         onClick={() => { setForm(initialForm); setSubmitted(false); setFormError(""); }}
-                        className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#2F6FED] px-6 py-3 text-sm font-semibold text-white hover:bg-[#2F6FED]/90"
+                        style={{ backgroundColor: 'var(--btn-primary-bg, var(--primary))', color: 'var(--btn-primary-text, #fff)' }}
+                        className="mt-8 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold shadow-sm transition hover:opacity-90"
                     >
                         <FiLoader size={16} /> Submit Another
                     </button>
@@ -129,7 +130,7 @@ const Customize = () => {
     }
 
     return (
-        <div className="bg-gray-50/50">
+        <div className="transition-colors duration-300" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
             <SEO
                 title={`Customize Your Furniture - ${siteName}`}
                 description="Get your furniture customized to your exact preferences at Comfort Seats.pk. Tell us your requirements and we'll craft it for you."
@@ -138,42 +139,45 @@ const Customize = () => {
 
             <div className="mx-auto max-w-7xl px-5 py-8 lg:px-8 lg:py-12">
                 {/* Breadcrumb */}
-                <nav className="mb-6 flex items-center gap-2 text-sm text-gray-400">
-                    <Link to="/" className="hover:text-[#2F6FED] transition">Home</Link>
+                <nav className="mb-6 flex items-center gap-2 text-sm opacity-60" style={{ color: 'var(--text-secondary)' }}>
+                    <Link to="/" className="transition hover:opacity-100" style={{ color: 'var(--primary)' }}>Home</Link>
                     <span>/</span>
-                    <span className="text-[#12131A] font-medium">Customize</span>
+                    <span className="font-medium" style={{ color: 'var(--text)' }}>Customize</span>
                 </nav>
 
                 {/* Header */}
                 <div className="mb-4">
-                    <span className="inline-block rounded-full bg-[#2F6FED]/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#2F6FED]">
+                    <span
+                        style={{ backgroundColor: 'color-mix(in srgb, var(--primary) 12%, transparent)', color: 'var(--primary)' }}
+                        className="inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide"
+                    >
                         Custom Orders
                     </span>
-                    <h1 className="mt-4 text-3xl font-bold text-[#12131A] sm:text-4xl">
-                        Get It <span className="text-[#2F6FED]">Customized</span>
+                    <h1 className="mt-4 text-3xl font-bold sm:text-4xl" style={{ color: 'var(--text)' }}>
+                        Get It <span style={{ color: 'var(--primary)' }}>Customized</span>
                     </h1>
                 </div>
 
                 {/* Description paragraph */}
-                <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm mb-8">
-                    <p className="leading-7 text-gray-600">
+                <div className="rounded-2xl border p-6 shadow-xs mb-8 transition-colors duration-300" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)' }}>
+                    <p className="leading-7" style={{ color: 'var(--text-secondary)' }}>
                         Don't see exactly what you're looking for? No problem. We customize our products to match
                         your <strong>preferred color</strong>, <strong>stand type</strong>, <strong>fabric</strong>, and
                         any other requirements you have. Just tell us what you need below — we'll craft it for you
                         with the same quality and care we put into every piece.
                     </p>
-                    <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-500">
+                    <div className="mt-4 flex flex-wrap gap-4 text-sm" style={{ color: 'var(--text-secondary)' }}>
                         <span className="inline-flex items-center gap-1.5">
-                            <FiCheckCircle className="text-[#10B981]" size={14} /> Color options
+                            <FiCheckCircle style={{ color: 'var(--success)' }} size={14} /> Color options
                         </span>
                         <span className="inline-flex items-center gap-1.5">
-                            <FiCheckCircle className="text-[#10B981]" size={14} /> Stand type
+                            <FiCheckCircle style={{ color: 'var(--success)' }} size={14} /> Stand type
                         </span>
                         <span className="inline-flex items-center gap-1.5">
-                            <FiCheckCircle className="text-[#10B981]" size={14} /> Fabric selection
+                            <FiCheckCircle style={{ color: 'var(--success)' }} size={14} /> Fabric selection
                         </span>
                         <span className="inline-flex items-center gap-1.5">
-                            <FiCheckCircle className="text-[#10B981]" size={14} /> Size & dimensions
+                            <FiCheckCircle style={{ color: 'var(--success)' }} size={14} /> Size & dimensions
                         </span>
                     </div>
                 </div>
@@ -181,14 +185,14 @@ const Customize = () => {
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Customer Details */}
-                    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
-                        <h2 className="text-lg font-bold text-[#12131A]">Your Details</h2>
-                        <p className="text-sm text-gray-400">We'll reach out to you with a quote based on your requirements.</p>
+                    <div className="rounded-2xl border p-6 shadow-xs space-y-4 transition-colors duration-300" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)' }}>
+                        <h2 className="text-lg font-bold" style={{ color: 'var(--text)' }}>Your Details</h2>
+                        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>We'll reach out to you with a quote based on your requirements.</p>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label htmlFor="fullName" className="mb-1.5 block text-sm font-medium text-[#12131A]">
-                                    Full Name <span className="text-red-500">*</span>
+                                <label htmlFor="fullName" className="mb-1.5 block text-sm font-medium" style={{ color: 'var(--text)' }}>
+                                    Full Name <span style={{ color: 'var(--error)' }}>*</span>
                                 </label>
                                 <input
                                     id="fullName"
@@ -197,12 +201,13 @@ const Customize = () => {
                                     onChange={handleChange}
                                     placeholder="Your Name"
                                     required
-                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-[#12131A] outline-none transition focus:border-[#2F6FED] focus:bg-white focus:ring-4 focus:ring-[#2F6FED]/10"
+                                    style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text)' }}
+                                    className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition focus:ring-4 focus:ring-[var(--primary)]/10"
                                 />
                             </div>
                             <div>
-                                <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-[#12131A]">
-                                    Phone Number <span className="text-red-500">*</span>
+                                <label htmlFor="phone" className="mb-1.5 block text-sm font-medium" style={{ color: 'var(--text)' }}>
+                                    Phone Number <span style={{ color: 'var(--error)' }}>*</span>
                                 </label>
                                 <input
                                     id="phone"
@@ -211,12 +216,13 @@ const Customize = () => {
                                     onChange={handleChange}
                                     placeholder="Phone Number"
                                     required
-                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-[#12131A] outline-none transition focus:border-[#2F6FED] focus:bg-white focus:ring-4 focus:ring-[#2F6FED]/10"
+                                    style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text)' }}
+                                    className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition focus:ring-4 focus:ring-[var(--primary)]/10"
                                 />
                             </div>
                             <div className="sm:col-span-2">
-                                <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-[#12131A]">
-                                    Email Address <span className="text-gray-400 font-normal">(optional)</span>
+                                <label htmlFor="email" className="mb-1.5 block text-sm font-medium" style={{ color: 'var(--text)' }}>
+                                    Email Address <span className="font-normal opacity-60">(optional)</span>
                                 </label>
                                 <input
                                     id="email"
@@ -225,16 +231,17 @@ const Customize = () => {
                                     value={form.email}
                                     onChange={handleChange}
                                     placeholder="Enter your email"
-                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-[#12131A] outline-none transition focus:border-[#2F6FED] focus:bg-white focus:ring-4 focus:ring-[#2F6FED]/10"
+                                    style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text)' }}
+                                    className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition focus:ring-4 focus:ring-[var(--primary)]/10"
                                 />
                             </div>
                         </div>
                     </div>
 
                     {/* Requirements */}
-                    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
-                        <h2 className="text-lg font-bold text-[#12131A]">Your Requirements</h2>
-                        <p className="text-sm text-gray-400">
+                    <div className="rounded-2xl border p-6 shadow-xs space-y-4 transition-colors duration-300" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)' }}>
+                        <h2 className="text-lg font-bold" style={{ color: 'var(--text)' }}>Your Requirements</h2>
+                        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                             Tell us what you need — color, stand type, fabric, dimensions, or anything else.
                         </p>
                         <textarea
@@ -243,12 +250,13 @@ const Customize = () => {
                             onChange={handleChange}
                             rows={5}
                             placeholder="e.g. I need a black office chair with chrome base, blue fabric upholstery, adjustable armrests, and medium back support..."
-                            className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-[#12131A] outline-none transition focus:border-[#2F6FED] focus:bg-white focus:ring-4 focus:ring-[#2F6FED]/10"
+                            style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text)' }}
+                            className="w-full resize-none rounded-xl border px-4 py-2.5 text-sm outline-none transition focus:ring-4 focus:ring-[var(--primary)]/10"
                         />
                     </div>
 
                     {formError && (
-                        <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
+                        <div className="rounded-xl border px-4 py-3 text-sm" style={{ backgroundColor: 'color-mix(in srgb, var(--error) 10%, transparent)', borderColor: 'var(--error)', color: 'var(--error)' }}>
                             {formError}
                         </div>
                     )}
@@ -258,7 +266,8 @@ const Customize = () => {
                         <button
                             type="submit"
                             disabled={submitting}
-                            className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#2F6FED] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#2F6FED]/90 disabled:opacity-60"
+                            style={{ backgroundColor: 'var(--btn-primary-bg, var(--primary))', color: 'var(--btn-primary-text, #fff)' }}
+                            className="flex-1 flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold shadow-sm transition hover:opacity-90 disabled:opacity-60"
                         >
                             {submitting ? (
                                 <FiLoader className="animate-spin" size={16} />
@@ -270,14 +279,14 @@ const Customize = () => {
                         <button
                             type="button"
                             onClick={handleWhatsAppClick}
-                            className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-green-600 px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700"
+                            className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
                         >
                             <FaWhatsapp size={18} />
                             Send via WhatsApp
                         </button>
                     </div>
 
-                    <p className="text-xs text-gray-400 text-center">
+                    <p className="text-xs opacity-60 text-center" style={{ color: 'var(--text-secondary)' }}>
                         By submitting, you agree to be contacted regarding your customization request.
                     </p>
                 </form>

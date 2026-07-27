@@ -7,17 +7,18 @@ const AnimatedButton = ({
     disabled = false, 
     variant = 'primary',
     className = "",
+    style = {},
     ...props 
 }) => {
     const shouldAnimate = !prefersReducedMotion();
 
-    const baseClasses = "flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-300";
+    const baseClasses = "flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold shadow-sm transition-all duration-300";
     
-    const variantClasses = {
-        primary: 'bg-[#2F6FED] hover:bg-[#2558c4]',
-        secondary: 'bg-[#10B981] hover:bg-[#059669]',
-        outline: 'bg-transparent border-2 border-[#2F6FED] text-[#2F6FED] hover:bg-[#2F6FED]/5',
-        danger: 'bg-[#E5484D] hover:bg-[#c93d41]',
+    const variantStyles = {
+        primary: { backgroundColor: 'var(--btn-primary-bg, var(--primary))', color: 'var(--btn-primary-text, #ffffff)' },
+        secondary: { backgroundColor: 'var(--btn-secondary-bg, var(--secondary))', color: 'var(--btn-secondary-text, #ffffff)' },
+        outline: { backgroundColor: 'var(--btn-outline-bg, transparent)', color: 'var(--btn-outline-text, var(--primary))', border: '2px solid var(--btn-outline-border, var(--primary))' },
+        danger: { backgroundColor: 'var(--btn-danger-bg, #E5484D)', color: 'var(--btn-danger-text, #ffffff)' },
     };
 
     return (
@@ -30,9 +31,9 @@ const AnimatedButton = ({
             whileTap={shouldAnimate && !disabled ? { scale: 0.98 } : {}}
             onClick={onClick}
             disabled={disabled}
+            style={{ ...variantStyles[variant], ...style }}
             className={`
                 ${baseClasses}
-                ${variantClasses[variant]}
                 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none
                 ${className}
             `}

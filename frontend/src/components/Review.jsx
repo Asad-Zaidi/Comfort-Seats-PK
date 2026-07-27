@@ -357,7 +357,7 @@
 // export default Review;
 
 import { useMemo, useState } from "react";
-import { FiUser, FiMail, FiMessageSquare, FiSend, FiCheckCircle, FiImage } from "react-icons/fi";
+import { FiUser, FiMail, FiMessageSquare, FiSend, FiCheckCircle } from "react-icons/fi";
 import { FaStar } from "react-icons/fa";
 import { useToast } from "./ToastNotification";
 import ReviewImageUploader from "./ReviewImageUploader";

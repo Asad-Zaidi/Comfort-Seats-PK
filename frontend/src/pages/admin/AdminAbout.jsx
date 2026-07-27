@@ -733,6 +733,7 @@ import {
     FiBookOpen,
 } from "react-icons/fi";
 import api from "../../api/api";
+import RichTextEditor from "../../components/common/RichTextEditor";
 
 // Icon Map helper to visually render chosen icons in inputs
 const ICON_MAP = {
@@ -1142,19 +1143,16 @@ const AdminAbout = () => {
                                         />
                                     </div>
 
-                                    <div>
+                                     <div>
                                         <label className="mb-1.5 block text-xs font-semibold text-slate-700">
                                             Hero Description Paragraph
                                         </label>
-                                        <textarea
+                                        <RichTextEditor
                                             value={aboutData.heroDescription || ""}
-                                            onChange={(e) =>
-                                                handleTextChange("heroDescription", e.target.value)
-                                            }
-                                            rows={4}
-                                            className={textareaClass}
+                                            onChange={(html) => handleTextChange("heroDescription", html)}
+                                            placeholder="Enter hero description..."
                                         />
-                                    </div>
+                                     </div>
 
                                     {/* Banner Image Dropzone */}
                                     <div className="space-y-2 flex  gap-4 ">
@@ -1347,33 +1345,27 @@ const AdminAbout = () => {
                                         />
                                     </div>
 
-                                    <div>
+                                     <div>
                                         <label className="mb-1.5 block text-xs font-semibold text-slate-700">
                                             First Paragraph
                                         </label>
-                                        <textarea
+                                        <RichTextEditor
                                             value={aboutData.storyParagraph1 || ""}
-                                            onChange={(e) =>
-                                                handleTextChange("storyParagraph1", e.target.value)
-                                            }
-                                            rows={4}
-                                            className={textareaClass}
+                                            onChange={(html) => handleTextChange("storyParagraph1", html)}
+                                            placeholder="Enter first story paragraph..."
                                         />
-                                    </div>
+                                     </div>
 
-                                    <div>
+                                     <div>
                                         <label className="mb-1.5 block text-xs font-semibold text-slate-700">
                                             Second Paragraph
                                         </label>
-                                        <textarea
+                                        <RichTextEditor
                                             value={aboutData.storyParagraph2 || ""}
-                                            onChange={(e) =>
-                                                handleTextChange("storyParagraph2", e.target.value)
-                                            }
-                                            rows={4}
-                                            className={textareaClass}
+                                            onChange={(html) => handleTextChange("storyParagraph2", html)}
+                                            placeholder="Enter second story paragraph..."
                                         />
-                                    </div>
+                                     </div>
 
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         <div>
@@ -1556,19 +1548,16 @@ const AdminAbout = () => {
                                         />
                                     </div>
 
-                                    <div>
+                                     <div>
                                         <label className="mb-1.5 block text-xs font-semibold text-slate-700">
                                             Detailed Explanation
                                         </label>
-                                        <textarea
+                                        <RichTextEditor
                                             value={aboutData.missionDescription || ""}
-                                            onChange={(e) =>
-                                                handleTextChange("missionDescription", e.target.value)
-                                            }
-                                            rows={4}
-                                            className={textareaClass}
+                                            onChange={(html) => handleTextChange("missionDescription", html)}
+                                            placeholder="Enter detailed mission explanation..."
                                         />
-                                    </div>
+                                     </div>
                                 </div>
                             </div>
                         )}

@@ -780,3 +780,39 @@ exports.updateQuoteSection = async (req, res) => {
         return res.status(500).json({ success: false, message: 'Server error while updating quote section.' });
     }
 };
+
+// @desc    Upload general site content / rich text image
+// @route   POST /api/site-content/upload
+// @access  Private/Admin
+exports.uploadSiteImage = async (req, res) => {
+    try {
+        const file = req.file || (req.files && req.files[0]);
+        if (!file) {
+            return res.status(400).json({ success: false, message: 'No image file uploaded.' });
+        }
+
+        let imageUrl = '';
+        if (file.buffer) {
+            imageUrl = await uploadFileToCloudinary(file, 'site-uploads', [{ width: 1200, crop: 'limit' }]);
+        } else if (file.path) {
+            const result = await cloudinary.uploader.upload(file.path, {
+                folder: 'site-uploads',
+                transformation: [{ width: 1200, crop: 'limit' }]
+            });
+            imageUrl = result.secure_url;
+        }
+
+        if (!imageUrl) {
+            return res.status(500).json({ success: false, message: 'Failed to obtain uploaded image URL.' });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Image uploaded successfully.',
+            url: imageUrl
+        });
+    } catch (error) {
+        console.error('Error uploading site image:', error);
+        return res.status(500).json({ success: false, message: error.message || 'Server error while uploading image.' });
+    }
+};

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
     FiPlus,
     FiEdit,
@@ -26,12 +26,7 @@ const AddCategory = () => {
     const newImageRef = useRef(null);
     const editImageRef = useRef(null);
 
-    // Fetch categories from API
-    useEffect(() => {
-        fetchCategories();
-    }, []);
-
-    const fetchCategories = async () => {
+    const fetchCategories = useCallback(async () => {
         try {
             const res = await api.get("/site-content");
             if (res.data?.success && Array.isArray(res.data.data?.categories)) {
@@ -48,7 +43,12 @@ const AddCategory = () => {
             console.error("Failed to load categories:", err);
             toast.error("Failed to load categories.");
         }
-    };
+    }, [toast]);
+
+    // Fetch categories from API
+    useEffect(() => {
+        fetchCategories();
+    }, [fetchCategories]);
 
     const handleAddCategory = async (e) => {
         e.preventDefault();

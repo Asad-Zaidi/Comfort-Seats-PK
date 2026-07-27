@@ -1,8 +1,9 @@
 import React from 'react';
-import { FiDollarSign, FiTruck, FiList, FiPlus, FiX, FiLayers, FiSliders } from 'react-icons/fi';
+import { FiDollarSign, FiTruck, FiList, FiLayers, FiSliders } from 'react-icons/fi';
 import DynamicPriceCalculator from './DynamicPriceCalculator';
 import InfoTooltip from './InfoTooltip';
 import { WIZARD_HELP_CONTENT } from './productWizardHelpContent';
+import RichTextEditor from '../../common/RichTextEditor';
 
 const PricingInventoryStep = ({
     formData,
@@ -12,23 +13,6 @@ const PricingInventoryStep = ({
 }) => {
     const handleFieldChange = (field, value) => {
         onChange({ ...formData, [field]: value });
-    };
-
-    // Specifications handlers
-    const handleSpecChange = (idx, val) => {
-        const list = [...(formData.specifications || [""])];
-        list[idx] = val;
-        onChange({ ...formData, specifications: list });
-    };
-
-    const handleAddSpec = () => {
-        const list = [...(formData.specifications || [""]), ""];
-        onChange({ ...formData, specifications: list });
-    };
-
-    const handleRemoveSpec = (idx) => {
-        const list = (formData.specifications || [""]).filter((_, i) => i !== idx);
-        onChange({ ...formData, specifications: list.length > 0 ? list : [""] });
     };
 
     const actual = Number(formData.actualPrice || formData.price || 0);
@@ -288,41 +272,24 @@ const PricingInventoryStep = ({
                                 <span>Specifications & Features</span>
                                 <InfoTooltip content={WIZARD_HELP_CONTENT.specificationsList} />
                             </h4>
-                            <p className="text-xs text-gray-500">Key bullet points displayed on product page</p>
+                            <p className="text-xs text-gray-500">Rich formatted technical specifications, features, and parameter tables</p>
                         </div>
                     </div>
-                    <button
-                        type="button"
-                        onClick={handleAddSpec}
-                        className="flex items-center gap-1 text-xs font-bold text-[#2F6FED] hover:underline"
-                    >
-                        <FiPlus size={14} /> Add Specification
-                    </button>
                 </div>
 
-                <div className="space-y-2">
-                    {(formData.specifications || [""]).map((spec, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-gray-400 select-none w-5 text-right">{idx + 1}.</span>
-                            <input
-                                type="text"
-                                value={spec}
-                                onChange={(e) => handleSpecChange(idx, e.target.value)}
-                                placeholder="e.g. Ergonomic 4D adjustable armrests"
-                                className="block flex-1 rounded-xl border border-gray-200 bg-gray-50/50 px-3.5 py-2 text-sm text-gray-900 outline-none transition focus:border-[#2F6FED] focus:bg-white"
-                            />
-                            {(formData.specifications || []).length > 1 && (
-                                <button
-                                    type="button"
-                                    onClick={() => handleRemoveSpec(idx)}
-                                    className="flex h-9 w-9 items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition"
-                                >
-                                    <FiX size={16} />
-                                </button>
-                            )}
-                        </div>
-                    ))}
-                </div>
+                <RichTextEditor
+                    value={
+                        typeof formData.specifications === 'string'
+                            ? formData.specifications
+                            : Array.isArray(formData.specifications) && formData.specifications.length > 0
+                            ? (formData.specifications.every(s => typeof s === 'string' && s.startsWith('<'))
+                                ? formData.specifications.join('')
+                                : `<ul>${formData.specifications.filter(s => s && s.trim()).map(s => `<li>${s}</li>`).join('')}</ul>`)
+                            : ''
+                    }
+                    onChange={(html) => onChange({ ...formData, specifications: html })}
+                    placeholder="Create custom specification tables, feature bullet points, and technical parameter matrices..."
+                />
             </div>
 
             {/* SECTION 4: Shipping & Dimensions */}

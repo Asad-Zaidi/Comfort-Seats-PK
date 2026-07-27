@@ -132,7 +132,7 @@ const AdminLayout = () => {
                 title={`Admin - ${siteName}`}
                 description="Admin panel for managing the website."
             />
-            <div className="flex bg-gray-100 min-h-screen">
+            <div className="flex bg-gray-100 h-screen overflow-hidden">
                 {/* Sidebar */}
                 <AdminSidebar
                     sidebarOpen={sidebarOpen}
@@ -185,7 +185,7 @@ const AdminLayout = () => {
                                         )}
                                     </button>
 
-                                {notifOpen && (
+                                    {notifOpen && (
                                         <div className="absolute right-0 mt-2 w-80 max-h-[70vh] overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-lg z-50">
                                             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
                                                 <p className="text-sm font-semibold text-gray-900">Order Notifications</p>
@@ -272,9 +272,11 @@ const AdminLayout = () => {
 
                     {/* Main */}
 
-                    <main className="flex-1 p-6 lg:p-8 overflow-auto">
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 min-h-[calc(100vh-180px)]">
-                            <Outlet />
+                    <main className="flex-1 overflow-hidden">
+                        <div className="h-full overflow-auto">
+                            <div className="p-6 lg:p-8 min-h-[calc(100vh-56px)]">
+                                <Outlet />
+                            </div>
                         </div>
                     </main>
                 </div>

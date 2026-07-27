@@ -3,6 +3,7 @@ import { FiDollarSign, FiTag, FiBox, FiEye, FiLayers } from 'react-icons/fi';
 import ColorVariantManager from '../ColorVariantManager';
 import InfoTooltip from './InfoTooltip';
 import { WIZARD_HELP_CONTENT } from './productWizardHelpContent';
+import RichTextEditor from '../../common/RichTextEditor';
 
 const defaultCategories = ["Gaming", "Waiting"];
 const usedSubcategories = ["Executive", "Ergonomic", "Mesh", "Leather", "Recliner"];
@@ -126,12 +127,10 @@ const BasicInformationStep = ({
                             <span>Full Description</span>
                             <InfoTooltip content={WIZARD_HELP_CONTENT.description} />
                         </label>
-                        <textarea
+                        <RichTextEditor
                             value={formData.description || ''}
-                            onChange={(e) => handleFieldChange('description', e.target.value)}
-                            rows={4}
+                            onChange={(html) => handleFieldChange('description', html)}
                             placeholder="Detailed product features, materials, ergonomics, and maintenance guidelines..."
-                            className="block w-full resize-none rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-sm text-gray-800 outline-none transition focus:border-[#2F6FED] focus:bg-white focus:ring-4 focus:ring-[#2F6FED]/10"
                         />
                     </div>
                 </div>

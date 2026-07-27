@@ -478,7 +478,7 @@ const Home = () => {
                           hoverImage={hoverImage}
                           name={product.name}
                           price={product.price}
-                          description={product.description || product.detail || ""}
+                          description={product.shortDescription || product.description || product.detail || ""}
                           rating={product.avgRating || 0}
                           reviews={product.totalReviews || 0}
                           category={product.category}

@@ -104,7 +104,7 @@ const ReviewImageUploader = ({ onImageChange, currentImage }) => {
                     <div className="relative inline-block">
                         <img
                             src={preview}
-                            alt="Review image preview"
+                            alt="Review preview"
                             className="mx-auto max-h-48 rounded-lg object-contain shadow-sm"
                         />
                         <button

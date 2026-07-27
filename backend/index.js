@@ -15,6 +15,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const customizationRoutes = require("./routes/customizationRoutes");
 const announcementRoutes = require("./routes/announcementRoutes");
 const sitemapRoutes = require("./routes/sitemapRoutes");
+const themeRoutes = require("./routes/themeRoutes");
 
 
 const app = express();
@@ -57,8 +58,9 @@ app.options('*', cors(corsOptions));
 // Middleware for parsing cookies, which is necessary for `withCredentials: true`
 app.use(cookieParser());
 
-// Middleware for parsing JSON and urlencoded request bodies
-app.use(express.json());
+// Middleware for parsing JSON and urlencoded request bodies (50mb limit for image payloads & branding settings)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // HTTP request logger middleware
 app.use(morgan("dev"));
@@ -81,5 +83,6 @@ app.use("/api/payment-settings", paymentSettingsRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/customizations", customizationRoutes);
 app.use("/api/announcement", announcementRoutes);
+app.use("/api/themes", themeRoutes);
 
 module.exports = app;

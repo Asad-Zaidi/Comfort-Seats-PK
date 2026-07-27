@@ -61,7 +61,7 @@ const AnimatedRelatedProducts = ({ products = [], className = "" }) => {
                                 hoverImage={hoverImage}
                                 name={rp.name}
                                 price={rp.price}
-                                description={rp.description}
+                                description={rp.shortDescription || rp.description || rp.detail || ""}
                                 rating={rp.avgRating || 0}
                                 reviews={rp.totalReviews || 0}
                                 to={`/products/${rp.slug}`}

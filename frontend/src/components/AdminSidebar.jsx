@@ -10,7 +10,6 @@ import {
     FiMail,
     FiSettings,
     FiLogOut,
-    FiX,
     FiChevronLeft,
     FiChevronRight,
     FiInfo,
@@ -25,7 +24,7 @@ import {
 
 const AdminSidebar = ({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, onChangePassword }) => {
     const toast = useToast();
-    const { siteName, logoUrl } = useSiteConfig();
+    const { siteName } = useSiteConfig();
     const navItems = [
         {
             name: "Dashboard",
@@ -83,7 +82,7 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, on
             icon: <FiFileText />,
         },
         {
-            name: "Theme Colors",
+            name: "Theme Builder",
             path: "/admin/colors",
             icon: <FiDroplet />,
         },
@@ -104,7 +103,6 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, on
         toast.warning("Logged out successfully.");
         navigate("/admin/login", { replace: true });
     };
-    const words = (siteName).trim().split(" ");
 
     return (
         <>
@@ -130,19 +128,13 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, on
                 {/* Header */}
 
                 <div className="flex items-center justify-between px-4 h-16 border-b border-slate-700">
-                    <div className="flex items-center gap-3">
-                        {logoUrl ? (
-                            <img src={logoUrl} alt={siteName} className="h-8 w-auto" />
-                        ) : (
-                            <h2
-                                className={`text-2xl font-bold transition-all duration-200 ${collapsed ? "opacity-0 w-0 overflow-hidden" : ""
-                                    }`}
-                            >
-                                {words[0]}{" "}
-                                {words[1]}{" "}
-                                {words[2] && <span className="text-orange-800">{words[2]}</span>}
-                            </h2>
-                        )}
+                    <div className="flex items-center gap-1">
+                        <h2
+                            className={`text-2xl font-bold transition-all duration-200 ${collapsed ? "opacity-0 w-0 overflow-hidden" : ""
+                                }`}
+                        >
+                            {siteName}
+                        </h2>
                         {collapsed && (
                             <div className="text-lg font-bold">
                                 {(siteName || "Comfort Seats")
@@ -152,18 +144,6 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, on
                                     .toUpperCase()}
                             </div>)}
                     </div>
-
-
-                    <div className="flex items-center gap-2">
-                        {/* Close on small screens */}
-                        <button
-                            className="lg:hidden text-2xl p-2 rounded hover:bg-slate-800 transition"
-                            onClick={() => setSidebarOpen(false)}
-                        >
-                            <FiX />
-                        </button>
-                    </div>
-
                 </div>
 
                 {/* Navigation */}
@@ -171,7 +151,6 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, on
                     <nav
                         className={`${collapsed ? "px-4" : "px-8"} transition-all duration-300`}
                     >
-
                         {navItems.map((item) => (
                             <NavLink
                                 key={item.path}
@@ -197,19 +176,23 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, on
                 </div>
 
                 {/* Floating chevron on right border (middle) - show only one based on state */}
-                <div className="absolute top-1/2 -right-5 transform -translate-y-1/2 z-50">
-                    {!collapsed ? (
+                <div className="absolute top-1/2 transform -translate-y-1/2 z-50 transition-all duration-300 ease-in-out"
+                    style={{ right: collapsed ? '-20px' : '-20px' }}
+                >
+                    {/* Logic for chevron button */}
+                    {/* On desktop, it's based on 'collapsed'. On mobile, it's based on 'sidebarOpen'. */}
+                    {(window.innerWidth >= 1024 && !collapsed) || (window.innerWidth < 1024 && sidebarOpen) ? (
                         <button
-                            title="Collapse sidebar"
-                            onClick={() => setCollapsed(true)}
+                            title={window.innerWidth < 1024 ? "Close sidebar" : "Collapse sidebar"}
+                            onClick={() => window.innerWidth < 1024 ? setSidebarOpen(false) : setCollapsed(true)}
                             className="w-8 h-8 rounded-full bg-slate-900 text-white border-2 border-white flex items-center justify-center shadow-lg hover:scale-95 transition"
                         >
                             <FiChevronLeft size={16} />
                         </button>
                     ) : (
                         <button
-                            title="Expand sidebar"
-                            onClick={() => setCollapsed(false)}
+                            title={window.innerWidth < 1024 ? "Open sidebar" : "Expand sidebar"}
+                            onClick={() => window.innerWidth < 1024 ? setSidebarOpen(true) : setCollapsed(false)}
                             className="w-8 h-8 rounded-full bg-slate-900 text-white border-2 border-white flex items-center justify-center shadow-lg hover:scale-95 transition"
                         >
                             <FiChevronRight size={16} />

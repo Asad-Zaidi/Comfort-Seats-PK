@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { prefersReducedMotion } from '../../components/animations/AnimationConfigs';
 import Review from '../Review';
 

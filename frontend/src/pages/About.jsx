@@ -463,6 +463,7 @@ import {
     PageTransition,
     AnimatedModal,
 } from "../components/animations";
+import { sanitizeHtml, isHtmlContent } from "../utils/sanitizeHtml";
 
 const iconMap = {
     FiCalendar: FiCalendar,
@@ -566,7 +567,7 @@ const AboutUs = () => {
 
     return (
         <PageTransition>
-            <div className="bg-white">
+            <div className="transition-colors duration-300" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
                 <SEO
                     title={`About Us - ${siteName}`}
                     description={`Learn the story behind ${siteName} — Lahore's trusted furniture manufacturer since 1995. Quality craftsmanship, affordable pricing, and customer satisfaction.`}
@@ -574,38 +575,51 @@ const AboutUs = () => {
                 />
 
                 {/* Hero */}
-                <section className="border-b border-gray-100 bg-gradient-to-b from-gray-50 to-white">
+                <section className="border-b" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg)' }}>
                     <div className="mx-auto grid max-w-full grid-cols-1 items-center gap-10 px-5 py-20 lg:grid-cols-2 lg:px-32">
                         <AnimatedSection direction="left" delay={0.1} className="w-full">
                             <AnimatedItem>
-                                <span className="inline-block rounded-full bg-[#2F6FED]/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#2F6FED]">
+                                <span
+                                    style={{ backgroundColor: 'color-mix(in srgb, var(--primary) 12%, transparent)', color: 'var(--primary)' }}
+                                    className="inline-block rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide"
+                                >
                                     {heroEyebrow}
                                 </span>
                             </AnimatedItem>
                             <AnimatedItem delay={0.1}>
-                                <h1 className="mt-5 text-4xl font-bold leading-tight text-[#12131A] sm:text-5xl">
+                                <h1 className="mt-5 text-4xl font-bold leading-tight sm:text-5xl" style={{ color: 'var(--text)' }}>
                                     {heroTitle.split('<br />').map((line, i) => (
                                         <span key={i}>{line}{i < heroTitle.split('<br />').length - 1 && <br />}</span>
                                     ))}
                                 </h1>
                             </AnimatedItem>
-                            <AnimatedItem delay={0.2}>
-                                <p className="mt-6 max-w-full text-lg leading-8 text-gray-500">
-                                    {heroDescription}
-                                </p>
-                            </AnimatedItem>
+                             <AnimatedItem delay={0.2}>
+                                {isHtmlContent(heroDescription) ? (
+                                    <div
+                                        className="mt-6 max-w-full text-lg leading-8 prose-theme"
+                                        style={{ color: 'var(--text-secondary)' }}
+                                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(heroDescription) }}
+                                    />
+                                ) : (
+                                    <p className="mt-6 max-w-full text-lg leading-8 whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>
+                                        {heroDescription}
+                                    </p>
+                                )}
+                             </AnimatedItem>
                             <AnimatedItem delay={0.3}>
                                 <div className="mt-8 flex flex-wrap gap-4">
                                     <Link
                                         to="/products"
-                                        className="inline-flex items-center gap-2 rounded-xl bg-[#2F6FED] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#2F6FED]/90"
+                                        style={{ backgroundColor: 'var(--btn-primary-bg, var(--primary))', color: 'var(--btn-primary-text, #fff)' }}
+                                        className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold shadow-sm transition hover:opacity-90"
                                     >
                                         Explore Products
                                         <FiArrowRight size={16} />
                                     </Link>
                                     <Link
                                         to="/contact"
-                                        className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-6 py-3 text-sm font-semibold text-[#12131A] transition hover:border-gray-300"
+                                        style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+                                        className="inline-flex items-center gap-2 rounded-xl border px-6 py-3 text-sm font-semibold transition hover:opacity-80"
                                     >
                                         Contact Us
                                     </Link>
@@ -614,7 +628,7 @@ const AboutUs = () => {
                         </AnimatedSection>
 
                         <AnimatedSection direction="right" delay={0.2} className="relative w-full">
-                            <div className="aspect-[4/3] overflow-hidden rounded-3xl bg-gray-100">
+                            <div className="aspect-[4/3] overflow-hidden rounded-3xl" style={{ backgroundColor: 'var(--bg-secondary)' }}>
                                 <img
                                     src={heroImageUrl}
                                     alt={heroImageAlt}
@@ -629,7 +643,7 @@ const AboutUs = () => {
                 </section>
 
                 {/* Stats bar */}
-                <section className="bg-[#0F1320]">
+                <section style={{ backgroundColor: 'var(--footer-bg, #12131A)' }}>
                     <div className="mx-auto grid w-full max-w-full grid-cols-2 gap-6 px-5 py-4 sm:grid-cols-5 lg:px-32">
                         {stats.map(({ icon: Icon, label, value }, idx) => (
                             <AnimatedSection
@@ -638,7 +652,7 @@ const AboutUs = () => {
                                 delay={0.1 + idx * 0.1}
                                 className="flex flex-col items-center justify-center p-6 text-center"
                             >
-                                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-[#F5A524]">
+                                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10" style={{ color: 'var(--secondary)' }}>
                                     <Icon size={18} />
                                 </span>
 
@@ -646,7 +660,7 @@ const AboutUs = () => {
                                     {value}
                                 </p>
 
-                                <p className="mt-1 text-sm text-gray-400">
+                                <p className="mt-1 text-sm opacity-80" style={{ color: 'var(--footer-link, #9ca3af)' }}>
                                     {label}
                                 </p>
                             </AnimatedSection>
@@ -657,7 +671,7 @@ const AboutUs = () => {
                 {/* Our Story */}
                 <section className="mx-auto max-w-full px-5 py-20 lg:px-32">
                     <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
-                        <AnimatedSection direction="left" delay={0.1} className="aspect-[4/3] overflow-hidden rounded-3xl bg-gray-100 lg:order-1">
+                        <AnimatedSection direction="left" delay={0.1} className="aspect-[4/3] overflow-hidden rounded-3xl lg:order-1" style={{ backgroundColor: 'var(--bg-secondary)' }}>
                             <img
                                 src={storyImageUrl}
                                 alt={storyImageAlt}
@@ -668,27 +682,44 @@ const AboutUs = () => {
                         </AnimatedSection>
                         <AnimatedSection direction="right" delay={0.2} className="lg:order-2">
                             <AnimatedItem>
-                                <h2 className="text-3xl font-bold text-[#12131A] sm:text-4xl">
+                                <h2 className="text-3xl font-bold sm:text-4xl" style={{ color: 'var(--text)' }}>
                                     {storyTitle}
                                 </h2>
                             </AnimatedItem>
                             <AnimatedItem delay={0.1}>
-                                <div className="mt-2 h-1 w-14 rounded-full bg-[#F5A524]" />
+                                <div className="mt-2 h-1 w-14 rounded-full" style={{ backgroundColor: 'var(--secondary)' }} />
                             </AnimatedItem>
                             <AnimatedItem delay={0.2}>
-                                <p className="mt-6 leading-8 text-gray-500">
-                                    {storyParagraph1}
-                                </p>
+                                {isHtmlContent(storyParagraph1) ? (
+                                    <div
+                                        className="mt-6 leading-8 prose-theme"
+                                        style={{ color: 'var(--text-secondary)' }}
+                                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(storyParagraph1) }}
+                                    />
+                                ) : (
+                                    <p className="mt-6 leading-8 whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>
+                                        {storyParagraph1}
+                                    </p>
+                                )}
                             </AnimatedItem>
                             <AnimatedItem delay={0.3}>
-                                <p className="mt-4 leading-8 text-gray-500">
-                                    {storyParagraph2}
-                                </p>
+                                {isHtmlContent(storyParagraph2) ? (
+                                    <div
+                                        className="mt-4 leading-8 prose-theme"
+                                        style={{ color: 'var(--text-secondary)' }}
+                                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(storyParagraph2) }}
+                                    />
+                                ) : (
+                                    <p className="mt-4 leading-8 whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>
+                                        {storyParagraph2}
+                                    </p>
+                                )}
                             </AnimatedItem>
                             <AnimatedItem delay={0.4}>
                                 <button
                                     onClick={() => setStoryModalOpen(true)}
-                                    className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#2F6FED]/10 px-5 py-2.5 text-sm font-semibold text-[#2F6FED] transition hover:bg-[#2F6FED]/20"
+                                    style={{ backgroundColor: 'color-mix(in srgb, var(--primary) 12%, transparent)', color: 'var(--primary)' }}
+                                    className="mt-6 inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition hover:opacity-80"
                                 >
                                     <FiBook size={16} />
                                     Read Full Story
@@ -699,36 +730,50 @@ const AboutUs = () => {
                 </section>
 
                 {/* What We Make */}
-                <section className="bg-gray-50/60 py-20">
+                <section className="py-20 transition-colors duration-300" style={{ backgroundColor: 'var(--bg-secondary)' }}>
                     <div className="mx-auto max-w-full px-5 lg:px-32">
                         <AnimatedSection direction="up" delay={0.1} className="mx-auto max-w-2xl text-center">
                             <AnimatedItem>
-                                <h2 className="text-3xl font-bold text-[#12131A] sm:text-4xl">
+                                <h2 className="text-3xl font-bold sm:text-4xl" style={{ color: 'var(--text)' }}>
                                     {categoriesTitle}
                                 </h2>
                             </AnimatedItem>
                             <AnimatedItem delay={0.1}>
-                                <p className="mt-4 text-gray-500">
+                                <p className="mt-4 text-base" style={{ color: 'var(--text-secondary)' }}>
                                     {categoriesDescription}
                                 </p>
                             </AnimatedItem>
                         </AnimatedSection>
 
-                        <div className="mt-12 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                             {categories.map(({ icon: Icon, name, desc }, idx) => (
-                                <AnimatedCard
+                                <Link
                                     key={name}
-                                    direction={idx % 2 === 0 ? "left" : "right"}
-                                    delay={0.1 + idx * 0.1}
+                                    to={`/products?category=${encodeURIComponent(name)}`}
+                                    className="block group"
                                 >
-                                    <CardIcon>
-                                        <Icon size={19} />
-                                    </CardIcon>
-                                    <h3 className="mt-4 text-lg font-semibold text-[#12131A]">
-                                        {name}
-                                    </h3>
-                                    <p className="mt-2 text-sm leading-6 text-gray-500">{desc}</p>
-                                </AnimatedCard>
+                                    <AnimatedCard
+                                        direction={idx % 2 === 0 ? "left" : "right"}
+                                        delay={0.1 + idx * 0.08}
+                                        style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)', color: 'var(--text)' }}
+                                        className="h-full flex flex-col justify-between"
+                                    >
+                                        <div>
+                                            <div className="flex items-center justify-between">
+                                                <CardIcon style={{ backgroundColor: 'color-mix(in srgb, var(--primary) 12%, transparent)', color: 'var(--primary)' }}>
+                                                    <Icon size={20} />
+                                                </CardIcon>
+                                                <span className="inline-flex items-center gap-1 text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ color: 'var(--primary)' }}>
+                                                    Browse <FiArrowRight size={14} />
+                                                </span>
+                                            </div>
+                                            <h3 className="mt-5 text-lg font-semibold transition-colors group-hover:opacity-90" style={{ color: 'var(--text)' }}>
+                                                {name}
+                                            </h3>
+                                            <p className="mt-2 text-sm leading-6" style={{ color: 'var(--text-secondary)' }}>{desc}</p>
+                                        </div>
+                                    </AnimatedCard>
+                                </Link>
                             ))}
                         </div>
                     </div>
@@ -738,27 +783,35 @@ const AboutUs = () => {
                 <section className="mx-auto max-w-4xl px-5 py-20 text-center lg:px-32">
                     <AnimatedSection direction="up" delay={0.1}>
                         <AnimatedItem>
-                            <span className="text-sm font-semibold uppercase tracking-wide text-[#2F6FED]">{missionEyebrow}</span>
+                            <span className="text-sm font-semibold uppercase tracking-wide" style={{ color: 'var(--primary)' }}>{missionEyebrow}</span>
                         </AnimatedItem>
                         <AnimatedItem delay={0.1}>
-                            <h2 className="mt-3 text-2xl font-bold leading-snug text-[#12131A] sm:text-3xl">
+                            <h2 className="mt-3 text-2xl font-bold leading-snug sm:text-3xl" style={{ color: 'var(--text)' }}>
                                 {missionTitle}
                             </h2>
                         </AnimatedItem>
                         <AnimatedItem delay={0.2}>
-                            <p className="mt-6 leading-8 text-gray-500">
-                                {missionDescription}
-                            </p>
+                            {isHtmlContent(missionDescription) ? (
+                                <div
+                                    className="mt-6 leading-8 prose-theme"
+                                    style={{ color: 'var(--text-secondary)' }}
+                                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(missionDescription) }}
+                                />
+                            ) : (
+                                <p className="mt-6 leading-8 whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>
+                                    {missionDescription}
+                                </p>
+                            )}
                         </AnimatedItem>
                     </AnimatedSection>
                 </section>
 
                 {/* Why Choose Us */}
-                <section className="border-t border-gray-100 bg-gray-50/60 py-20">
+                <section className="border-t py-20 transition-colors duration-300" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
                     <div className="mx-auto max-w-full px-5 lg:px-32">
                         <AnimatedSection direction="up" delay={0.1} className="mx-auto max-w-2xl text-center">
                             <AnimatedItem>
-                                <h2 className="text-3xl font-bold text-[#12131A] sm:text-4xl">
+                                <h2 className="text-3xl font-bold sm:text-4xl" style={{ color: 'var(--text)' }}>
                                     {valuesTitle}
                                 </h2>
                             </AnimatedItem>
@@ -770,13 +823,14 @@ const AboutUs = () => {
                                     key={title}
                                     direction={idx % 2 === 0 ? "left" : "right"}
                                     delay={0.1 + idx * 0.1}
-                                    className="text-center ring-1 ring-black/5"
+                                    style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)' }}
+                                    className="text-center"
                                 >
-                                    <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#F5A524]/10 text-[#F5A524]">
+                                    <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--secondary) 15%, transparent)', color: 'var(--secondary)' }}>
                                         <Icon size={20} />
                                     </span>
-                                    <h3 className="mt-4 font-semibold text-[#12131A]">{title}</h3>
-                                    <p className="mt-2 text-sm leading-6 text-gray-500">{desc}</p>
+                                    <h3 className="mt-4 font-semibold" style={{ color: 'var(--text)' }}>{title}</h3>
+                                    <p className="mt-2 text-sm leading-6" style={{ color: 'var(--text-secondary)' }}>{desc}</p>
                                 </AnimatedCard>
                             ))}
                         </div>
@@ -786,21 +840,22 @@ const AboutUs = () => {
                 {/* CTA */}
                 <section className="mx-auto max-w-full px-5 py-20 lg:px-32">
                     <AnimatedSection direction="up" delay={0.1}>
-                        <div className="flex flex-col items-center justify-between gap-10 rounded-3xl bg-[#0F1320] px-8 py-14 text-center lg:flex-row lg:text-left">
+                        <div className="flex flex-col items-center justify-between gap-10 rounded-3xl px-8 py-14 text-center lg:flex-row lg:text-left" style={{ backgroundColor: 'var(--footer-bg, #12131A)' }}>
                             <AnimatedItem>
                                 <h2 className="text-2xl font-bold text-white sm:text-3xl">
                                     {ctaTitle}
                                 </h2>
                             </AnimatedItem>
                             <AnimatedItem delay={0.1}>
-                                <p className="mt-3 max-w-full text-gray-400 lg:mt-0">
+                                <p className="mt-3 max-w-full opacity-80 lg:mt-0" style={{ color: 'var(--footer-link, #9ca3af)' }}>
                                     {ctaDescription}
                                 </p>
                             </AnimatedItem>
                             <AnimatedItem delay={0.2}>
                                 <Link
                                     to={ctaButtonLink}
-                                    className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#2F6FED] px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-[#2F6FED]/90"
+                                    style={{ backgroundColor: 'var(--btn-primary-bg, var(--primary))', color: 'var(--btn-primary-text, #fff)' }}
+                                    className="inline-flex shrink-0 items-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold shadow-sm transition hover:opacity-90"
                                 >
                                     {ctaButtonText}
                                     <FiArrowRight size={16} />
@@ -818,7 +873,7 @@ const AboutUs = () => {
                     size="lg"
                 >
                     <div className="space-y-6">
-                        <div className="aspect-[16/9] overflow-hidden rounded-2xl bg-gray-100">
+                        <div className="aspect-[16/9] overflow-hidden rounded-2xl" style={{ backgroundColor: 'var(--bg-secondary)' }}>
                             <img
                                 src={storyImageUrl}
                                 alt={storyImageAlt}
@@ -826,14 +881,14 @@ const AboutUs = () => {
                             />
                         </div>
                         <div className="space-y-4">
-                            <p className="leading-8 text-gray-600">
+                            <p className="leading-8" style={{ color: 'var(--text-secondary)' }}>
                                 {storyParagraph1}
                             </p>
-                            <p className="leading-8 text-gray-600">
+                            <p className="leading-8" style={{ color: 'var(--text-secondary)' }}>
                                 {storyParagraph2}
                             </p>
-                            <div className="rounded-xl bg-gray-50 p-5">
-                                <p className="text-sm italic text-gray-500">
+                            <div className="rounded-xl p-5" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                                <p className="text-sm italic" style={{ color: 'var(--text-light)' }}>
                                     "From a small workshop in Lahore to a trusted name across Pakistan — our journey is built on three decades of craftsmanship, integrity, and the unwavering support of our customers."
                                 </p>
                             </div>
@@ -841,14 +896,16 @@ const AboutUs = () => {
                         <div className="flex justify-end gap-3 pt-2">
                             <button
                                 onClick={() => setStoryModalOpen(false)}
-                                className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                                style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+                                className="rounded-xl border px-5 py-2.5 text-sm font-semibold transition hover:opacity-80"
                             >
                                 Close
                             </button>
                             <Link
                                 to="/contact"
                                 onClick={() => setStoryModalOpen(false)}
-                                className="inline-flex items-center gap-2 rounded-xl bg-[#2F6FED] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2F6FED]/90"
+                                style={{ backgroundColor: 'var(--btn-primary-bg, var(--primary))', color: 'var(--btn-primary-text, #fff)' }}
+                                className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition hover:opacity-90"
                             >
                                 Get in Touch
                                 <FiArrowRight size={14} />

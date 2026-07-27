@@ -42,19 +42,22 @@ const AnimatedPrice = ({ price, oldPrice, discountBadge, inStock, stockCount, cl
                 <>
                     <motion.span
                         variants={itemVariants}
-                        className="text-3xl font-bold text-red-500 sm:text-4xl"
+                        style={{ color: 'var(--product-discount-color, var(--error))' }}
+                        className="text-3xl font-bold sm:text-4xl"
                     >
                         Rs. {formatPrice(price)}
                     </motion.span>
                     <motion.span
                         variants={itemVariants}
-                        className="text-xl text-gray-400 line-through"
+                        style={{ color: 'var(--text-light, #9ca3af)' }}
+                        className="text-xl line-through"
                     >
                         Rs. {formatPrice(oldPrice)}
                     </motion.span>
                     <motion.span
                         variants={itemVariants}
-                        className="rounded-full bg-red-500 px-3 py-1 text-xs font-bold text-white"
+                        style={{ backgroundColor: 'var(--error)', color: '#ffffff' }}
+                        className="rounded-full px-3 py-1 text-xs font-bold"
                     >
                         {discountPercentage}% OFF
                     </motion.span>
@@ -62,7 +65,8 @@ const AnimatedPrice = ({ price, oldPrice, discountBadge, inStock, stockCount, cl
             ) : (
                 <motion.span
                     variants={itemVariants}
-                    className="text-3xl font-bold text-[#12131A] sm:text-4xl"
+                    style={{ color: 'var(--product-price-color, var(--primary))' }}
+                    className="text-3xl font-bold sm:text-4xl"
                 >
                     Rs. {formatPrice(price)}
                 </motion.span>
@@ -70,10 +74,11 @@ const AnimatedPrice = ({ price, oldPrice, discountBadge, inStock, stockCount, cl
 
             <motion.span
                 variants={itemVariants}
-                className={`rounded-full px-3 py-1 text-xs font-semibold ${inStock
-                        ? "bg-[#10B981]/10 text-[#10B981]"
-                        : "bg-[#E5484D]/10 text-[#E5484D]"
-                    }`}
+                style={{
+                    backgroundColor: inStock ? 'color-mix(in srgb, var(--success) 12%, transparent)' : 'color-mix(in srgb, var(--error) 12%, transparent)',
+                    color: inStock ? 'var(--success)' : 'var(--error)',
+                }}
+                className="rounded-full px-3 py-1 text-xs font-semibold"
             >
                 {inStock ? `In Stock · ${stockCount || 0} left` : "Out of Stock"}
             </motion.span>

@@ -3,25 +3,7 @@ import { FiX, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import ImageUploadSlot from './ImageUploadSlot';
 import InfoTooltip from './wizard/InfoTooltip';
 import { WIZARD_HELP_CONTENT } from './wizard/productWizardHelpContent';
-
-const PREDEFINED_COLORS = [
-    { name: 'Black', hex: '#000000' },
-    { name: 'White', hex: '#FFFFFF' },
-    { name: 'Red', hex: '#F44336' },
-    { name: 'Blue', hex: '#2196F3' },
-    { name: 'Green', hex: '#4CAF50' },
-    { name: 'Yellow', hex: '#FFEB3B' },
-    { name: 'Grey', hex: '#808080' },
-    { name: 'Brown', hex: '#795548' },
-    { name: 'Orange', hex: '#FF9800' },
-    { name: 'Purple', hex: '#9C27B0' },
-    { name: 'Pink', hex: '#E91E63' },
-    { name: 'Navy', hex: '#1A237E' },
-    { name: 'Teal', hex: '#009688' },
-    { name: 'Maroon', hex: '#800000' },
-    { name: 'Beige', hex: '#F5F5DC' },
-    { name: 'Cream', hex: '#FFFDD0' },
-];
+import { PREDEFINED_COLORS } from '../../utils/ColorName';
 
 const ColorVariantCard = ({
     color,

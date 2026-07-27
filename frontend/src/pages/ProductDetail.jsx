@@ -854,6 +854,7 @@ import {
 } from "../utils/imageUtils";
 import { buildCustomizationMessage, buildWhatsAppUrl } from "../utils/whatsappUtils";
 import { calculateTotalPrice, formatPrice, buildOrderProduct } from "../utils/priceCalculator";
+import { sanitizeHtml, isHtmlContent } from "../utils/sanitizeHtml";
 
 // Animation components
 import { SkeletonProductDetail } from "../components/SkeletonLoaders";
@@ -1194,10 +1195,8 @@ const ProductDetail = () => {
         const waUrl = buildWhatsAppUrl(contactWhatsapp, message);
         if (waUrl) {
             window.open(waUrl, '_blank', 'noopener,noreferrer');
-        } else {
-            toast.error("Could not generate WhatsApp link.");
         }
-    }, [product, selectedColorVariant, selectedColor, selectedStandType, quantity, displayPrice, productUrl, siteName, contactWhatsapp, toast]);
+    }, [productColorOptions.length, product, selectedColorVariant, selectedColor, selectedStandType, quantity, displayPrice, productUrl, siteName, contactWhatsapp, toast]);
 
     const handleTabClick = (tabName) => setActiveTab(tabName);
 
@@ -1243,7 +1242,7 @@ const ProductDetail = () => {
     const actualTotal = priceCalculation.actualTotal;
 
     return (
-        <div className="bg-gray-50/50">
+        <div className="transition-colors duration-300" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
             <WhatsappFloatingButton product={product} productUrl={productUrl} />
             <SEO
                 title={`${metaTitleTag} - ${siteName}`}
@@ -1274,12 +1273,15 @@ const ProductDetail = () => {
 
                     {/* Right: Product Info Card */}
                     <div className="lg:col-span-7">
-                        <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5 sm:p-8 lg:p-10">
+                        <div className="rounded-3xl p-6 shadow-xs border transition-colors duration-300" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)', color: 'var(--text)' }}>
                             {/* Category Badge & Product Badges */}
                             <FadeInUp delay={0.2}>
                                 <div className="flex flex-wrap items-center gap-2">
                                     {category && (
-                                        <span className="inline-block rounded-full bg-[#2F6FED]/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#2F6FED]">
+                                        <span
+                                            style={{ backgroundColor: 'color-mix(in srgb, var(--primary) 12%, transparent)', color: 'var(--primary)' }}
+                                            className="inline-block rounded-full px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide"
+                                        >
                                             {category}
                                         </span>
                                     )}
@@ -1303,7 +1305,7 @@ const ProductDetail = () => {
 
                             {/* Title & Rating */}
                             <FadeInUp delay={0.3}>
-                                <h1 className="mt-4 text-2xl font-bold text-[#12131A] sm:text-3xl lg:text-4xl">
+                                <h1 className="mt-4 text-2xl font-bold sm:text-3xl lg:text-4xl" style={{ color: 'var(--text)' }}>
                                     {product.name}
                                 </h1>
                             </FadeInUp>
@@ -1311,7 +1313,7 @@ const ProductDetail = () => {
                             <FadeInUp delay={0.35}>
                                 <div className="mt-4 flex flex-wrap items-center gap-3">
                                     <StarRating value={rating} size={16} />
-                                    <span className="text-sm font-semibold text-[#12131A]">
+                                    <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
                                         {rating.toFixed ? rating.toFixed(1) : rating}
                                     </span>
                                     <span className="text-sm text-gray-400 underline-offset-2 hover:underline">
@@ -1363,9 +1365,17 @@ const ProductDetail = () => {
 
                             {/* Short Description */}
                             <FadeInUp delay={0.55}>
-                                <p className="mt-6 leading-relaxed text-gray-600">
-                                    {product.shortDescription || description}
-                                </p>
+                                {isHtmlContent(product.shortDescription || description) ? (
+                                    <div
+                                        className="mt-6 leading-relaxed prose-theme"
+                                        style={{ color: 'var(--text-secondary)' }}
+                                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(product.shortDescription || description) }}
+                                    />
+                                ) : (
+                                    <p className="mt-6 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                                        {product.shortDescription || description}
+                                    </p>
+                                )}
                             </FadeInUp>
 
                             {/* Color Variant Selector */}
@@ -1416,17 +1426,19 @@ const ProductDetail = () => {
                             {product.size && (
                                 <FadeInUp delay={0.75}>
                                     <div className="mt-6">
-                                        <span className="mb-3 block text-sm font-semibold text-[#12131A]">Size</span>
+                                        <span className="mb-3 block text-sm font-semibold" style={{ color: 'var(--text)' }}>Size</span>
                                         <div className="flex flex-wrap gap-3">
                                             {[product.size].map((s) => (
                                                 <button
                                                     key={s}
                                                     type="button"
                                                     onClick={() => setSelectedSize(s)}
-                                                    className={`h-11 min-w-[3.5rem] rounded-xl border px-4 text-sm font-semibold transition ${selectedSize === s
-                                                        ? "border-[#2F6FED] bg-[#2F6FED] text-white shadow-sm"
-                                                        : "border-gray-200 text-gray-600 hover:border-gray-300"
-                                                        }`}
+                                                    style={{
+                                                        backgroundColor: selectedSize === s ? 'var(--primary)' : 'transparent',
+                                                        borderColor: selectedSize === s ? 'var(--primary)' : 'var(--border)',
+                                                        color: selectedSize === s ? 'var(--btn-primary-text, #fff)' : 'var(--text)',
+                                                    }}
+                                                    className="h-11 min-w-[3.5rem] rounded-xl border px-4 text-sm font-semibold transition shadow-xs"
                                                 >
                                                     {s}
                                                 </button>
@@ -1440,23 +1452,25 @@ const ProductDetail = () => {
                             <FadeInUp delay={0.8}>
                                 <div className="mt-8 space-y-6">
                                     <div className="flex items-center gap-4">
-                                        <label className="text-sm font-semibold text-[#12131A]">Qty:</label>
-                                        <div className="flex items-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
+                                        <label className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Qty:</label>
+                                        <div className="flex items-center overflow-hidden rounded-xl border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--input-bg)' }}>
                                             <button
                                                 type="button"
                                                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                                                className="flex h-11 w-11 items-center justify-center text-gray-500 transition hover:bg-gray-200 hover:text-[#12131A]"
+                                                className="flex h-11 w-11 items-center justify-center transition hover:opacity-80"
+                                                style={{ color: 'var(--text-secondary)' }}
                                                 aria-label="Decrease quantity"
                                             >
                                                 <FaMinus size={12} />
                                             </button>
-                                            <span className="w-14 text-center text-base font-semibold text-[#12131A]">
+                                            <span className="w-14 text-center text-base font-semibold" style={{ color: 'var(--text)' }}>
                                                 {quantity}
                                             </span>
                                             <button
                                                 type="button"
                                                 onClick={() => setQuantity((q) => q + 1)}
-                                                className="flex h-11 w-11 items-center justify-center text-gray-500 transition hover:bg-gray-200 hover:text-[#12131A]"
+                                                className="flex h-11 w-11 items-center justify-center transition hover:opacity-80"
+                                                style={{ color: 'var(--text-secondary)' }}
                                                 aria-label="Increase quantity"
                                             >
                                                 <FaPlus size={12} />
@@ -1503,23 +1517,23 @@ const ProductDetail = () => {
                             {/* Feature Checklist */}
                             {(product.size || productColorOptions.length > 0) && (
                                 <FadeInUp delay={0.85}>
-                                    <div className="mt-8 rounded-2xl border border-gray-100 bg-gray-50/80 p-5">
-                                        <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">Product Details</h4>
+                                    <div className="mt-8 rounded-2xl border p-5 transition-colors duration-300" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+                                        <h4 className="text-xs font-bold uppercase tracking-wider opacity-70" style={{ color: 'var(--text-secondary)' }}>Product Details</h4>
                                         <div className="mt-3 space-y-2.5">
                                             {product.size && (
-                                                <div className="flex items-center gap-2.5 text-sm text-gray-600">
-                                                    <FaCheckCircle className="shrink-0 text-[#10B981]" size={14} />
+                                                <div className="flex items-center gap-2.5 text-sm" style={{ color: 'var(--text)' }}>
+                                                    <FaCheckCircle className="shrink-0" style={{ color: 'var(--success)' }} size={14} />
                                                     <span>Size: {product.size}</span>
                                                 </div>
                                             )}
                                             {productColorOptions.length > 0 && (
-                                                <div className="flex items-center gap-2.5 text-sm text-gray-600">
-                                                    <FaCheckCircle className="shrink-0 text-[#10B981]" size={14} />
+                                                <div className="flex items-center gap-2.5 text-sm" style={{ color: 'var(--text)' }}>
+                                                    <FaCheckCircle className="shrink-0" style={{ color: 'var(--success)' }} size={14} />
                                                     <span>{productColorOptions.length} color option{productColorOptions.length > 1 ? "s" : ""} available</span>
                                                 </div>
                                             )}
-                                            <div className="flex items-center gap-2.5 text-sm text-gray-600">
-                                                <FaCheckCircle className="shrink-0 text-[#10B981]" size={14} />
+                                            <div className="flex items-center gap-2.5 text-sm" style={{ color: 'var(--text)' }}>
+                                                <FaCheckCircle className="shrink-0" style={{ color: 'var(--success)' }} size={14} />
                                                 <span>In stock: {displayStock || 0} units</span>
                                             </div>
                                         </div>
@@ -1539,19 +1553,17 @@ const ProductDetail = () => {
 
                 {/* Tab Navigation Bar */}
                 <FadeInUp delay={1.0}>
-                    <div className="mt-12 sm:mt-16 flex border-b border-gray-200">
+                    <div className="mt-12 sm:mt-16 flex border-b" style={{ borderColor: 'var(--border)' }}>
                         {["Detail", "Specification", "Reviews"].map((tab) => (
                             <button
                                 key={tab}
                                 onClick={() => handleTabClick(tab)}
-                                className={`relative px-6 py-3.5 text-sm font-semibold transition-colors ${activeTab === tab
-                                    ? "text-[#2F6FED]"
-                                    : "text-gray-500 hover:text-[#2F6FED]"
-                                    }`}
+                                style={{ color: activeTab === tab ? 'var(--primary)' : 'var(--text-secondary)' }}
+                                className="relative px-6 py-3.5 text-sm font-semibold transition-colors hover:opacity-80"
                             >
                                 {tab}
                                 {activeTab === tab && (
-                                    <span className="absolute bottom-0 left-0 h-0.5 w-full bg-[#2F6FED] transition-all" />
+                                    <span className="absolute bottom-0 left-0 h-0.5 w-full transition-all" style={{ backgroundColor: 'var(--primary)' }} />
                                 )}
                             </button>
                         ))}
@@ -1562,71 +1574,88 @@ const ProductDetail = () => {
                 <div className="mt-6 sm:mt-8">
                     {activeTab === "Detail" && (
                         <FadeInUp key="detail">
-                            <section id="details" className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5 sm:p-8 lg:p-10">
-                                <h2 className="text-xl font-bold text-[#12131A] sm:text-2xl lg:text-3xl">
+                            <section id="details" className="rounded-3xl p-6 shadow-xs border transition-colors duration-300" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)', color: 'var(--text)' }}>
+                                <h2 className="text-xl font-bold sm:text-2xl lg:text-3xl" style={{ color: 'var(--text)' }}>
                                     Product Details
                                 </h2>
-                                <p className="mt-6 max-w-full leading-relaxed text-gray-600">{description}</p>
+                                {isHtmlContent(description) ? (
+                                    <div
+                                        className="mt-6 max-w-full prose-theme leading-relaxed"
+                                        style={{ color: 'var(--text-secondary)' }}
+                                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
+                                    />
+                                ) : (
+                                    <p className="mt-6 max-w-full leading-relaxed whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>
+                                        {description}
+                                    </p>
+                                )}
                             </section>
                         </FadeInUp>
                     )}
 
                     {activeTab === "Specification" && (
                         <FadeInUp key="specification">
-                            <section id="specification" className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5 sm:p-8 lg:p-10">
-                                <h2 className="text-xl font-bold text-[#12131A] sm:text-2xl lg:text-3xl">
+                            <section id="specification" className="rounded-3xl p-6 shadow-xs border transition-colors duration-300" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)', color: 'var(--text)' }}>
+                                <h2 className="text-xl font-bold sm:text-2xl lg:text-3xl" style={{ color: 'var(--text)' }}>
                                     Specifications
                                 </h2>
-                                <div className="mt-6 divide-y divide-gray-100">
+                                <div className="mt-6 divide-y" style={{ borderColor: 'var(--border)' }}>
                                     {product.size && (
                                         <div className="flex items-center justify-between gap-4 py-3.5">
-                                            <span className="text-sm font-medium text-gray-500">Size</span>
-                                            <span className="text-sm font-semibold text-[#12131A]">{product.size}</span>
+                                            <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Size</span>
+                                            <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>{product.size}</span>
                                         </div>
                                     )}
                                     {productColorOptions.length > 0 && (
                                         <div className="flex items-center justify-between gap-4 py-3.5">
-                                            <span className="text-sm font-medium text-gray-500">Available Colors</span>
-                                            <span className="text-sm font-semibold text-[#12131A]">{productColorOptions.map(c => c.name).join(", ")}</span>
+                                            <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Available Colors</span>
+                                            <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>{productColorOptions.map(c => c.name).join(", ")}</span>
                                         </div>
                                     )}
                                     {product.price && (
                                         <div className="flex items-center justify-between gap-4 py-3.5">
-                                            <span className="text-sm font-medium text-gray-500">Price</span>
-                                            <span className="text-sm font-semibold text-[#12131A]">Rs. {formatPrice(displayPrice)}</span>
+                                            <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Price</span>
+                                            <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Rs. {formatPrice(displayPrice)}</span>
                                         </div>
                                     )}
                                     {product.material && (
                                         <div className="flex items-center justify-between gap-4 py-3.5">
-                                            <span className="text-sm font-medium text-gray-500">Material</span>
-                                            <span className="text-sm font-semibold text-[#12131A]">{product.material}</span>
+                                            <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Material</span>
+                                            <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>{product.material}</span>
                                         </div>
                                     )}
                                     {product.weight && (
                                         <div className="flex items-center justify-between gap-4 py-3.5">
-                                            <span className="text-sm font-medium text-gray-500">Weight</span>
-                                            <span className="text-sm font-semibold text-[#12131A]">{product.weight}</span>
+                                            <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Weight</span>
+                                            <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>{product.weight}</span>
                                         </div>
                                     )}
 
                                     <div className="flex items-center justify-between gap-4 py-3.5">
-                                        <span className="text-sm font-medium text-gray-500">Stock Status</span>
-                                        <span className={`text-sm font-semibold ${isColorInStock ? "text-[#10B981]" : "text-[#E5484D]"}`}>
+                                        <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Stock Status</span>
+                                        <span className="text-sm font-semibold" style={{ color: isColorInStock ? 'var(--success)' : 'var(--error)' }}>
                                             {isColorInStock ? `In Stock (${displayStock || 0} left)` : "Out of Stock"}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between gap-4 py-3.5">
-                                        <span className="text-sm font-medium text-gray-500">Free Shipping</span>
-                                        <span className="text-sm font-semibold text-[#10B981]">Yes</span>
+                                        <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Free Shipping</span>
+                                        <span className="text-sm font-semibold" style={{ color: 'var(--success)' }}>Yes</span>
                                     </div>
-                                    {Array.isArray(product.specifications) && product.specifications.length > 0 && product.specifications.some(s => s.trim()) && (
-                                        <div className="py-3.5">
-                                            <span className="text-sm font-medium text-gray-500">Features</span>
-                                            <ul className="mt-3 list-disc list-inside space-y-2">
-                                                {product.specifications.filter(s => s.trim()).map((spec, idx) => (
-                                                    <li key={idx} className="text-sm text-[#12131A]">{spec}</li>
-                                                ))}
-                                            </ul>
+                                    {Array.isArray(product.specifications) && product.specifications.length > 0 && product.specifications.some(s => s && s.trim()) && (
+                                        <div className="py-3.5 border-t" style={{ borderColor: 'var(--border)' }}>
+                                            <span className="text-sm font-semibold block mb-2" style={{ color: 'var(--text)' }}>Features & Technical Specifications</span>
+                                            {product.specifications.some(s => isHtmlContent(s)) ? (
+                                                <div
+                                                    className="prose-theme leading-relaxed mt-2"
+                                                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(product.specifications.join('')) }}
+                                                />
+                                            ) : (
+                                                <ul className="mt-3 list-disc list-inside space-y-2">
+                                                    {product.specifications.filter(s => s && s.trim()).map((spec, idx) => (
+                                                        <li key={idx} className="text-sm" style={{ color: 'var(--text)' }}>{spec}</li>
+                                                    ))}
+                                                </ul>
+                                            )}
                                         </div>
                                     )}
                                 </div>

@@ -28,14 +28,14 @@ const PriceRangeSlider = ({ min, max, value, onChange }) => {
 
   return (
     <div className="px-1">
-      <div className="mb-4 flex items-center justify-between text-sm font-medium text-[#12131A]">
+      <div className="mb-4 flex items-center justify-between text-sm font-medium" style={{ color: 'var(--text)' }}>
         <span>Rs. {low.toLocaleString()}</span>
         <span>Rs. {high.toLocaleString()}</span>
       </div>
-      <div className="relative h-1.5 rounded-full bg-gray-200">
+      <div className="relative h-1.5 rounded-full" style={{ backgroundColor: 'var(--border)' }}>
         <div
-          className="absolute h-1.5 rounded-full bg-[#2F6FED]"
-          style={{ left: `${lowPct}%`, right: `${100 - highPct}%` }}
+          className="absolute h-1.5 rounded-full"
+          style={{ backgroundColor: 'var(--primary)', left: `${lowPct}%`, right: `${100 - highPct}%` }}
         />
         <input
           type="range"
@@ -48,9 +48,9 @@ const PriceRangeSlider = ({ min, max, value, onChange }) => {
           className="pointer-events-none absolute left-0 top-1/2 h-1.5 w-full -translate-y-1/2 appearance-none bg-transparent
             [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4
             [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2
-            [&::-webkit-slider-thumb]:border-[#2F6FED] [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow
+            [&::-webkit-slider-thumb]:border-[var(--primary)] [&::-webkit-slider-thumb]:bg-[var(--card-bg)] [&::-webkit-slider-thumb]:shadow
             [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-full
-            [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-[#2F6FED] [&::-moz-range-thumb]:bg-white"
+            [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-[var(--primary)] [&::-moz-range-thumb]:bg-[var(--card-bg)]"
         />
         <input
           type="range"
@@ -63,20 +63,20 @@ const PriceRangeSlider = ({ min, max, value, onChange }) => {
           className="pointer-events-none absolute left-0 top-1/2 h-1.5 w-full -translate-y-1/2 appearance-none bg-transparent
             [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4
             [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2
-            [&::-webkit-slider-thumb]:border-[#2F6FED] [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow
+            [&::-webkit-slider-thumb]:border-[var(--primary)] [&::-webkit-slider-thumb]:bg-[var(--card-bg)] [&::-webkit-slider-thumb]:shadow
             [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-full
-            [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-[#2F6FED] [&::-moz-range-thumb]:bg-white"
+            [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-[var(--primary)] [&::-moz-range-thumb]:bg-[var(--card-bg)]"
         />
       </div>
 
       {/* Manual min/max inputs */}
       <div className="mt-4 flex items-center gap-3">
         <div className="flex-1">
-          <label className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-gray-400">
+          <label className="mb-1 block text-[11px] font-medium uppercase tracking-wide opacity-70" style={{ color: 'var(--text-secondary)' }}>
             Min
           </label>
           <div className="relative">
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs opacity-70" style={{ color: 'var(--text-secondary)' }}>
               Rs.
             </span>
             <input
@@ -89,17 +89,18 @@ const PriceRangeSlider = ({ min, max, value, onChange }) => {
                 if (Number.isNaN(v)) return;
                 onChange([Math.min(Math.max(v, min), high - 1), high]);
               }}
-              className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-7 pr-2 text-sm text-[#12131A] outline-none transition focus:border-[#2F6FED] focus:bg-white focus:ring-4 focus:ring-[#2F6FED]/10"
+              style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text)', borderColor: 'var(--input-border)' }}
+              className="w-full rounded-lg border py-2 pl-7 pr-2 text-sm outline-none transition focus:ring-4 focus:ring-[var(--primary)]/10"
             />
           </div>
         </div>
-        <span className="mt-5 text-gray-400">–</span>
+        <span className="mt-5 opacity-70" style={{ color: 'var(--text-secondary)' }}>–</span>
         <div className="flex-1">
-          <label className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-gray-400">
+          <label className="mb-1 block text-[11px] font-medium uppercase tracking-wide opacity-70" style={{ color: 'var(--text-secondary)' }}>
             Max
           </label>
           <div className="relative">
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs opacity-70" style={{ color: 'var(--text-secondary)' }}>
               Rs.
             </span>
             <input
@@ -112,7 +113,8 @@ const PriceRangeSlider = ({ min, max, value, onChange }) => {
                 if (Number.isNaN(v)) return;
                 onChange([low, Math.max(Math.min(v, max), low + 1)]);
               }}
-              className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-7 pr-2 text-sm text-[#12131A] outline-none transition focus:border-[#2F6FED] focus:bg-white focus:ring-4 focus:ring-[#2F6FED]/10"
+              style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text)', borderColor: 'var(--input-border)' }}
+              className="w-full rounded-lg border py-2 pl-7 pr-2 text-sm outline-none transition focus:ring-4 focus:ring-[var(--primary)]/10"
             />
           </div>
         </div>
@@ -151,27 +153,29 @@ const FiltersContent = ({
     <div className="space-y-7">
       {/* Search */}
       <div>
-        <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <label className="mb-2 block text-xs font-semibold uppercase tracking-wide opacity-70" style={{ color: 'var(--text-secondary)' }}>
           Search
         </label>
         <div className="relative">
           <FiSearch
             size={16}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-70"
+            style={{ color: 'var(--text-secondary)' }}
           />
           <input
             type="text"
             value={search}
             onChange={(e) => onSearch(e.target.value)}
             placeholder="Search products..."
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-9 pr-3 text-sm text-[#12131A] outline-none transition focus:border-[#2F6FED] focus:bg-white focus:ring-4 focus:ring-[#2F6FED]/10"
+            style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text)', borderColor: 'var(--input-border)' }}
+            className="w-full rounded-xl border py-2.5 pl-9 pr-3 text-sm outline-none transition focus:ring-4 focus:ring-[var(--primary)]/10"
           />
         </div>
       </div>
 
       {/* Categories */}
       <div>
-        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide opacity-70" style={{ color: 'var(--text-secondary)' }}>
           Categories
         </h3>
         <ul className="space-y-1">
@@ -179,10 +183,8 @@ const FiltersContent = ({
             <button
               type="button"
               onClick={() => onSelectCategory("")}
-              className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition ${selectedCategory === ""
-                ? "bg-[#2F6FED] text-white"
-                : "text-gray-600 hover:bg-gray-100"
-                }`}
+              style={{ backgroundColor: selectedCategory === "" ? 'var(--primary)' : 'transparent', color: selectedCategory === "" ? 'var(--btn-primary-text, #fff)' : 'var(--text)' }}
+              className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition ${selectedCategory !== "" && "hover:bg-gray-100"}`}
             >
               All Products
               {selectedCategory === "" && <FiChevronDown size={14} className="rotate-90" />}
@@ -207,10 +209,8 @@ const FiltersContent = ({
                       prev && openFlyout === name ? null : rect
                     );
                   }}
-                  className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition ${active
-                    ? "bg-[#2F6FED] text-white"
-                    : "text-gray-600 hover:bg-gray-100"
-                    }`}
+                  style={{ backgroundColor: active ? 'var(--primary)' : 'transparent', color: active ? 'var(--btn-primary-text, #fff)' : 'var(--text)' }}
+                  className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition ${!active && "hover:bg-gray-100"}`}
                 >
                   <span>{name}</span>
                   {subs.length > 0 ? (
@@ -246,8 +246,8 @@ const FiltersContent = ({
                   aria-hidden="true"
                 />
                 <ul
-                  className="fixed z-[1000] w-52 rounded-xl border border-gray-100 bg-white p-2 shadow-xl"
-                  style={{ top: anchorRect.top, left }}
+                  className="fixed z-[1000] w-52 rounded-xl border p-2 shadow-xl transition-colors duration-300"
+                  style={{ top: anchorRect.top, left, backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)', color: 'var(--text)' }}
                 >
                   <li>
                     <button
@@ -256,7 +256,8 @@ const FiltersContent = ({
                         onSelectCategoryAndSub(openFlyout, "");
                         closeFlyout();
                       }}
-                      className="mb-1 block w-full rounded-lg px-3 py-1.5 text-left text-sm font-semibold text-[#2F6FED] transition hover:bg-[#2F6FED]/10"
+                      style={{ color: 'var(--primary)' }}
+                      className="mb-1 block w-full rounded-lg px-3 py-1.5 text-left text-sm font-semibold transition hover:bg-[var(--primary)]/10"
                     >
                       All {openFlyout}
                     </button>
@@ -271,10 +272,8 @@ const FiltersContent = ({
                             onSelectCategoryAndSub(openFlyout, sub);
                             closeFlyout();
                           }}
-                          className={`block w-full rounded-lg px-3 py-1.5 text-left text-sm transition ${subActive
-                            ? "bg-[#2F6FED]/10 font-semibold text-[#2F6FED]"
-                            : "text-gray-600 hover:bg-gray-100"
-                            }`}
+                          style={{ backgroundColor: subActive ? 'var(--primary)/10' : 'transparent', color: subActive ? 'var(--primary)' : 'var(--text)' }}
+                          className={`block w-full rounded-lg px-3 py-1.5 text-left text-sm transition ${!subActive && "hover:bg-gray-100"}`}
                         >
                           {sub}
                         </button>
@@ -291,7 +290,7 @@ const FiltersContent = ({
 
       {/* Price Range */}
       <div>
-        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide opacity-70" style={{ color: 'var(--text-secondary)' }}>
           Price Range
         </h3>
         <PriceRangeSlider
@@ -304,13 +303,14 @@ const FiltersContent = ({
 
       {/* Sort */}
       <div>
-        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide opacity-70" style={{ color: 'var(--text-secondary)' }}>
           Sort By
         </h3>
         <select
           value={sort}
           onChange={(e) => onSortChange(e.target.value)}
-          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-[#12131A] outline-none transition focus:border-[#2F6FED] focus:bg-white focus:ring-4 focus:ring-[#2F6FED]/10"
+          style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text)', borderColor: 'var(--input-border)' }}
+          className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition focus:ring-4 focus:ring-[var(--primary)]/10"
         >
           <option value="default">Featured</option>
           <option value="price-asc">Price: Low to High</option>
@@ -322,7 +322,8 @@ const FiltersContent = ({
       <button
         type="button"
         onClick={onClearAll}
-        className="w-full rounded-xl border border-gray-200 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-100"
+        style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)', color: 'var(--text)' }}
+        className="w-full rounded-xl border py-2.5 text-sm font-semibold transition hover:opacity-80"
       >
         Clear All Filters
       </button>
@@ -555,7 +556,7 @@ const Products = () => {
         {/* Header / Mobile filter toggle */}
         <motion.div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between" variants={sectionHeading}>
           <div>
-            <h1 className="text-2xl font-bold text-[#12131A] sm:text-3xl">
+            <h1 className="text-2xl font-bold sm:text-3xl" style={{ color: 'var(--text)' }}>
               {isSearchResultsPage ? `Search Results` : (selectedSubcategory || selectedCategory || "All Products")}
             </h1>
             {isSearchResultsPage && (
@@ -581,7 +582,7 @@ const Products = () => {
         {/* Desktop Sidebar */}
         <AnimatedSection direction="right" className="hidden w-64 shrink-0 lg:block">
           <aside className="w-full">
-            <motion.div variants={sectionHeading} className="sticky top-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <motion.div variants={sectionHeading} className="sticky top-6 rounded-2xl border p-5 shadow-xs transition-colors duration-300" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)', color: 'var(--text)' }}>
               <FiltersContent
                 categories={categories}
                 selectedCategory={selectedCategory}
@@ -620,8 +621,8 @@ const Products = () => {
             ) : filtered.length === 0 ? (
               <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-20 text-center text-gray-500">
                 {isSearchResultsPage
-                  ? <>No products match your search.<div className="mt-4"><button type="button" onClick={handleClearAll} className="rounded-xl bg-[#2F6FED] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2F6FED]/90">Clear Search</button></div></>
-                  : <>No products match your filters.<div className="mt-4"><button type="button" onClick={handleClearAll} className="rounded-xl bg-[#2F6FED] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2F6FED]/90">Clear Filters</button></div></>}
+                  ? <>No products match your search.<div className="mt-4"><button type="button" onClick={handleClearAll} className="rounded-xl bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90">Clear Search</button></div></>
+                  : <>No products match your filters.<div className="mt-4"><button type="button" onClick={handleClearAll} className="rounded-xl bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90">Clear Filters</button></div></>}
               </motion.div>
             ) : (
               <motion.div key="products" variants={staggerContainer} initial="initial" animate="animate" 
@@ -637,7 +638,7 @@ const Products = () => {
                         hoverImage={hoverImage}
                         name={product.name}
                         price={product.price}
-                        description={product.description || product.detail || "No description available."}
+                        description={product.shortDescription || product.description || product.detail || "No description available."}
                         rating={product.avgRating || 0}
                         reviews={product.totalReviews || 0}
                         category={product.category}
@@ -661,9 +662,9 @@ const Products = () => {
             onClick={() => setMobileFiltersOpen(false)}
             aria-hidden="true"
           />
-          <div className="relative ml-auto flex h-full w-[85%] max-w-sm flex-col bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
-              <h2 className="text-base font-semibold text-[#12131A]">Filters</h2>
+          <div className="relative ml-auto flex h-full w-[85%] max-w-sm flex-col shadow-xl transition-colors duration-300" style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text)' }}>
+            <div className="flex items-center justify-between border-b px-5 py-4" style={{ borderColor: 'var(--border)' }}>
+              <h2 className="text-base font-semibold" style={{ color: 'var(--text)' }}>Filters</h2>
               <button
                 type="button"
                 onClick={() => setMobileFiltersOpen(false)}
@@ -697,7 +698,8 @@ const Products = () => {
               <button
                 type="button"
                 onClick={() => setMobileFiltersOpen(false)}
-                className="w-full rounded-xl bg-[#2F6FED] py-3 text-sm font-semibold text-white transition hover:bg-[#2F6FED]/90"
+                style={{ backgroundColor: 'var(--primary)', color: 'var(--btn-primary-text, #fff)' }}
+                className="w-full rounded-xl py-3 text-sm font-semibold transition hover:opacity-90"
               >
                 Show {filtered.length} Result{filtered.length === 1 ? "" : "s"}
               </button>

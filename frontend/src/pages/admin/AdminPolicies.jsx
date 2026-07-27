@@ -7,6 +7,7 @@ import {
 } from "react-icons/fi";
 import api from "../../api/api";
 import { useToast } from "../../components/ToastNotification";
+import RichTextEditor from "../../components/common/RichTextEditor";
 
 const AdminPolicies = () => {
     const [privacyPolicy, setPrivacyPolicy] = useState("");
@@ -67,7 +68,6 @@ const AdminPolicies = () => {
         );
     }
 
-    const textareaClass = "block w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm outline-none transition focus:border-[#2F6FED] focus:bg-white focus:ring-4 focus:ring-[#2F6FED]/10";
     const sectionClass = "rounded-2xl border border-gray-100 bg-white p-6 shadow-sm";
 
     return (
@@ -88,7 +88,6 @@ const AdminPolicies = () => {
                     }`}
                 >
                     {status.type === "success" ? <FiCheckCircle size={16} /> : <FiAlertCircle size={16} />}
-                    {status.message}
                 </div>
             )}
 
@@ -100,11 +99,9 @@ const AdminPolicies = () => {
                             This content is displayed on the Privacy Policy page section.
                         </p>
                     </div>
-                    <textarea
+                    <RichTextEditor
                         value={privacyPolicy}
-                        onChange={(e) => setPrivacyPolicy(e.target.value)}
-                        rows={12}
-                        className={textareaClass}
+                        onChange={(html) => setPrivacyPolicy(html)}
                         placeholder="Enter privacy policy content..."
                     />
                 </section>
@@ -116,11 +113,9 @@ const AdminPolicies = () => {
                             This content is displayed on the Return Policy page section.
                         </p>
                     </div>
-                    <textarea
+                    <RichTextEditor
                         value={returnPolicy}
-                        onChange={(e) => setReturnPolicy(e.target.value)}
-                        rows={12}
-                        className={textareaClass}
+                        onChange={(html) => setReturnPolicy(html)}
                         placeholder="Enter return policy content..."
                     />
                 </section>
@@ -132,11 +127,9 @@ const AdminPolicies = () => {
                             This content is displayed on the Warranty Policy page section.
                         </p>
                     </div>
-                    <textarea
+                    <RichTextEditor
                         value={warrantyPolicy}
-                        onChange={(e) => setWarrantyPolicy(e.target.value)}
-                        rows={12}
-                        className={textareaClass}
+                        onChange={(html) => setWarrantyPolicy(html)}
                         placeholder="Enter warranty policy content..."
                     />
                 </section>

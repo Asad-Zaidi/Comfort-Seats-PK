@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { getEffectivePricing, formatPrice } from "../utils/priceCalculator";
+import { stripHtml } from "../utils/sanitizeHtml";
 
 const ProductCard = ({
     image,
@@ -18,7 +19,6 @@ const ProductCard = ({
     product, // Full product object for discount-aware pricing
 }) => {
     const [isHovered, setIsHovered] = useState(false);
-
     const [imageLoaded, setImageLoaded] = useState(false);
     const displayImage = isHovered && hoverImage ? hoverImage : image;
 
@@ -31,19 +31,26 @@ const ProductCard = ({
     return (
         <Link
             to={to}
-            className="group flex flex-col h-full w-full max-w-xl mx-auto bg-white rounded-2xl border border-gray-200 shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="group flex flex-col h-full w-full max-w-xl mx-auto rounded-2xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-300"
+            style={{
+                backgroundColor: 'var(--card-bg)',
+                border: 'var(--card-border-width, 1px) solid var(--card-border)',
+                borderRadius: 'var(--card-border-radius)',
+                boxShadow: 'var(--card-shadow)',
+            }}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
             {/* Product Image */}
-            <div className="relative w-full aspect-square overflow-hidden bg-gray-50">
+            <div className="relative w-full aspect-square overflow-hidden" style={{ background: 'var(--bg-secondary)' }}>
                 {/* Category Badge - Top Left */}
                 {category && (
                     <div className="absolute left-3 top-3 z-10">
                         <Link
                             to={`/products?category=${encodeURIComponent(typeof category === 'string' ? category : (Array.isArray(category) ? category[0] : ''))}`}
                             onClick={(e) => e.stopPropagation()}
-                            className="inline-block rounded-full bg-[#2F6FED]/90 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white shadow-sm backdrop-blur-sm transition hover:bg-[#2F6FED]"
+                            className="inline-block rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide shadow-sm backdrop-blur-sm transition"
+                            style={{ backgroundColor: 'var(--primary)', color: 'var(--btn-primary-text, #fff)' }}
                         >
                             {typeof category === 'string' ? category : (Array.isArray(category) ? category[0] : '')}
                         </Link>
@@ -52,12 +59,12 @@ const ProductCard = ({
                 {/* Product Badges - Top Right (stacked vertically) */}
                 <div className="absolute right-3 top-3 z-10 flex flex-col gap-1.5">
                     {product?.isNewArrival && (
-                        <span className="inline-block rounded-full bg-emerald-500 px-3 py-1 text-xs font-bold text-white shadow-sm">
+                        <span className="inline-block rounded-full px-3 py-1 text-xs font-bold text-white shadow-sm" style={{ backgroundColor: 'var(--success)' }}>
                             New
                         </span>
                     )}
                     {product?.isBestSeller && (
-                        <span className="inline-block rounded-full bg-amber-500 px-3 py-1 text-xs font-bold text-white shadow-sm">
+                        <span className="inline-block rounded-full px-3 py-1 text-xs font-bold text-white shadow-sm" style={{ backgroundColor: 'var(--secondary)' }}>
                             Best Seller
                         </span>
                     )}
@@ -67,7 +74,7 @@ const ProductCard = ({
                         </span>
                     )}
                     {showDiscount && (
-                        <span className="inline-block rounded-full bg-red-500 px-3 py-1 text-xs font-bold text-white shadow-sm">
+                        <span className="inline-block rounded-full px-3 py-1 text-xs font-bold text-white shadow-sm" style={{ backgroundColor: 'var(--error)' }}>
                             {pricing.discountPercentage}% OFF
                         </span>
                     )}
@@ -90,22 +97,22 @@ const ProductCard = ({
 
                 {/* Name & Price */}
                 <div className="flex justify-between items-start gap-3">
-                    <h3 className="text-lg font-semibold text-gray-800 leading-6 line-clamp-3">
+                    <h3 className="text-lg font-semibold leading-6 line-clamp-3" style={{ color: 'var(--product-name-color, var(--text))' }}>
                         {name}
                     </h3>
 
                     <div className="flex flex-col items-end shrink-0">
                         {showDiscount ? (
                             <>
-                                <span className="text-xl font-bold text-red-500 whitespace-nowrap">
+                                <span className="text-xl font-bold whitespace-nowrap" style={{ color: 'var(--product-discount-color, var(--error))' }}>
                                     Rs. {formatPrice(displayPrice)}
                                 </span>
-                                <span className="text-sm text-gray-400 line-through whitespace-nowrap">
+                                <span className="text-sm line-through whitespace-nowrap" style={{ color: 'var(--text-light)' }}>
                                     Rs. {formatPrice(actualPrice)}
                                 </span>
                             </>
                         ) : (
-                            <span className="text-xl font-bold text-blue-600 whitespace-nowrap">
+                            <span className="text-xl font-bold whitespace-nowrap" style={{ color: 'var(--product-price-color, var(--primary))' }}>
                                 Rs. {formatPrice(displayPrice)}
                             </span>
                         )}
@@ -114,34 +121,37 @@ const ProductCard = ({
 
                 {/* Description */}
                 <div className="relative mt-3 h-12 overflow-hidden">
-                    <p className="text-sm text-gray-500 leading-6">
-                        {description}
+                    <p className="text-sm leading-6" style={{ color: 'var(--text-secondary)' }}>
+                        {stripHtml(description)}
                     </p>
-
-                    {/* Fade Effect */}
                     <div className="absolute bottom-0 left-0 w-full h-6"></div>
                 </div>
 
                 {/* Rating */}
                 <div className="flex items-center gap-2 mt-4">
-                    <div className="flex text-yellow-400 text-sm">
+                    <div className="flex text-sm" style={{ color: 'var(--rating-star-color, #F59E0B)' }}>
                         {[...Array(5)].map((_, i) => (
                             <FaStar key={i} />
                         ))}
                     </div>
-
-                    <span className="text-sm font-semibold text-gray-700">
+                    <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
                         {rating}
                     </span>
-
-                    <span className="text-sm text-gray-400">
+                    <span className="text-sm" style={{ color: 'var(--text-light)' }}>
                         ({reviews})
                     </span>
                 </div>
 
                 {/* Push Button to Bottom */}
                 <div className="mt-auto pt-6">
-                    <motion.span whileTap={{ scale: 0.97 }} className={`block w-full py-3 rounded-xl text-white text-center font-semibold tracking-wide transition-all duration-300 ${isCustomizable ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-blue-600 hover:bg-orange-500'}`}>
+                    <motion.span
+                        whileTap={{ scale: 0.97 }}
+                        className="block w-full py-3 rounded-xl text-center font-semibold tracking-wide transition-all duration-300"
+                        style={{
+                            backgroundColor: isCustomizable ? 'var(--btn-success-bg, #10B981)' : 'var(--btn-primary-bg, var(--primary))',
+                            color: isCustomizable ? 'var(--btn-success-text, #fff)' : 'var(--btn-primary-text, #fff)',
+                        }}
+                    >
                         {isCustomizable ? "Customize Now" : "Buy Now"}
                     </motion.span>
                 </div>

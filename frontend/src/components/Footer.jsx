@@ -5,6 +5,7 @@ import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
 import { FaTiktok } from "react-icons/fa6";
 import api from "../api/api";
 import { useSiteConfig } from "../utils/siteConfig";
+import { sanitizeHtml, isHtmlContent } from "../utils/sanitizeHtml";
 
 const socialLinks = [
     { key: "instagram", label: "Instagram", icon: FaInstagram },
@@ -82,20 +83,40 @@ const Footer = () => {
 
 
     return (
-        <footer className="bg-[#0F1320] text-gray-400">
+        <footer
+            className="transition-colors duration-300"
+            style={{
+                backgroundColor: 'var(--footer-bg, #12131A)',
+                color: 'var(--footer-link, #9ca3af)',
+            }}
+        >
             <div className="mx-auto max-w-full px-8 py-12 lg:px-32">
                 <div className="grid grid-cols-2 gap-y-10 gap-x-6 lg:grid-cols-[2.5fr_1fr_1fr_1fr_2fr]">
-                    {/* Brand - mobile: full width row 1 | desktop: col 1 */}
+                    {/* Brand */}
                     <div className="col-span-2 order-1 lg:order-1 lg:col-span-1">
                         <Link to={siteUrl || "/"} className="inline-block">
-                            <h3 className="text-xl font-bold text-white hover:text-blue-400 transition-colors">
+                            <h3
+                                className="text-xl font-bold transition-colors hover:opacity-80"
+                                style={{ color: 'var(--footer-text, #ffffff)' }}
+                            >
                                 {brandName}
                             </h3>
                         </Link>
 
-                        <p className="mt-4 max-w-sm text-sm leading-6 text-gray-400">
-                            {aboutDescription || "Trusted furniture manufacturer since 1995. Gaming chairs, office chairs, sofas, and complete office furniture - crafted for comfort that lasts."}
-                        </p>
+                        {(() => {
+                            const descToRender = aboutDescription || "Formerly known as <b>Saqib Poshish House</b>, <i>Comfort Seats PK</i> is a trusted furniture manufacturer built on years of craftsmanship, reliability, and customer satisfaction - based in <b>Lahore, Pakistan</b>.";
+                            return isHtmlContent(descToRender) ? (
+                                <div
+                                    className="mt-4 max-w-sm text-sm leading-6 [&_b]:font-semibold [&_b]:text-white [&_i]:italic [&_strong]:text-white"
+                                    style={{ color: 'var(--footer-link, #9ca3af)' }}
+                                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(descToRender) }}
+                                />
+                            ) : (
+                                <p className="mt-4 max-w-sm text-sm leading-6 whitespace-pre-line" style={{ color: 'var(--footer-link, #9ca3af)' }}>
+                                    {descToRender}
+                                </p>
+                            );
+                        })()}
 
                         {activeSocials.length > 0 && (
                             <div className="mt-6 flex flex-wrap gap-3">
@@ -107,7 +128,11 @@ const Footer = () => {
                                         rel="noopener noreferrer"
                                         aria-label={label}
                                         title={label}
-                                        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-gray-300 transition hover:border-[#2F6FED] hover:bg-[#2F6FED] hover:text-white"
+                                        style={{
+                                            borderColor: 'var(--footer-border, #374151)',
+                                            color: 'var(--footer-link, #9ca3af)',
+                                        }}
+                                        className="flex h-10 w-10 items-center justify-center rounded-full border transition hover:opacity-90"
                                     >
                                         <Icon size={15} />
                                     </a>
@@ -116,9 +141,9 @@ const Footer = () => {
                         )}
                     </div>
 
-                    {/* Quick Links - mobile: col 1, row 2 | desktop: col 2 */}
+                    {/* Quick Links */}
                     <div className="order-2 lg:order-2">
-                        <h4 className="text-sm font-semibold uppercase tracking-wide text-white">
+                        <h4 className="text-sm font-semibold uppercase tracking-wide" style={{ color: 'var(--footer-text, #ffffff)' }}>
                             Quick Links
                         </h4>
                         <ul className="mt-5 space-y-3">
@@ -126,7 +151,8 @@ const Footer = () => {
                                 <li key={to}>
                                     <Link
                                         to={to}
-                                        className="group inline-flex items-center gap-1.5 text-sm text-gray-400 transition hover:text-white"
+                                        style={{ color: 'var(--footer-link, #9ca3af)' }}
+                                        className="group inline-flex items-center gap-1.5 text-sm transition hover:opacity-80"
                                     >
                                         {label}
                                         <FiArrowUpRight
@@ -139,9 +165,9 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    {/* Categories - mobile: col 2, row 2 (side by side with Quick Links) | desktop: col 4 */}
+                    {/* Categories */}
                     <div className="order-3 lg:order-4">
-                        <h4 className="text-sm font-semibold uppercase tracking-wide text-white">
+                        <h4 className="text-sm font-semibold uppercase tracking-wide" style={{ color: 'var(--footer-text, #ffffff)' }}>
                             Categories
                         </h4>
                         <ul className="mt-5 space-y-3">
@@ -152,7 +178,8 @@ const Footer = () => {
                                         <li key={catName}>
                                             <Link
                                                 to={`/products?category=${encodeURIComponent(catName)}`}
-                                                className="group inline-flex items-center gap-1.5 text-sm text-gray-400 transition hover:text-white"
+                                                style={{ color: 'var(--footer-link, #9ca3af)' }}
+                                                className="group inline-flex items-center gap-1.5 text-sm transition hover:opacity-80"
                                             >
                                                 {catName}
                                                 <FiArrowUpRight
@@ -164,14 +191,14 @@ const Footer = () => {
                                     );
                                 })
                             ) : (
-                                <li className="text-sm text-gray-500">No categories available</li>
+                                <li className="text-sm opacity-60">No categories available</li>
                             )}
                         </ul>
                     </div>
 
-                    {/* Policies - mobile: full width, row 3 | desktop: col 3 */}
+                    {/* Policies */}
                     <div className="col-span-2 order-4 lg:order-3 lg:col-span-1">
-                        <h4 className="text-sm font-semibold uppercase tracking-wide text-white">
+                        <h4 className="text-sm font-semibold uppercase tracking-wide" style={{ color: 'var(--footer-text, #ffffff)' }}>
                             Policies
                         </h4>
                         <ul className="mt-5 space-y-3">
@@ -179,7 +206,8 @@ const Footer = () => {
                                 <li key={label}>
                                     <Link
                                         to={to}
-                                        className="group inline-flex items-center gap-1.5 text-sm text-gray-400 transition hover:text-white"
+                                        style={{ color: 'var(--footer-link, #9ca3af)' }}
+                                        className="group inline-flex items-center gap-1.5 text-sm transition hover:opacity-80"
                                     >
                                         {label}
                                         <FiArrowUpRight
@@ -192,36 +220,36 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    {/* Contact Info - mobile: full width, row 4 | desktop: col 5 */}
+                    {/* Contact Info */}
                     <div className="col-span-2 order-5 lg:order-5 lg:col-span-1">
-                        <h4 className="text-sm font-semibold uppercase tracking-wide text-white">
+                        <h4 className="text-sm font-semibold uppercase tracking-wide" style={{ color: 'var(--footer-text, #ffffff)' }}>
                             Get in Touch
                         </h4>
                         <ul className="mt-5 space-y-4">
                             {contact?.address && (
                                 <li className="flex items-start gap-2.5 text-sm">
-                                    <FiMapPin size={15} className="mt-0.5 shrink-0 text-[#2F6FED]" />
+                                    <FiMapPin size={15} className="mt-0.5 shrink-0" style={{ color: 'var(--primary)' }} />
                                     <span>{contact.address}</span>
                                 </li>
                             )}
                             {contact?.phone && (
                                 <li className="flex items-start gap-2.5 text-sm">
-                                    <FiPhone size={15} className="mt-0.5 shrink-0 text-[#2F6FED]" />
-                                    <a href={`tel:${contact.phone}`} className="transition hover:text-white">
+                                    <FiPhone size={15} className="mt-0.5 shrink-0" style={{ color: 'var(--primary)' }} />
+                                    <a href={`tel:${contact.phone}`} className="transition hover:opacity-80">
                                         {contact.phone}
                                     </a>
                                 </li>
                             )}
                             {contact?.email && (
                                 <li className="flex items-start gap-2.5 text-sm">
-                                    <FiMail size={15} className="mt-0.5 shrink-0 text-[#2F6FED]" />
-                                    <a href={`mailto:${contact.email}`} className="break-all transition hover:text-white">
+                                    <FiMail size={15} className="mt-0.5 shrink-0" style={{ color: 'var(--primary)' }} />
+                                    <a href={`mailto:${contact.email}`} className="break-all transition hover:opacity-80">
                                         {contact.email}
                                     </a>
                                 </li>
                             )}
                             {!contact?.address && !contact?.phone && !contact?.email && (
-                                <li className="text-sm text-gray-500">Lahore, Pakistan</li>
+                                <li className="text-sm opacity-60">Lahore, Pakistan</li>
                             )}
                         </ul>
                     </div>
@@ -229,10 +257,10 @@ const Footer = () => {
             </div>
 
             {/* Bottom bar */}
-            <div className="border-t border-white/10">
-                <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-5 py-1 text-xs text-gray-500 sm:flex-row lg:px-8">
+            <div className="border-t" style={{ borderColor: 'var(--footer-border, #374151)' }}>
+                <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-5 py-3 text-xs opacity-70 sm:flex-row lg:px-8">
                     <p>&copy; {year} {brandName}. All rights reserved.</p>
-                    <p>Powered By: <a href="https://github.com/Asad-Zaidi" target="_blank" rel="noopener noreferrer" className="transition hover:text-white">Asad Zaidi</a></p>
+                    <p>Powered By: <a href="https://github.com/Asad-Zaidi" target="_blank" rel="noopener noreferrer" className="transition hover:opacity-100">Asad Zaidi</a></p>
                 </div>
             </div>
         </footer>
