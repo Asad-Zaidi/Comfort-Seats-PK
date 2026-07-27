@@ -904,25 +904,28 @@ const extractColorOptions = (product) => {
             price: c.price,
             stock: c.stock,
             inStock: c.inStock !== undefined ? c.inStock : true,
+            isDefault: c.isDefault === true,
             images: Array.isArray(c.images) ? c.images.map(img => img.url || img) : [],
         }));
     }
     // Legacy: color array of hex strings
     if (Array.isArray(product.color) && product.color.length > 0) {
-        return product.color.filter(Boolean).map(c => ({
+        return product.color.filter(Boolean).map((c, idx) => ({
             name: getColorName(c),
             hex: c,
+            isDefault: idx === 0,
             images: [],
         }));
     }
     // Legacy: colorVariants array
     if (Array.isArray(product.colorVariants) && product.colorVariants.length > 0) {
-        return product.colorVariants.map(v => ({
+        return product.colorVariants.map((v, idx) => ({
             name: getColorName(v.color),
             hex: v.color,
             price: v.price,
             stock: v.stock,
             inStock: v.inStock,
+            isDefault: idx === 0,
             images: v.imageUrl ? [v.imageUrl] : [],
         }));
     }
@@ -1080,6 +1083,16 @@ const ProductDetail = () => {
         setActiveImage(coverImageIndex || 0);
     }, [galleryImages, coverImageIndex, selectedColor, selectedStandType]);
 
+    // Auto-select default color on product load
+    useEffect(() => {
+        if (productColorOptions.length > 0 && !selectedColor) {
+            const defaultOpt = productColorOptions.find(c => c.isDefault) || productColorOptions[0];
+            if (defaultOpt) {
+                setSelectedColor(defaultOpt.hex || defaultOpt.name);
+            }
+        }
+    }, [productColorOptions, selectedColor]);
+
 
 
     // Set default size
@@ -1230,8 +1243,8 @@ const ProductDetail = () => {
     }
 
     // --- Derived Data ---
-    const rating = product.avgRating ?? 0;
-    const reviews = product.totalReviews ?? 0;
+    const reviews = Number(product.totalReviews) || 0;
+    const rating = reviews > 0 ? (Number(product.avgRating) || 0) : 0;
     const description = product.detail || product.description || "No description available.";
     const category = Array.isArray(product.category) ? product.category[0] : product.category;
     const metaTitleTag = product.metaTitle || product.name;

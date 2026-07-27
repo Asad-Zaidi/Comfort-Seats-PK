@@ -25,8 +25,21 @@ const ImagesVariantsStep = ({
         onChange({ ...formData, colors: updatedColors });
     };
 
+    const handleSetDefaultColor = (defaultIndex) => {
+        const updatedColors = (formData.colors || []).map((c, i) => ({
+            ...c,
+            isDefault: i === defaultIndex,
+        }));
+        onChange({ ...formData, colors: updatedColors });
+    };
+
     const handleRemoveColor = (index) => {
-        const updatedColors = (formData.colors || []).filter((_, i) => i !== index);
+        const currentColors = formData.colors || [];
+        const wasDefault = currentColors[index]?.isDefault;
+        const updatedColors = currentColors.filter((_, i) => i !== index);
+        if (wasDefault && updatedColors.length > 0) {
+            updatedColors[0] = { ...updatedColors[0], isDefault: true };
+        }
         onChange({ ...formData, colors: updatedColors });
     };
 
@@ -123,6 +136,7 @@ const ImagesVariantsStep = ({
                                 index={idx}
                                 onChange={handleColorChange}
                                 onRemove={handleRemoveColor}
+                                onSetDefault={handleSetDefaultColor}
                                 errors={errors.colors?.[idx] || {}}
                                 disabled={submitting}
                             />

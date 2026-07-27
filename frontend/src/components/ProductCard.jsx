@@ -2,7 +2,7 @@ import { FaStar } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { getEffectivePricing, formatPrice } from "../utils/priceCalculator";
+import { calculateTotalPrice, formatPrice } from "../utils/priceCalculator";
 import { stripHtml } from "../utils/sanitizeHtml";
 
 const ProductCard = ({
@@ -22,11 +22,16 @@ const ProductCard = ({
     const [imageLoaded, setImageLoaded] = useState(false);
     const displayImage = isHovered && hoverImage ? hoverImage : image;
 
-    // Use shared price calculator for discount-aware pricing
-    const pricing = getEffectivePricing(product || { price });
-    const displayPrice = pricing.effectivePrice;
-    const actualPrice = pricing.actualPrice;
+    // Use shared price calculator for discount-aware and default-color pricing
+    const pricing = calculateTotalPrice(product || { price }, null, null, true);
+    const displayPrice = pricing.total;
+    const actualPrice = pricing.actualTotal;
     const showDiscount = pricing.isDiscountEnabled && pricing.discountPercentage > 0;
+
+    const numReviews = Number(reviews) || 0;
+    const numericRating = Number(rating) || 0;
+    const hasReviews = numReviews > 0 && numericRating > 0;
+    const roundedRating = hasReviews ? Math.round(numericRating) : 0;
 
     return (
         <Link
@@ -129,16 +134,21 @@ const ProductCard = ({
 
                 {/* Rating */}
                 <div className="flex items-center gap-2 mt-4">
-                    <div className="flex text-sm" style={{ color: 'var(--rating-star-color, #F59E0B)' }}>
+                    <div className="flex text-sm gap-0.5">
                         {[...Array(5)].map((_, i) => (
-                            <FaStar key={i} />
+                            <FaStar
+                                key={i}
+                                style={{
+                                    color: i < roundedRating ? 'var(--rating-star-color, #F59E0B)' : 'var(--text-light, #D1D5DB)'
+                                }}
+                            />
                         ))}
                     </div>
                     <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
-                        {rating}
+                        {numericRating}
                     </span>
                     <span className="text-sm" style={{ color: 'var(--text-light)' }}>
-                        ({reviews})
+                        ({numReviews})
                     </span>
                 </div>
 

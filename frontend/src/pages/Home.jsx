@@ -189,23 +189,10 @@ const Home = () => {
       try {
         const res = await api.get("/products/reviews/featured?limit=6&minRating=4");
         const fetched = res.data?.success && Array.isArray(res.data.data) ? res.data.data : [];
-        if (fetched.length >= 3) {
-          setTestimonials(fetched);
-        } else {
-          const defaults = [
-            { _id: "df1", text: "Absolutely incredible experience! The quality blew me away and it looks stunning in our space. Will definitely buy again.", name: "Sarah J.", rating: 5, productName: "Comfort Seat" },
-            { _id: "df2", text: "Super clean aesthetic and incredibly sturdy. It fits perfectly into our office workflow. Highly recommended!", name: "Mark T.", rating: 5, productName: "Office Chair" },
-            { _id: "df3", text: "Fast shipping and superb customer support. The setup took less than ten minutes and the results speak for themselves.", name: "Elena R.", rating: 5, productName: "Executive Seat" },
-          ];
-          setTestimonials(fetched.length > 0 ? [...fetched, ...defaults].slice(0, 6) : defaults);
-        }
+        setTestimonials(fetched);
       } catch (err) {
         console.error("Failed to load customer reviews:", err);
-        setTestimonials([
-          { _id: "df1", text: "Absolutely incredible experience! The quality blew me away and it looks stunning in our space. Will definitely buy again.", name: "Sarah J.", rating: 5, productName: "Comfort Seat" },
-          { _id: "df2", text: "Super clean aesthetic and incredibly sturdy. It fits perfectly into our office workflow. Highly recommended!", name: "Mark T.", rating: 5, productName: "Office Chair" },
-          { _id: "df3", text: "Fast shipping and superb customer support. The setup took less than ten minutes and the results speak for themselves.", name: "Elena R.", rating: 5, productName: "Executive Seat" },
-        ]);
+        setTestimonials([]);
       } finally {
         setLoadingTestimonials(false);
       }
@@ -560,7 +547,7 @@ const Home = () => {
                       >
                         <div className="flex-1 overflow-hidden">
                           <div className="flex justify-center sm:justify-start">
-                            <StarRating value={review.rating || 5} size={16} />
+                            <StarRating value={review.rating || 0} size={16} />
                           </div>
                           <div className="relative mt-3 overflow-hidden">
                             <p
@@ -591,7 +578,7 @@ const Home = () => {
                 </div>
               ) : (
                 <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mx-auto max-w-xl text-sm leading-6" style={{ color: textSecondary }}>
-                  No customer reviews over 4 stars yet.
+                  No customer reviews yet.
                 </motion.p>
               )}
 

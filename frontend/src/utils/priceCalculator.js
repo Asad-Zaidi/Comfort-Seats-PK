@@ -1,3 +1,5 @@
+import { getDefaultColorVariant } from './imageUtils';
+
 /**
  * Shared Price Calculator Utility
  * 
@@ -90,10 +92,15 @@ export function calculateTotalPrice(product, selectedColor = null, selectedStand
     let colorPrice = 0;
     let standPrice = 0;
 
+    const activeColorKey = selectedColor || (() => {
+        const def = getDefaultColorVariant(product);
+        return def ? (def.hex || def.name) : null;
+    })();
+
     // Color add-on price
-    if (selectedColor && Array.isArray(product.colors)) {
+    if (activeColorKey && Array.isArray(product.colors)) {
         const colorVariant = product.colors.find(c =>
-            c.hex === selectedColor || c.name === selectedColor
+            c.hex === activeColorKey || c.name === activeColorKey
         );
         if (colorVariant && colorVariant.price !== undefined && colorVariant.price !== null) {
             const cp = Number(colorVariant.price) || 0;

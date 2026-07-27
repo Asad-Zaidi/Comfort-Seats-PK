@@ -32,10 +32,30 @@ const sortWithCoverFirst = (images) => {
     return [coverImg, ...rest];
 };
 
+/**
+ * Get the designated default color variant for a product.
+ * Returns color where isDefault === true, falling back to the first color.
+ * 
+ * @param {Object} product - The product object
+ * @returns {Object|null} The default color variant object or null
+ */
+export const getDefaultColorVariant = (product) => {
+    if (!product || !Array.isArray(product.colors) || product.colors.length === 0) {
+        return null;
+    }
+    const defaultColor = product.colors.find(c => c.isDefault === true);
+    return defaultColor || product.colors[0] || null;
+};
+
 export const getProductImageObjects = (product, options = {}) => {
     if (!product) return [];
 
     const { selectedColor, selectedStandType, activeVariantSource = 'color' } = options;
+
+    const targetColorKey = selectedColor || (() => {
+        const def = getDefaultColorVariant(product);
+        return def ? (def.hex || def.name) : null;
+    })();
 
     const getStandImages = () => {
         if (selectedStandType && Array.isArray(product.standTypes) && product.standTypes.length > 0) {
@@ -61,16 +81,16 @@ export const getProductImageObjects = (product, options = {}) => {
     };
 
     const getColorImages = () => {
-        if (selectedColor && Array.isArray(product.colors) && product.colors.length > 0) {
+        if (targetColorKey && Array.isArray(product.colors) && product.colors.length > 0) {
             const colorVariant = product.colors.find(c =>
-                c.hex === selectedColor || c.name === selectedColor
+                c.hex === targetColorKey || c.name === targetColorKey
             );
             if (colorVariant && Array.isArray(colorVariant.images) && colorVariant.images.length > 0) {
                 const formatted = colorVariant.images.map(img => ({
                     url: img.url || img,
                     isCover: img.isCover === true,
                 })).filter(img => img.url);
-                return sortWithCoverFirst(formatted);
+                if (formatted.length > 0) return sortWithCoverFirst(formatted);
             }
         }
         return null;

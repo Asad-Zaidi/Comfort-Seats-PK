@@ -45,6 +45,7 @@ const ColorVariantSchema = new mongoose.Schema({
     stock: { type: Number, default: 0 },
     inStock: { type: Boolean, default: true },
     coverImage: { type: String, default: '' },
+    isDefault: { type: Boolean, default: false },
     images: {
         type: [ColorVariantImageSchema],
         default: [],

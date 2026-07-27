@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { FiX, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { FiX, FiChevronDown, FiChevronUp, FiCheckCircle } from 'react-icons/fi';
 import ImageUploadSlot from './ImageUploadSlot';
 import InfoTooltip from './wizard/InfoTooltip';
 import { WIZARD_HELP_CONTENT } from './wizard/productWizardHelpContent';
@@ -10,6 +10,7 @@ const ColorVariantCard = ({
     index,
     onChange,
     onRemove,
+    onSetDefault,
     errors = {},
     disabled = false,
     showImages = true,
@@ -83,7 +84,7 @@ const ColorVariantCard = ({
     const imageErrors = errors.images || [];
 
     return (
-        <div className={`rounded-xl border transition ${errors.name || errors.hex ? 'border-[#E5484D]' : 'border-gray-200'
+        <div className={`rounded-xl border transition ${color.isDefault ? 'ring-2 ring-[#2F6FED]/40 border-[#2F6FED]' : (errors.name || errors.hex ? 'border-[#E5484D]' : 'border-gray-200')
             } bg-white overflow-hidden`}>
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-100">
@@ -93,16 +94,43 @@ const ColorVariantCard = ({
                         style={{ backgroundColor: color.hex || '#CCCCCC' }}
                     />
                     <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-[#12131A] truncate">
-                            {color.name || `Color ${index + 1}`}
-                        </p>
+                        <div className="flex items-center gap-2">
+                            <p className="text-sm font-semibold text-[#12131A] truncate">
+                                {color.name || `Color ${index + 1}`}
+                            </p>
+                            {color.isDefault && (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-[#2F6FED]/10 px-2 py-0.5 text-[10px] font-bold text-[#2F6FED]">
+                                    <FiCheckCircle size={10} /> Default Color
+                                </span>
+                            )}
+                        </div>
                         <p className="text-xs text-gray-400">
                             {color.hex || 'No hex'} · {images.filter(Boolean).length} image{images.filter(Boolean).length !== 1 ? 's' : ''}
                         </p>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
+                    {onSetDefault && (
+                        <button
+                            type="button"
+                            onClick={() => onSetDefault(index)}
+                            disabled={disabled}
+                            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition ${color.isDefault
+                                    ? 'bg-[#2F6FED] text-white shadow-xs'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                }`}
+                        >
+                            <input
+                                type="radio"
+                                name={`defaultColorRadio_${index}`}
+                                checked={!!color.isDefault}
+                                onChange={() => { }}
+                                className="pointer-events-none h-3 w-3 accent-white"
+                            />
+                            <span>{color.isDefault ? "Default" : "Make Default"}</span>
+                        </button>
+                    )}
                     <button
                         type="button"
                         onClick={() => setExpanded(!expanded)}

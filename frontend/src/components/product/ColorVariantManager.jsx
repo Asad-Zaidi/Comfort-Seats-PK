@@ -10,18 +10,37 @@ const ColorVariantManager = ({
     showImages = true,
     hidePricingAndStock = false,
 }) => {
+    const colorsList = Array.isArray(colors) ? colors : [];
+    const hasColors = colorsList.length > 0;
+    const globalError = errors._global;
+
+    const handleSetDefault = useCallback((defaultIndex) => {
+        onColorsChange(prev => {
+            const list = Array.isArray(prev) ? prev : [];
+            return list.map((c, i) => ({
+                ...c,
+                isDefault: i === defaultIndex,
+            }));
+        });
+    }, [onColorsChange]);
+
     const addColor = useCallback(() => {
-        onColorsChange(prev => [
-            ...prev,
-            {
-                name: '',
-                hex: '#000000',
-                price: '',
-                stock: 0,
-                inStock: true,
-                images: [null],
-            },
-        ]);
+        onColorsChange(prev => {
+            const list = Array.isArray(prev) ? prev : [];
+            const isFirst = list.length === 0;
+            return [
+                ...list,
+                {
+                    name: '',
+                    hex: '#000000',
+                    price: '',
+                    stock: 0,
+                    inStock: true,
+                    isDefault: isFirst,
+                    images: [null],
+                },
+            ];
+        });
     }, [onColorsChange]);
 
     const handleColorChange = useCallback((index, updatedColor) => {
@@ -34,14 +53,15 @@ const ColorVariantManager = ({
 
     const handleRemoveColor = useCallback((index) => {
         onColorsChange(prev => {
-            const next = prev.filter((_, i) => i !== index);
+            const list = Array.isArray(prev) ? prev : [];
+            const wasDefault = list[index]?.isDefault;
+            const next = list.filter((_, i) => i !== index);
+            if (wasDefault && next.length > 0) {
+                next[0] = { ...next[0], isDefault: true };
+            }
             return next;
         });
     }, [onColorsChange]);
-
-    const colorsList = Array.isArray(colors) ? colors : [];
-    const hasColors = colorsList.length > 0;
-    const globalError = errors._global;
 
     return (
         <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-6">
@@ -92,6 +112,7 @@ const ColorVariantManager = ({
                                 index={idx}
                                 onChange={handleColorChange}
                                 onRemove={handleRemoveColor}
+                                onSetDefault={handleSetDefault}
                                 errors={colorErrors}
                                 disabled={disabled}
                                 showImages={showImages}

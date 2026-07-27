@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { FiChevronLeft, FiChevronRight, FiStar } from "react-icons/fi";
 
-const StarRating = ({ value = 5, size = 16 }) => (
+const StarRating = ({ value = 0, size = 16 }) => (
     <div className="flex items-center gap-1 text-[#F5A524]">
         {[...Array(5)].map((_, i) => (
             <FiStar
@@ -19,13 +19,7 @@ export default function TestimonialSection({ testimonialsData = [], loading = fa
     const [touchStart, setTouchStart] = useState(0);
     const [touchEnd, setTouchEnd] = useState(0);
 
-    const defaultTestimonials = [
-        { text: "Absolutely incredible experience! The quality blew me away and it looks stunning in our space. Will definitely buy again.", name: "Sarah J.", rating: 5, productName: "Comfort Chair" },
-        { text: "Super clean aesthetic and incredibly sturdy. It fits perfectly into our office workflow. Highly recommended!", name: "Mark T.", rating: 5, productName: "Ergo Seat" },
-        { text: "Fast shipping and superb customer support. The setup took less than ten minutes and the results speak for themselves.", name: "Elena R.", rating: 5, productName: "Luxury Cushion" },
-    ];
-
-    const list = testimonialsData.length > 0 ? testimonialsData : defaultTestimonials;
+    const list = testimonialsData;
 
     useEffect(() => {
         const updateItems = () => {
@@ -124,7 +118,7 @@ export default function TestimonialSection({ testimonialsData = [], loading = fa
                                     className="flex h-48 flex-col rounded-3xl border border-[#F5A524]/15 bg-[#FFF9E6] py-5 px-6 shadow-sm transition-all duration-300 hover:shadow-md text-left"
                                 >
                                     <div className="flex-1 overflow-hidden">
-                                        <StarRating value={review.rating || 5} size={16} />
+                                        <StarRating value={review.rating || 0} size={16} />
                                         <p className="mt-3 line-clamp-3 text-sm italic leading-6 text-gray-700">
                                             "{review.text}"
                                         </p>

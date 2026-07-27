@@ -115,13 +115,13 @@ const OrderModal = ({
 
     const handleConfirm = async () => {
         if (!validateShipping()) return;
-        
+
         // Validate receipt for online payments
         if ((paymentMethod === "bank" || paymentMethod === "card") && !receiptFile) {
             setErrors((prev) => ({ ...prev, receipt: "Payment receipt is required for online payments." }));
             return;
         }
-        
+
         setStep("confirming");
 
         try {
@@ -216,9 +216,8 @@ const OrderModal = ({
                 value={shipping[name]}
                 onChange={(e) => setShipping({ ...shipping, [name]: e.target.value })}
                 placeholder={placeholder}
-                className={`w-full rounded-lg border px-3.5 py-2.5 text-sm text-gray-900 placeholder-gray-400 transition focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/30 focus:border-[#2F6FED] ${
-                    errors[name] ? "border-red-400 bg-red-50" : "border-gray-200"
-                }`}
+                className={`w-full rounded-lg border px-3.5 py-2.5 text-sm text-gray-900 placeholder-gray-400 transition focus:outline-none focus:ring-2 focus:ring-[#2F6FED]/30 focus:border-[#2F6FED] ${errors[name] ? "border-red-400 bg-red-50" : "border-gray-200"
+                    }`}
             />
             {errors[name] && <p className="mt-1 text-xs text-red-500">{errors[name]}</p>}
         </div>
@@ -299,10 +298,10 @@ const OrderModal = ({
                                     {paymentMethod === "cod"
                                         ? "Cash on Delivery"
                                         : selectedOnlineMethod?.name
-                                        ? selectedOnlineMethod.name
-                                        : paymentMethod === "bank"
-                                        ? "Bank Transfer"
-                                        : "Card Payment"}
+                                            ? selectedOnlineMethod.name
+                                            : paymentMethod === "bank"
+                                                ? "Bank Transfer"
+                                                : "Card Payment"}
                                 </span>
                             </div>
                             {shipping.fullName && (
@@ -496,10 +495,10 @@ const OrderModal = ({
                                     {paymentMethod === "cod"
                                         ? "Cash on Delivery"
                                         : selectedOnlineMethod?.name
-                                        ? selectedOnlineMethod.name
-                                        : paymentMethod === "bank"
-                                        ? "Bank Transfer"
-                                        : "Card Payment"}
+                                            ? selectedOnlineMethod.name
+                                            : paymentMethod === "bank"
+                                                ? "Bank Transfer"
+                                                : "Card Payment"}
                                 </span>
                             </div>
                         </div>

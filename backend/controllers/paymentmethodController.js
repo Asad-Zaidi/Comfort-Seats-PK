@@ -36,6 +36,7 @@ const buildPaymentSettingsResponse = (settings) => {
 
     return {
         instructions: settings?.instructions || "",
+        defaultPaymentMethod: settings?.defaultPaymentMethod || "cod",
         // Legacy fields for backward compatibility
         bankTransfer: {
             enabled: bankTransfer.enabled ?? false,
@@ -218,6 +219,26 @@ exports.updateInstructions = async (req, res) => {
             data: buildPaymentSettingsResponse(settings)
         });
 
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            success: false,
+            message: "Server Error"
+        });
+    }
+};
+
+exports.updateDefaultPaymentMethod = async (req, res) => {
+    try {
+        const settings = await PaymentSettings.getSingleton();
+        settings.defaultPaymentMethod = req.body.defaultPaymentMethod || "cod";
+        await settings.save();
+
+        res.json({
+            success: true,
+            message: "Default payment method updated successfully.",
+            data: buildPaymentSettingsResponse(settings)
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({

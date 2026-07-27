@@ -52,12 +52,32 @@ const parseColors = (req) => {
             price: Number(c.price) || 0,
             stock: Number(c.stock) || 0,
             inStock: c.inStock !== undefined ? (c.inStock === true || c.inStock === 'true') : true,
+            isDefault: c.isDefault === true || c.isDefault === 'true',
             images: Array.isArray(c.images) ? c.images : []
         })).filter(c => c.name);
     } catch (e) {
         console.error('Error parsing colors:', e);
         return [];
     }
+};
+
+/**
+ * Ensure exactly one color variant is marked as default.
+ */
+const normalizeDefaultColor = (colors) => {
+    if (!Array.isArray(colors) || colors.length === 0) return colors;
+    let foundDefault = false;
+    const normalized = colors.map((c) => {
+        if (c.isDefault && !foundDefault) {
+            foundDefault = true;
+            return { ...c, isDefault: true };
+        }
+        return { ...c, isDefault: false };
+    });
+    if (!foundDefault && normalized.length > 0) {
+        normalized[0].isDefault = true;
+    }
+    return normalized;
 };
 
 /**
@@ -204,6 +224,8 @@ exports.createProduct = async (req, res) => {
             colorsWithImages.push({ ...colorData, images: uploadedColorImages });
         }
 
+        const normalizedColors = normalizeDefaultColor(colorsWithImages);
+
         // Upload stand type images
         const standTypeFilesMap = {};
         if (req.files && Array.isArray(req.files)) {
@@ -251,7 +273,7 @@ exports.createProduct = async (req, res) => {
             metaTitle, metaDescription, metaKeywords, category: normalizedCategory,
             subcategory: typeof subcategory === 'string' ? subcategory.trim() : (subcategory || ''),
             size, price: Number(price), stock: stockVal, inStock: inStockVal,
-            productImages: uploadedProductImages, colors: colorsWithImages,
+            productImages: uploadedProductImages, colors: normalizedColors,
             standTypes: standTypesWithImages.length > 0 ? standTypesWithImages : undefined,
             isCustomizable: isCustomizable === true || isCustomizable === 'true',
             imageUrl: uploadedProductImages[0]?.url || '',
@@ -481,12 +503,12 @@ exports.updateProduct = async (req, res) => {
                 } else if (existingColor && (!colorData.images || colorData.images.length === 0)) {
                     colorImages = existingColor.images;
                 }
-                colorsWithImages.push({ name: colorData.name, hex: colorData.hex, price: colorData.price, stock: colorData.stock, inStock: colorData.inStock, images: colorImages });
+                colorsWithImages.push({ name: colorData.name, hex: colorData.hex, price: colorData.price, stock: colorData.stock, inStock: colorData.inStock, isDefault: colorData.isDefault, images: colorImages });
             }
             for (const c of colorsWithImages) {
                 if (c.images.length < 1) return res.status(400).json({ success: false, message: `"${c.name}" color requires at least 1 image.` });
             }
-            product.colors = colorsWithImages;
+            product.colors = normalizeDefaultColor(colorsWithImages);
         }
 
         await product.save();

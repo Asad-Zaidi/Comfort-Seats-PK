@@ -20,6 +20,7 @@ import {
     FiVolume2,
     FiDroplet,
     FiCreditCard,
+    FiStar,
 } from "react-icons/fi";
 
 const AdminSidebar = ({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, onChangePassword }) => {
@@ -50,6 +51,11 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, on
             name: "Products",
             path: "/admin/products",
             icon: <FiPackage />,
+        },
+        {
+            name: "Product Reviews",
+            path: "/admin/reviews",
+            icon: <FiStar />,
         },
         {
             name: "Orders",

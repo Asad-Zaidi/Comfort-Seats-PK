@@ -104,6 +104,11 @@ const PaymentSettingsSchema = new mongoose.Schema({
         trim: true
     },
 
+    defaultPaymentMethod: {
+        type: String,
+        default: "cod"
+    },
+
     updatedAt: {
         type: Date,
         default: Date.now

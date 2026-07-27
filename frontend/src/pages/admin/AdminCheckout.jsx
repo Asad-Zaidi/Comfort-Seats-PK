@@ -3,8 +3,9 @@ import { useToast } from "../../components/ToastNotification";
 import api, { putMultipart } from "../../api/api";
 import {
     FiTruck, FiCreditCard, FiSave, FiLoader, FiEdit3,
-    FiPlus, FiTrash2, FiChevronDown, FiChevronUp, FiImage, FiX
+    FiPlus, FiTrash2, FiChevronDown, FiChevronUp, FiImage, FiX, FiCheckCircle
 } from "react-icons/fi";
+
 import { AVAILABLE_BANKS, PAYMENT_TYPES, getBankIcon } from "../../utils/bankIcons";
 
 // ─── Reusable toggle switch ───
@@ -42,7 +43,9 @@ const AdminCheckout = () => {
     // Payment settings
     const [paymentMethods, setPaymentMethods] = useState([]);
     const [instructions, setInstructions] = useState("");
+    const [defaultPaymentMethod, setDefaultPaymentMethod] = useState("cod");
     const [savingPayment, setSavingPayment] = useState(false);
+    const [savingDefaultMethod, setSavingDefaultMethod] = useState(false);
 
     // Editing / Adding
     const [editingId, setEditingId] = useState(null); // method._id or "new"
@@ -62,6 +65,7 @@ const AdminCheckout = () => {
                 const data = res.data.data;
                 setPaymentMethods(data.paymentMethods || []);
                 setInstructions(data.instructions || "");
+                setDefaultPaymentMethod(data.defaultPaymentMethod || "cod");
             }
         } catch (err) {
             console.error("Failed to load payment settings:", err);
@@ -115,6 +119,23 @@ const AdminCheckout = () => {
             toast.error(err?.response?.data?.message || "Failed to update instructions.");
         } finally {
             setSavingPayment(false);
+        }
+    };
+
+    // ─── Default Payment Method ───
+    const handleSaveDefaultPaymentMethod = async () => {
+        setSavingDefaultMethod(true);
+        try {
+            const res = await api.put("/payment-settings/default-method", { defaultPaymentMethod });
+            if (res.data?.success) {
+                toast.success("Default payment method updated successfully.");
+            } else {
+                toast.error(res.data?.message || "Failed to update default payment method.");
+            }
+        } catch (err) {
+            toast.error(err?.response?.data?.message || "Failed to update default payment method.");
+        } finally {
+            setSavingDefaultMethod(false);
         }
     };
 
@@ -304,6 +325,47 @@ const AdminCheckout = () => {
                     >
                         <FiSave size={16} />
                         {savingDelivery ? "Saving..." : "Save Charge"}
+                    </button>
+                </div>
+            </section>
+
+            {/* ══════════ Default Payment Method Selection ══════════ */}
+            <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                <div className="flex items-center gap-3">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#2F6FED]/10 text-[#2F6FED]">
+                        <FiCheckCircle size={18} />
+                    </span>
+                    <div>
+                        <h2 className="text-lg font-semibold text-gray-800">Default Selected Payment Method</h2>
+                        <p className="text-sm text-gray-500">
+                            Choose which payment method is pre-selected by default when a customer visits the checkout page.
+                        </p>
+                    </div>
+                </div>
+                <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end">
+                    <div className="w-full sm:max-w-[340px]">
+                        <label className="mb-1.5 block text-sm font-medium text-gray-700">Pre-selected Method at Checkout</label>
+                        <select
+                            value={defaultPaymentMethod}
+                            onChange={(e) => setDefaultPaymentMethod(e.target.value)}
+                            className="block w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-900 outline-none transition focus:border-[#2F6FED] focus:bg-white focus:ring-4 focus:ring-[#2F6FED]/10"
+                        >
+                            <option value="cod">Cash on Delivery (COD)</option>
+                            <option value="online">Bank Transfer / Online Payment (General)</option>
+                            {paymentMethods.filter(m => m.enabled && !/cash on delivery/i.test(m.name)).map((m) => (
+                                <option key={m._id} value={m._id}>
+                                    Online: {m.name} {m.accountTitle ? `(${m.accountTitle})` : ''}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <button
+                        onClick={handleSaveDefaultPaymentMethod}
+                        disabled={savingDefaultMethod}
+                        className="flex items-center justify-center gap-2 rounded-xl bg-[#2F6FED] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#2F6FED]/90 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                        {savingDefaultMethod ? <FiLoader className="animate-spin" size={16} /> : <FiSave size={16} />}
+                        {savingDefaultMethod ? "Saving..." : "Save Default Method"}
                     </button>
                 </div>
             </section>

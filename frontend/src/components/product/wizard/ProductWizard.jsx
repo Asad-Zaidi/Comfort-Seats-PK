@@ -127,12 +127,15 @@ const ProductWizard = ({
                 });
             }
 
-            const mappedColors = (initialData.colors || []).map(c => ({
+            const rawColors = initialData.colors || [];
+            const hasDefaultColor = rawColors.some(c => c.isDefault === true);
+            const mappedColors = rawColors.map((c, idx) => ({
                 name: c.name || '',
                 hex: c.hex || '#000000',
                 price: c.price ?? '',
                 stock: c.stock ?? 0,
                 inStock: c.inStock !== false,
+                isDefault: hasDefaultColor ? c.isDefault === true : idx === 0,
                 images: Array.isArray(c.images)
                     ? c.images.map(img => {
                         const urlStr = typeof img === 'string' ? img : (img.url || img.preview || '');
@@ -623,6 +626,7 @@ const ProductWizard = ({
             }
 
             // Color Variant Images
+            const hasSubmitDefaultColor = (formData.colors || []).some(c => c.isDefault === true);
             const colorsData = (formData.colors || []).map((color, colorIdx) => {
                 const existingImages = [];
                 (color.images || []).forEach((img) => {
@@ -638,6 +642,7 @@ const ProductWizard = ({
                     price: Number(color.price) || 0,
                     stock: Number(color.stock) || 0,
                     inStock: color.inStock !== false,
+                    isDefault: hasSubmitDefaultColor ? color.isDefault === true : colorIdx === 0,
                     images: existingImages.length > 0 ? existingImages : undefined,
                 };
             });

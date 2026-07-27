@@ -101,8 +101,30 @@ const Checkout = () => {
             try {
                 const res = await api.get("/payment-settings");
                 if (res.data?.success) {
-                    setPaymentSettings(res.data.data);
-                    setPaymentInstructions(res.data.data?.instructions || "");
+                    const settingsData = res.data.data;
+                    setPaymentSettings(settingsData);
+                    setPaymentInstructions(settingsData?.instructions || "");
+
+                    // Pre-select default payment method based on admin settings
+                    const def = settingsData?.defaultPaymentMethod || "cod";
+                    if (def === "cod") {
+                        setPaymentMethod("cod");
+                    } else if (def === "online") {
+                        setPaymentMethod("online");
+                        const activeMethods = (settingsData?.paymentMethods || []).filter(m => m.enabled && !/cash on delivery/i.test(m.name));
+                        if (activeMethods.length > 0) {
+                            setSelectedOnlineMethodId(activeMethods[0]._id);
+                        }
+                    } else {
+                        // Specific payment method ID selected by admin
+                        const foundMethod = (settingsData?.paymentMethods || []).find(m => m._id === def && m.enabled);
+                        if (foundMethod) {
+                            setPaymentMethod("online");
+                            setSelectedOnlineMethodId(foundMethod._id);
+                        } else {
+                            setPaymentMethod("cod");
+                        }
+                    }
                 }
             } catch (err) {
                 console.error("Failed to load payment settings:", err);
@@ -120,6 +142,16 @@ const Checkout = () => {
         };
         fetchSettings();
     }, []);
+
+    // Auto-select first online method if online payment is chosen and none is selected yet
+    useEffect(() => {
+        if (paymentMethod === "online" && !selectedOnlineMethodId && paymentSettings?.paymentMethods) {
+            const activeMethods = paymentSettings.paymentMethods.filter(m => m.enabled && !/cash on delivery/i.test(m.name));
+            if (activeMethods.length > 0) {
+                setSelectedOnlineMethodId(activeMethods[0]._id);
+            }
+        }
+    }, [paymentMethod, selectedOnlineMethodId, paymentSettings]);
 
     const handleReceiptChange = (e) => {
         const file = e.target.files?.[0];
