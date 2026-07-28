@@ -36,7 +36,7 @@ const AdminProducts = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const res = await api.get('/products');
+                const res = await api.get('/products?limit=1000');
                 if (res.data && res.data.success) {
                     const list = res.data.data.map((p) => ({
                         id: p._id,

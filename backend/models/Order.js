@@ -8,6 +8,7 @@ const OrderSchema = new mongoose.Schema({
         imageUrl: { type: String },
         color: { type: String },
         size: { type: String },
+        slug: { type: String, default: '' },
         // Discount pricing fields for historical accuracy
         actualPrice: { type: Number, default: 0 },
         discountPrice: { type: Number, default: 0 },

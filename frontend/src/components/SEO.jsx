@@ -452,7 +452,16 @@ const SEO = ({
 }) => {
     const { siteName, siteUrl, siteTitle, logoUrl } = useSiteConfig();
     const normalizedSiteUrl = normalizeUrl(siteUrl);
-    const fullTitle = (title || siteTitle).includes("-") ? (title || siteTitle) : `${title || siteTitle} - ${siteName}`;
+    // const fullTitle = (title || siteTitle).includes("-") ? (title || siteTitle) : `${title || siteTitle} - ${siteName}`;
+
+    const finalSiteName = siteName || "Comfort Seats PK";
+    const finalSiteTitle = siteTitle || "Comfort Seats PK - Premium Furniture in Lahore";
+
+    const baseTitle = title || finalSiteTitle;
+
+    const fullTitle = baseTitle.includes("-")
+        ? baseTitle
+        : `${baseTitle} - ${finalSiteName}`;
 
     const [currentUrl, setCurrentUrl] = useState(canonicalUrl ? normalizeUrl(canonicalUrl) : normalizedSiteUrl);
 

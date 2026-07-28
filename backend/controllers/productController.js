@@ -526,35 +526,66 @@ exports.updateProduct = async (req, res) => {
 // @access  Public
 exports.getAllProducts = async (req, res) => {
     try {
-        const { category, subcategory, color, size, minPrice, maxPrice, search, page = 1, limit = 20, sort } = req.query;
+        const { category, subcategory, color, size, minPrice, maxPrice, search, page = 1, limit = 20, sort, isFeatured, isNewArrival, isBestSeller } = req.query;
         const filter = {};
+        if (isFeatured !== undefined) filter.isFeatured = isFeatured === 'true' || isFeatured === true;
+        if (isNewArrival !== undefined) filter.isNewArrival = isNewArrival === 'true' || isNewArrival === true;
+        if (isBestSeller !== undefined) filter.isBestSeller = isBestSeller === 'true' || isBestSeller === true;
         if (category) filter.category = { $in: Array.isArray(category) ? category : [category] };
         if (subcategory) filter.subcategory = subcategory;
-        if (color) filter.color = { $in: Array.isArray(color) ? color : [color] };
-        if (size) filter.size = size;
-        if (minPrice || maxPrice) {
-            filter.price = {};
-            if (minPrice) filter.price.$gte = Number(minPrice);
-            if (maxPrice) filter.price.$lte = Number(maxPrice);
-        }
-        if (search) {
+        if (color) {
+            const colorArr = Array.isArray(color) ? color : [color];
             filter.$or = [
-                { name: { $regex: search, $options: 'i' } },
-                { description: { $regex: search, $options: 'i' } }
+                { color: { $in: colorArr } },
+                { 'colors.name': { $in: colorArr } }
             ];
         }
+        if (size) filter.size = size;
+        if ((minPrice !== undefined && minPrice !== '') || (maxPrice !== undefined && maxPrice !== '')) {
+            filter.price = {};
+            if (minPrice !== undefined && minPrice !== '') filter.price.$gte = Number(minPrice);
+            if (maxPrice !== undefined && maxPrice !== '') filter.price.$lte = Number(maxPrice);
+        }
+        if (search) {
+            const searchRegex = new RegExp(escapeRegex(search), 'i');
+            const searchFilter = [
+                { name: searchRegex },
+                { description: searchRegex },
+                { shortDescription: searchRegex },
+                { detail: searchRegex },
+                { category: searchRegex },
+                { subcategory: searchRegex }
+            ];
+            if (filter.$or) {
+                filter.$and = [{ $or: filter.$or }, { $or: searchFilter }];
+                delete filter.$or;
+            } else {
+                filter.$or = searchFilter;
+            }
+        }
         const sortOptions = {};
-        if (sort === 'price_asc') sortOptions.price = 1;
-        else if (sort === 'price_desc') sortOptions.price = -1;
+        if (sort === 'price_asc' || sort === 'price-asc') sortOptions.price = 1;
+        else if (sort === 'price_desc' || sort === 'price-desc') sortOptions.price = -1;
         else if (sort === 'rating') sortOptions.avgRating = -1;
         else sortOptions.createdAt = -1;
-        const pageNum = Math.max(1, Number(page));
-        const limitNum = Math.max(1, Number(limit));
+        const pageNum = Math.max(1, Number(page) || 1);
+        const limitNum = Math.max(1, Number(limit) || 20);
+        const skip = (pageNum - 1) * limitNum;
         const [products, total] = await Promise.all([
-            Product.find(filter).sort(sortOptions).skip((pageNum - 1) * limitNum).limit(limitNum),
+            Product.find(filter).sort(sortOptions).skip(skip).limit(limitNum).lean(),
             Product.countDocuments(filter)
         ]);
-        return res.status(200).json({ success: true, data: products, pagination: { total, page: pageNum, pages: Math.ceil(total / limitNum), limit: limitNum } });
+        const pages = Math.max(1, Math.ceil(total / limitNum));
+        return res.status(200).json({
+            success: true,
+            data: products,
+            pagination: {
+                total,
+                page: pageNum,
+                pages,
+                limit: limitNum
+            }
+        });
     } catch (error) {
         console.error('Error fetching products:', error);
         return res.status(500).json({ success: false, message: 'Server error while fetching products.' });

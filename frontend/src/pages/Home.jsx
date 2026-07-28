@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -50,8 +50,6 @@ import {
   sectionHeading,
   staggerContainer,
   staggerItem,
-  productCardReveal,
-  prefersReducedMotion,
 } from "../components/animations";
 
 const iconMap = {
@@ -130,8 +128,8 @@ const Home = () => {
   const [whyChooseUs, setWhyChooseUs] = useState(defaultWhyChooseUs);
   const [testimonials, setTestimonials] = useState([]);
   const [quoteData, setQuoteData] = useState(null);
-  const [newArrivals, setNewArrivals] = useState([]);
-  const [loadingNew, setLoadingNew] = useState(true);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loadingFeatured, setLoadingFeatured] = useState(true);
   const [loadingTestimonials, setLoadingTestimonials] = useState(true);
   const [itemsToShow, setItemsToShow] = useState(3);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -139,23 +137,34 @@ const Home = () => {
 
   const primary = cssVar('primary', '#2F6FED');
   const secondary = cssVar('secondary', '#F5A524');
-  const text = cssVar('text', '#12131A');
-  const textSecondary = cssVar('text-secondary', '#6b7280');
-  const bgSecondary = cssVar('bg-secondary', '#f8fafc');
-  const bgTertiary = cssVar('bg-tertiary', '#FAF9F6');
+  const text = cssVar('textPrimary', '#12131A');
+  const textSecondary = cssVar('textSecondary', '#6b7280');
+  const bgSecondary = cssVar('backgroundSecondary', '#f8fafc');
+  const bgTertiary = cssVar('backgroundTertiary', '#FAF9F6');
   const border = cssVar('border', '#e5e7eb');
   const cardBg = cssVar('card-bg', '#ffffff');
+
+  const featuredScrollRef = useRef(null);
+
+  const scrollFeatured = (direction) => {
+    if (featuredScrollRef.current) {
+      const scrollAmount = featuredScrollRef.current.clientWidth * 0.8;
+      featuredScrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
 
   useEffect(() => {
     const fetchSiteContent = async () => {
       try {
         const res = await api.get("/site-content");
-        if (res.data?.success) {
-          const data = res.data.data;
-          if (data?.homeBanner) setHomeBanner({ ...defaultHomeBanner, ...data.homeBanner });
-          if (Array.isArray(data?.categories) && data.categories.length > 0) setCategories(data.categories.filter(item => item.name));
-          if (Array.isArray(data?.whyChooseUs) && data.whyChooseUs.length > 0) setWhyChooseUs(data.whyChooseUs.filter(item => item.title));
-          if (data?.quoteSection) setQuoteData(data.quoteSection);
+        if (res.data?.success && res.data.data) {
+          if (res.data.data.homeBanner) setHomeBanner((prev) => ({ ...prev, ...res.data.data.homeBanner }));
+          if (Array.isArray(res.data.data.categories)) setCategories(res.data.data.categories);
+          if (Array.isArray(res.data.data.whyChooseUs)) setWhyChooseUs(res.data.data.whyChooseUs);
+          if (res.data.data.quoteSection) setQuoteData(res.data.data.quoteSection);
         }
       } catch (err) {
         console.error("Failed to load site content:", err);
@@ -170,18 +179,22 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    const fetchNew = async () => {
+    const fetchFeatured = async () => {
       try {
-        // Default product sort is createdAt: -1 (newest first).
-        const res = await api.get("/products?limit=8");
-        if (res.data?.success) setNewArrivals(res.data.data || []);
+        const res = await api.get("/products?isFeatured=true&limit=50");
+        let list = res.data?.success ? res.data.data || [] : [];
+        if (list.length === 0) {
+          const fallbackRes = await api.get("/products?limit=50");
+          list = fallbackRes.data?.success ? fallbackRes.data.data || [] : [];
+        }
+        setFeaturedProducts(list);
       } catch (err) {
-        console.error("Failed to load new arrivals:", err);
+        console.error("Failed to load featured products:", err);
       } finally {
-        setLoadingNew(false);
+        setLoadingFeatured(false);
       }
     };
-    fetchNew();
+    fetchFeatured();
   }, []);
 
   useEffect(() => {
@@ -442,23 +455,46 @@ const Home = () => {
           <div className="mx-auto max-w-full px-12 lg:px-32">
             <motion.div className="flex items-end justify-between" variants={sectionHeading}>
               <div>
-                <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: secondary }}>Just Landed</span>
-                <h2 className="mt-2 text-2xl font-bold sm:text-3xl" style={{ color: text }}>New Arrivals</h2>
-                <p className="mt-2 text-sm" style={{ color: textSecondary }}>The latest additions to our collection.</p>
+                <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: secondary }}>Handpicked</span>
+                <h2 className="mt-2 text-2xl font-bold sm:text-3xl" style={{ color: text }}>Featured Products</h2>
+                <p className="mt-2 text-sm" style={{ color: textSecondary }}>Our top recommended and featured products for you.</p>
               </div>
-              <Link to="/products" className="hidden items-center gap-1.5 text-sm font-semibold hover:underline sm:inline-flex" style={{ color: primary }}>View All <FiArrowRight size={14} /></Link>
+              <div className="flex items-center gap-3">
+                <Link to="/products" className="inline-flex items-center gap-1.5 text-sm font-semibold hover:underline" style={{ color: primary }}>
+                  View All <FiArrowRight size={14} />
+                </Link>
+              </div>
             </motion.div>
-            <div className="mt-8 -mx-5 sm:mx-0">
-              <motion.div className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth scrollbar-hide gap-4 px-5 pb-4 sm:grid sm:grid-cols-1 sm:gap-6 md:grid-cols-2 lg:grid-cols-4 sm:px-0 sm:overflow-visible sm:pb-0" variants={staggerContainer} initial="initial" animate="animate">
-                {loadingNew ? ([...Array(4)].map((_, i) => (
-                  <motion.div key={i} variants={staggerItem} className="snap-center shrink-0 w-[calc(100%-2.5rem)] sm:w-auto">
-                    <SkeletonProductCard />
-                  </motion.div>
-                )))
-                  : newArrivals.length > 0 ? (newArrivals.slice(0, 4).map((product) => {
+
+            {/* Slider Container with side overlay navigation arrows */}
+            <div className="relative mt-8 group">
+              {/* Left Arrow Button */}
+              <button
+                type="button"
+                onClick={() => scrollFeatured("left")}
+                aria-label="Scroll featured products left"
+                className="absolute -left-4 sm:-left-6 top-1/2 -translate-y-1/2 z-20 flex h-11 w-11 items-center justify-center rounded-full border shadow-md transition-all duration-200 hover:scale-110 hover:border-[var(--primary)] hover:bg-[var(--primary)] hover:text-white active:scale-95"
+                style={{ backgroundColor: cardBg, borderColor: border, color: text }}
+              >
+                <FiChevronLeft size={22} />
+              </button>
+
+              {/* Products Horizontal Scroll Track */}
+              <div
+                ref={featuredScrollRef}
+                className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth scrollbar-hide gap-6 pb-4"
+              >
+                {loadingFeatured ? (
+                  [...Array(4)].map((_, i) => (
+                    <div key={i} className="snap-start shrink-0 w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)]">
+                      <SkeletonProductCard />
+                    </div>
+                  ))
+                ) : featuredProducts.length > 0 ? (
+                  featuredProducts.map((product) => {
                     const { primaryImage, hoverImage } = getProductCardImages(product);
                     return (
-                      <motion.div key={product._id} variants={prefersReducedMotion() ? staggerItem : productCardReveal} className="snap-center shrink-0 w-[calc(100%-2.5rem)] sm:w-auto">
+                      <div key={product._id} className="snap-start shrink-0 w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)] flex justify-center">
                         <ProductCard
                           to={`/products/${product.slug}`}
                           image={primaryImage || product.imageUrl || "https://images.unsplash.com/photo-1505843490701-5be5d6f48db6?w=500"}
@@ -472,11 +508,24 @@ const Home = () => {
                           isCustomizable={product.isCustomizable === true}
                           product={product}
                         />
-                      </motion.div>
+                      </div>
                     );
-                  }))
-                    : (<motion.p variants={staggerItem} className="shrink-0 w-[calc(100%-2.5rem)] sm:col-span-full py-10 text-center text-sm text-gray-400 sm:w-auto">No products available yet.</motion.p>)}
-              </motion.div>
+                  })
+                ) : (
+                  <p className="w-full py-10 text-center text-sm text-gray-400">No featured products available yet.</p>
+                )}
+              </div>
+
+              {/* Right Arrow Button */}
+              <button
+                type="button"
+                onClick={() => scrollFeatured("right")}
+                aria-label="Scroll featured products right"
+                className="absolute -right-4 sm:-right-6 top-1/2 -translate-y-1/2 z-20 flex h-11 w-11 items-center justify-center rounded-full border shadow-md transition-all duration-200 hover:scale-110 hover:border-[var(--primary)] hover:bg-[var(--primary)] hover:text-white active:scale-95"
+                style={{ backgroundColor: cardBg, borderColor: border, color: text }}
+              >
+                <FiChevronRight size={22} />
+              </button>
             </div>
           </div>
         </section>

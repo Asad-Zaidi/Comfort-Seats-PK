@@ -1,8 +1,9 @@
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
+import Pagination from "../components/Pagination";
 import SEO from "../components/SEO";
 import Breadcrumb from "../components/Breadcrumb";
 import api from "../api/api";
@@ -23,8 +24,8 @@ import {
 const PriceRangeSlider = ({ min, max, value, onChange }) => {
   const [low, high] = value;
   const range = Math.max(1, max - min);
-  const lowPct = ((low - min) / range) * 100;
-  const highPct = ((high - min) / range) * 100;
+  const lowPct = Math.min(100, Math.max(0, ((low - min) / range) * 100));
+  const highPct = Math.min(100, Math.max(0, ((high - min) / range) * 100));
 
   return (
     <div className="px-1">
@@ -228,8 +229,7 @@ const FiltersContent = ({
           })}
         </ul>
 
-        {/* Subcategory popup rendered in a portal to <body> so it escapes the
-          sidebar's stacking context and always appears above other content */}
+        {/* Subcategory popup rendered in a portal */}
         {openFlyout && anchorRect && subcategoriesByCategory[openFlyout] && createPortal(
           (() => {
             const subs = subcategoriesByCategory[openFlyout] || [];
@@ -339,217 +339,241 @@ const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const toast = useToast();
   const { siteUrl, siteName } = useSiteConfig();
+  const productsSectionRef = useRef(null);
 
-  const initialCategory = searchParams.get("category") || "";
-  const initialSubcategory = searchParams.get("subcategory") || "";
+  // Derived filter params directly from searchParams
+  const categoryParam = searchParams.get("category") || "";
+  const subcategoryParam = searchParams.get("subcategory") || "";
+  const urlSearchParam = searchParams.get("search") || "";
+  const pageParam = Math.max(1, parseInt(searchParams.get("page") || "1", 10) || 1);
 
-  const [search, setSearch] = useState(searchParams.get("search") || "");
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-  const [selectedSubcategory, setSelectedSubcategory] = useState(initialSubcategory);
-  const [priceValue, setPriceValue] = useState([0, 0]);
-  const [priceBounds, setPriceBounds] = useState([0, 0]);
+  // Controlled UI states
+  const [search, setSearch] = useState(urlSearchParam);
+  const [priceBounds] = useState([0, 200000]);
+  const [priceValue, setPriceValue] = useState([0, 200000]);
   const [sort, setSort] = useState("default");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [subcategoriesByCategoryMap, setSubcategoriesByCategoryMap] = useState({});
+  const [paginationInfo, setPaginationInfo] = useState({ total: 0, page: 1, pages: 1, limit: 20 });
 
   const isSearchResultsPage = useMemo(() => {
-    const q = searchParams.get("search");
-    return Boolean(q && q.trim().length > 0);
-  }, [searchParams]);
+    return Boolean(urlSearchParam && urlSearchParam.trim().length > 0);
+  }, [urlSearchParam]);
 
-  // Sync selected category with URL ?category= param
+  // Keep search input state in sync with URL search param changes
   useEffect(() => {
-    setSelectedCategory(searchParams.get("category") || "");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+    setSearch(urlSearchParam);
+  }, [urlSearchParam]);
+
+  const updateSearchParams = useCallback(
+    (updates, resetPage = true) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          Object.entries(updates).forEach(([k, v]) => {
+            if (v !== undefined && v !== null && v !== "") {
+              next.set(k, v);
+            } else {
+              next.delete(k);
+            }
+          });
+          if (resetPage) {
+            next.delete("page");
+          }
+          return next;
+        },
+        { replace: true }
+      );
+    },
+    [setSearchParams]
+  );
 
   const handleSelectCategory = useCallback(
     (cat) => {
-      setSelectedCategory(cat);
-      setSelectedSubcategory("");
-      if (cat) {
-        setSearchParams({ category: cat }, { replace: true });
-      } else {
-        setSearchParams({}, { replace: true });
-      }
+      updateSearchParams({ category: cat, subcategory: "" }, true);
       setMobileFiltersOpen(false);
     },
-    [setSearchParams]
+    [updateSearchParams]
   );
 
-  // Handler for subcategory filter (preserves the parent category).
   const handleSelectSubcategory = useCallback(
     (sub) => {
-      setSelectedSubcategory(sub);
-      if (sub) {
-        setSearchParams(
-          { category: selectedCategory, subcategory: sub },
-          { replace: true }
-        );
-      } else {
-        setSearchParams(
-          selectedCategory ? { category: selectedCategory } : {},
-          { replace: true }
-        );
-      }
+      updateSearchParams({ subcategory: sub }, true);
       setMobileFiltersOpen(false);
     },
-    [setSearchParams, selectedCategory]
+    [updateSearchParams]
   );
 
-  // Handler for picking a subcategory from a category's right-side flyout popup.
   const handleSelectCategoryAndSub = useCallback(
-    (category, sub) => {
-      setSelectedCategory(category);
-      setSelectedSubcategory(sub || "");
-      if (category && sub) {
-        setSearchParams({ category, subcategory: sub }, { replace: true });
-      } else if (category) {
-        setSearchParams({ category }, { replace: true });
-      } else {
-        setSearchParams({}, { replace: true });
-      }
+    (cat, sub) => {
+      updateSearchParams({ category: cat, subcategory: sub || "" }, true);
       setMobileFiltersOpen(false);
     },
-    [setSearchParams]
+    [updateSearchParams]
   );
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError("");
-        const [prodRes, siteRes] = await Promise.all([
-          api.get("/products"),
-          api.get("/site-content").catch(() => null),
-        ]);
+  const handleSearchChange = useCallback(
+    (term) => {
+      setSearch(term);
+      updateSearchParams({ search: term }, true);
+    },
+    [updateSearchParams]
+  );
 
-        const list = prodRes.data?.success ? prodRes.data.data || [] : [];
-        setProducts(list);
+  const handlePriceChange = useCallback(
+    (val) => {
+      setPriceValue(val);
+    },
+    []
+  );
 
-        if (list.length > 0) {
-          const prices = list.map((p) => Number(p.price) || 0);
-          const min = Math.floor(Math.min(...prices));
-          const max = Math.ceil(Math.max(...prices));
-          setPriceBounds([min, max]);
-          setPriceValue((prev) =>
-            prev[1] === 0 ? [min, max] : prev
-          );
-        }
-
-        if (siteRes?.data?.success && Array.isArray(siteRes.data.data?.categories)) {
-          setCategories(
-            siteRes.data.data.categories.filter((c) => c.name)
-          );
-        }
-      } catch (err) {
-        const msg = err?.response?.data?.message || err.message || "Failed to load products.";
-        setError(msg);
-        toast.error(msg);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [toast]);
-
-  const filtered = useMemo(() => {
-    let result = [...products];
-    const q = search.trim().toLowerCase();
-    if (q) {
-      result = result.filter(
-        (p) =>
-          (p.name || "").toLowerCase().includes(q) ||
-          (p.description || p.detail || "").toLowerCase().includes(q) ||
-          (Array.isArray(p.category) ? p.category.join(" ") : (p.category || "")).toLowerCase().includes(q)
-      );
-    }
-    if (selectedCategory) {
-      result = result.filter(
-        (p) => (Array.isArray(p.category) ? p.category[0] : p.category || "") === selectedCategory
-      );
-    }
-    if (selectedSubcategory) {
-      result = result.filter(
-        (p) => (p.subcategory || "") === selectedSubcategory
-      );
-    }
-    result = result.filter((p) => {
-      const price = Number(p.price) || 0;
-      return price >= priceValue[0] && price <= priceValue[1];
-    });
-
-    if (sort === "price-asc") result.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
-    else if (sort === "price-desc") result.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
-    else if (sort === "rating") result.sort((a, b) => (Number(b.avgRating) || 0) - (Number(a.avgRating) || 0));
-
-    return result;
-  }, [products, search, selectedCategory, selectedSubcategory, priceValue, sort]);
+  const handleSortChange = useCallback(
+    (s) => {
+      setSort(s);
+    },
+    []
+  );
 
   const handleClearAll = () => {
     setSearch("");
-    setSelectedCategory("");
-    setSelectedSubcategory("");
-    setPriceValue(priceBounds);
+    setPriceValue([0, 200000]);
     setSort("default");
     setSearchParams({}, { replace: true });
     setMobileFiltersOpen(false);
   };
 
+  const handlePageChange = (newPage) => {
+    if (newPage === pageParam) return;
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (newPage <= 1) next.delete("page");
+        else next.set("page", newPage);
+        return next;
+      },
+      { replace: true }
+    );
+    if (productsSectionRef.current) {
+      productsSectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  // Fetch site content categories once on mount
+  useEffect(() => {
+    api.get("/site-content")
+      .then((siteRes) => {
+        if (siteRes?.data?.success && Array.isArray(siteRes.data.data?.categories)) {
+          setCategories(siteRes.data.data.categories.filter((c) => c.name));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const priceLow = priceValue[0];
+  const priceHigh = priceValue[1];
+
+  // Main data fetch effect: server-side pagination with query parameters
+  useEffect(() => {
+    let isCancelled = false;
+
+    const fetchProductsData = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const params = {
+          page: pageParam,
+          limit: 20,
+        };
+
+        if (categoryParam) params.category = categoryParam;
+        if (subcategoryParam) params.subcategory = subcategoryParam;
+        if (urlSearchParam.trim()) params.search = urlSearchParam.trim();
+        if (priceLow > priceBounds[0]) params.minPrice = priceLow;
+        if (priceHigh < priceBounds[1] && priceHigh > 0) params.maxPrice = priceHigh;
+        if (sort !== "default") params.sort = sort;
+
+        const res = await api.get("/products", { params });
+
+        if (isCancelled) return;
+
+        if (res.data?.success) {
+          const list = res.data.data || [];
+          const pagination = res.data.pagination || { total: list.length, page: pageParam, pages: 1, limit: 20 };
+          setProducts(list);
+          setPaginationInfo(pagination);
+
+          // Accumulate subcategories for sidebar flyout options
+          setSubcategoriesByCategoryMap((prev) => {
+            const next = { ...prev };
+            list.forEach((p) => {
+              const cat = Array.isArray(p.category) ? p.category[0] : p.category;
+              if (cat && p.subcategory) {
+                if (!next[cat]) next[cat] = new Set();
+                else if (!(next[cat] instanceof Set)) next[cat] = new Set(next[cat]);
+                next[cat].add(p.subcategory);
+              }
+            });
+            const formatted = {};
+            Object.keys(next).forEach((k) => {
+              formatted[k] = Array.from(next[k]).sort();
+            });
+            return formatted;
+          });
+        }
+      } catch (err) {
+        if (!isCancelled) {
+          const msg = err?.response?.data?.message || err.message || "Failed to load products.";
+          setError(msg);
+          toast.error(msg);
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchProductsData();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [pageParam, categoryParam, subcategoryParam, urlSearchParam, priceLow, priceHigh, priceBounds, sort, toast]);
+
   const breadcrumbs = useMemo(() => {
     const crumbs = [{ name: "Home", url: `${siteUrl}/` }];
-    if (selectedCategory) {
+    if (categoryParam) {
       crumbs.push({ name: "Products", url: `${siteUrl}/products` });
-      crumbs.push({ name: selectedCategory, url: `${siteUrl}/products?category=${encodeURIComponent(selectedCategory)}` });
-      if (selectedSubcategory) {
-        crumbs.push({ name: selectedSubcategory, url: `${siteUrl}/products?category=${encodeURIComponent(selectedCategory)}&subcategory=${encodeURIComponent(selectedSubcategory)}` });
+      crumbs.push({ name: categoryParam, url: `${siteUrl}/products?category=${encodeURIComponent(categoryParam)}` });
+      if (subcategoryParam) {
+        crumbs.push({ name: subcategoryParam, url: `${siteUrl}/products?category=${encodeURIComponent(categoryParam)}&subcategory=${encodeURIComponent(subcategoryParam)}` });
       }
     } else {
       crumbs.push({ name: "Products", url: `${siteUrl}/products` });
     }
     return crumbs;
-  }, [selectedCategory, selectedSubcategory, siteUrl]);
+  }, [categoryParam, subcategoryParam, siteUrl]);
 
-  // Derive the list of subcategories for the currently selected category.
   const subcategoryOptions = useMemo(() => {
-    if (!selectedCategory) return [];
-    const set = new Set();
-    products.forEach((p) => {
-      const cat = Array.isArray(p.category) ? p.category[0] : p.category;
-      if (cat === selectedCategory && p.subcategory) {
-        set.add(p.subcategory);
-      }
-    });
-    return Array.from(set).sort();
-  }, [products, selectedCategory]);
-
-  // Derive subcategories grouped by every category, used for the right-side flyout popup.
-  const subcategoriesByCategory = useMemo(() => {
-    const map = {};
-    products.forEach((p) => {
-      const cat = Array.isArray(p.category) ? p.category[0] : p.category;
-      if (!cat) return;
-      if (!map[cat]) map[cat] = new Set();
-      if (p.subcategory) map[cat].add(p.subcategory);
-    });
-    Object.keys(map).forEach((k) => {
-      map[k] = Array.from(map[k]).sort();
-    });
-    return map;
-  }, [products]);
+    if (!categoryParam) return [];
+    return subcategoriesByCategoryMap[categoryParam] || [];
+  }, [subcategoriesByCategoryMap, categoryParam]);
 
   const productSkeletons = useMemo(() => [...Array(6)], []);
 
   return (
-    <div className="mx-auto max-w-full py-6 px-8 sm:px-6 lg:px-32">
+    <div ref={productsSectionRef} className="mx-auto max-w-full py-6 px-8 sm:px-6 lg:px-32">
       <Breadcrumb crumbs={breadcrumbs.map(b => ({ name: b.name, path: b.url.replace(siteUrl, '') }))} />
       <SEO
-        title={`Products${selectedCategory ? ` - ${selectedCategory}` : ""} - ${siteName}`}
+        title={`Products${categoryParam ? ` - ${categoryParam}` : ""} - ${siteName}`}
         description="Browse our full range of premium office chairs, gaming chairs, sofas, and office furniture in Lahore. Shop ergonomic seating at Comfort Seats PK."
-        canonicalUrl={`${siteUrl}/products${selectedCategory ? `?category=${encodeURIComponent(selectedCategory)}` : ''}`}
+        canonicalUrl={`${siteUrl}/products${categoryParam ? `?category=${encodeURIComponent(categoryParam)}` : ''}`}
         products={products}
         breadcrumbs={breadcrumbs}
-        category={selectedCategory}
+        category={categoryParam}
       />
 
       <AnimatedSection>
@@ -557,15 +581,15 @@ const Products = () => {
         <motion.div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between" variants={sectionHeading}>
           <div>
             <h1 className="text-2xl font-bold sm:text-3xl" style={{ color: 'var(--text)' }}>
-              {isSearchResultsPage ? `Search Results` : (selectedSubcategory || selectedCategory || "All Products")}
+              {isSearchResultsPage ? `Search Results` : (subcategoryParam || categoryParam || "All Products")}
             </h1>
-            {isSearchResultsPage && (
-              <p className="mt-1 text-sm text-gray-500">
-                {loading
-                  ? "Loading..."
-                  : `${filtered.length} product${filtered.length === 1 ? "" : "s"} found`}
-              </p>
-            )}
+            <p className="mt-1 text-sm text-gray-500">
+              {loading
+                ? "Loading..."
+                : `${paginationInfo.total} product${paginationInfo.total === 1 ? "" : "s"} found${
+                    paginationInfo.pages > 1 ? ` (Page ${paginationInfo.page} of ${paginationInfo.pages})` : ""
+                  }`}
+            </p>
           </div>
           <button
             type="button"
@@ -585,20 +609,20 @@ const Products = () => {
             <motion.div variants={sectionHeading} className="sticky top-6 rounded-2xl border p-5 shadow-xs transition-colors duration-300" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)', color: 'var(--text)' }}>
               <FiltersContent
                 categories={categories}
-                selectedCategory={selectedCategory}
+                selectedCategory={categoryParam}
                 onSelectCategory={handleSelectCategory}
                 subcategoryOptions={subcategoryOptions}
-                selectedSubcategory={selectedSubcategory}
+                selectedSubcategory={subcategoryParam}
                 onSelectSubcategory={handleSelectSubcategory}
-                subcategoriesByCategory={subcategoriesByCategory}
+                subcategoriesByCategory={subcategoriesByCategoryMap}
                 onSelectCategoryAndSub={handleSelectCategoryAndSub}
                 search={search}
-                onSearch={setSearch}
+                onSearch={handleSearchChange}
                 priceBounds={priceBounds}
                 priceValue={priceValue}
-                onPriceChange={setPriceValue}
+                onPriceChange={handlePriceChange}
                 sort={sort}
-                onSortChange={setSort}
+                onSortChange={handleSortChange}
                 onClearAll={handleClearAll}
               />
             </motion.div>
@@ -618,37 +642,47 @@ const Products = () => {
               </motion.div>
             ) : error ? (
               <motion.div key="error" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-20 text-center text-red-600">{error}</motion.div>
-            ) : filtered.length === 0 ? (
+            ) : products.length === 0 ? (
               <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-20 text-center text-gray-500">
                 {isSearchResultsPage
                   ? <>No products match your search.<div className="mt-4"><button type="button" onClick={handleClearAll} className="rounded-xl bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90">Clear Search</button></div></>
                   : <>No products match your filters.<div className="mt-4"><button type="button" onClick={handleClearAll} className="rounded-xl bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90">Clear Filters</button></div></>}
               </motion.div>
             ) : (
-              <motion.div key="products" variants={staggerContainer} initial="initial" animate="animate" 
-              className="grid grid-cols-1 justify-items-center sm:justify-items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 3xl:grid-cols-4">
-                {filtered.map((product) => {
-                  const { primaryImage, hoverImage } = getProductCardImages(product);
+              <div className="space-y-8">
+                <motion.div key={`products-page-${pageParam}`} variants={staggerContainer} initial="initial" animate="animate" 
+                className="grid grid-cols-1 justify-items-center sm:justify-items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 3xl:grid-cols-4">
+                  {products.map((product) => {
+                    const { primaryImage, hoverImage } = getProductCardImages(product);
 
-                  return (
-                    <motion.div key={product._id} className="w-full flex justify-center" variants={prefersReducedMotion() ? staggerItem : productCardReveal}>
-                      <ProductCard
-                        to={product.slug ? `/products/${product.slug}` : `/products/${product.slug}`}
-                        image={primaryImage || product.imageUrl || "https://images.unsplash.com/photo-1505843490701-5be5d6f48db6?w=500"}
-                        hoverImage={hoverImage}
-                        name={product.name}
-                        price={product.price}
-                        description={product.shortDescription || product.description || product.detail || "No description available."}
-                        rating={product.avgRating || 0}
-                        reviews={product.totalReviews || 0}
-                        category={product.category}
-                        isCustomizable={product.isCustomizable === true}
-                        product={product}
-                      />
-                    </motion.div>
-                  );
-                })}
-              </motion.div>
+                    return (
+                      <motion.div key={product._id} className="w-full flex justify-center" variants={prefersReducedMotion() ? staggerItem : productCardReveal}>
+                        <ProductCard
+                          to={product.slug ? `/products/${product.slug}` : `/products/${product.slug}`}
+                          image={primaryImage || product.imageUrl || "https://images.unsplash.com/photo-1505843490701-5be5d6f48db6?w=500"}
+                          hoverImage={hoverImage}
+                          name={product.name}
+                          price={product.price}
+                          description={product.shortDescription || product.description || product.detail || "No description available."}
+                          rating={product.avgRating || 0}
+                          reviews={product.totalReviews || 0}
+                          category={product.category}
+                          isCustomizable={product.isCustomizable === true}
+                          product={product}
+                        />
+                      </motion.div>
+                    );
+                  })}
+                </motion.div>
+
+                {/* Professional Pagination Controls */}
+                <Pagination
+                  currentPage={paginationInfo.page}
+                  totalPages={paginationInfo.pages}
+                  onPageChange={handlePageChange}
+                  disabled={loading}
+                />
+              </div>
             )}
           </AnimatePresence>
         </main>
@@ -677,20 +711,20 @@ const Products = () => {
             <div className="flex-1 overflow-y-auto px-5 py-5">
               <FiltersContent
                 categories={categories}
-                selectedCategory={selectedCategory}
+                selectedCategory={categoryParam}
                 onSelectCategory={handleSelectCategory}
                 subcategoryOptions={subcategoryOptions}
-                selectedSubcategory={selectedSubcategory}
+                selectedSubcategory={subcategoryParam}
                 onSelectSubcategory={handleSelectSubcategory}
-                subcategoriesByCategory={subcategoriesByCategory}
+                subcategoriesByCategory={subcategoriesByCategoryMap}
                 onSelectCategoryAndSub={handleSelectCategoryAndSub}
                 search={search}
-                onSearch={setSearch}
+                onSearch={handleSearchChange}
                 priceBounds={priceBounds}
                 priceValue={priceValue}
-                onPriceChange={setPriceValue}
+                onPriceChange={handlePriceChange}
                 sort={sort}
-                onSortChange={setSort}
+                onSortChange={handleSortChange}
                 onClearAll={handleClearAll}
               />
             </div>
@@ -701,7 +735,7 @@ const Products = () => {
                 style={{ backgroundColor: 'var(--primary)', color: 'var(--btn-primary-text, #fff)' }}
                 className="w-full rounded-xl py-3 text-sm font-semibold transition hover:opacity-90"
               >
-                Show {filtered.length} Result{filtered.length === 1 ? "" : "s"}
+                Show {paginationInfo.total} Result{paginationInfo.total === 1 ? "" : "s"}
               </button>
             </div>
           </div>

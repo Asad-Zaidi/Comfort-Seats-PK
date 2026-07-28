@@ -73,7 +73,7 @@ const AdminDashboard = () => {
                 setLoading(true);
                 setError("");
                 const [productsRes, ordersRes] = await Promise.all([
-                    api.get("/products"),
+                    api.get("/products?limit=1000"),
                     api.get("/orders"),
                 ]);
                 if (productsRes.data?.success) setProducts(productsRes.data.data || []);

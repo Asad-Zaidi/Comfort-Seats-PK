@@ -35,14 +35,28 @@ const createOrder = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Customer details are required' });
         }
 
+        let productSlug = (product.slug || '').trim();
+        const targetProductId = product.productId || product._id;
+        if (!productSlug && targetProductId) {
+            try {
+                const foundProd = await Product.findById(targetProductId).select('slug').lean();
+                if (foundProd && foundProd.slug) {
+                    productSlug = foundProd.slug;
+                }
+            } catch (err) {
+                console.error('[orderController] Failed to fetch product slug:', err);
+            }
+        }
+
         const order = await Order.create({
             product: {
-                productId: product.productId || null,
+                productId: targetProductId || null,
                 name: product.name,
                 price: product.price,
                 imageUrl: product.imageUrl || '',
                 color: product.color || '',
                 size: product.size || '',
+                slug: productSlug,
                 // Discount pricing fields for historical accuracy
                 actualPrice: product.actualPrice || 0,
                 discountPrice: product.discountPrice || 0,

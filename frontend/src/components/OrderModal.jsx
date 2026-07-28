@@ -134,6 +134,7 @@ const OrderModal = ({
                     imageUrl: product?.imageUrl || "",
                     color: selectedColor || "",
                     size: selectedSize || "",
+                    slug: product?.slug || "",
                     selectedStandType: selectedStandType || "",
                     actualPrice: product?.actualPrice || 0,
                     discountPrice: product?.discountPrice || 0,

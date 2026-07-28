@@ -450,14 +450,12 @@ const ContactPage = () => {
 
         setSubmitting(true);
         try {
-            // NOTE: this endpoint doesn't exist yet - wire it up to a real
-            // "contact messages" route (email/DB) before going live.
-            await api.post("/contact/message", form);
+            const res = await api.post("/contact/messages", form);
             setSubmitted(true);
             setForm({ name: "", email: "", subject: "", message: "" });
-            toast.success("Message sent successfully.");
+            toast.success(res.data?.message || "Message sent successfully.");
         } catch (err) {
-            const msg = "Something went wrong sending your message. Please try again.";
+            const msg = err?.response?.data?.message || "Something went wrong sending your message. Please try again.";
             setFormError(msg);
             toast.error(msg);
         } finally {

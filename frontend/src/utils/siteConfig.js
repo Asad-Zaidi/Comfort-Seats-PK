@@ -59,10 +59,10 @@ const defaultColors = {
 const withDefaults = (data = {}) => {
     const safeData = data || {};
     return {
-        siteName: safeData.siteName || "",
-        siteUrl: safeData.siteUrl || "",
-        siteTitle: safeData.siteTitle || "",
-        keywords: safeData.keywords || "",
+        siteName: safeData.siteName || "Comfort Seats PK",
+        siteUrl: safeData.siteUrl || "https://comfortseatspk.com",
+        siteTitle: safeData.siteTitle || "Comfort Seats PK - Premium Furniture in Lahore",
+        keywords: safeData.keywords || "office chairs, gaming chairs, office furniture, Pakistan, furniture, ergonomic chairs",
         logoUrl: safeData.logoUrl || "",
         faviconUrl: safeData.faviconUrl || "",
         whatsappNumber: safeData.whatsappNumber || "",

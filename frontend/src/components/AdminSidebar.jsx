@@ -21,6 +21,7 @@ import {
     FiDroplet,
     FiCreditCard,
     FiStar,
+    FiMessageSquare,
 } from "react-icons/fi";
 
 const AdminSidebar = ({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, onChangePassword }) => {
@@ -61,6 +62,11 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, on
             name: "Orders",
             path: "/admin/orders",
             icon: <FiShoppingCart />,
+        },
+        {
+            name: "Messages",
+            path: "/admin/messages",
+            icon: <FiMessageSquare />,
         },
         {
             name: "Contact",

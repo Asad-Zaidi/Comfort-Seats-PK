@@ -16,6 +16,7 @@ import AdminAnnouncement from "../pages/admin/AdminAnnouncement";
 import AdminColor from "../pages/admin/AdminColor";
 import AdminCheckout from "../pages/admin/AdminCheckout";
 import AdminReviews from "../pages/admin/AdminReviews";
+import AdminMessages from "../pages/admin/AdminMessages";
 
 const AdminRoutes = () => {
     const isAuthenticated = typeof window !== "undefined" && !!localStorage.getItem("adminToken");
@@ -31,6 +32,7 @@ const AdminRoutes = () => {
                 <Route path="categories" element={<AddCategory />} />
                 <Route path="reviews" element={<AdminReviews />} />
                 <Route path="orders" element={<AdminOrders />} />
+                <Route path="messages" element={<AdminMessages />} />
                 <Route path="contacts" element={<AdminContact />} />
                 <Route path="customizations" element={<AdminCustomizations />} />
                 <Route path="announcement" element={<AdminAnnouncement />} />

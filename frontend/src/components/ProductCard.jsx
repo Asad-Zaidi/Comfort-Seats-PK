@@ -50,36 +50,36 @@ const ProductCard = ({
             <div className="relative w-full aspect-square overflow-hidden" style={{ background: 'var(--bg-secondary)' }}>
                 {/* Category Badge - Top Left */}
                 {category && (
-                    <div className="absolute left-3 top-3 z-10">
+                    <div className="absolute left-3 top-3 z-10 max-w-[55%]">
                         <Link
                             to={`/products?category=${encodeURIComponent(typeof category === 'string' ? category : (Array.isArray(category) ? category[0] : ''))}`}
                             onClick={(e) => e.stopPropagation()}
-                            className="inline-block rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide shadow-sm backdrop-blur-sm transition"
+                            className="inline-flex items-center w-auto max-w-full rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide shadow-sm backdrop-blur-sm transition whitespace-nowrap truncate"
                             style={{ backgroundColor: 'var(--primary)', color: 'var(--btn-primary-text, #fff)' }}
                         >
-                            {typeof category === 'string' ? category : (Array.isArray(category) ? category[0] : '')}
+                            <span className="truncate">{typeof category === 'string' ? category : (Array.isArray(category) ? category[0] : '')}</span>
                         </Link>
                     </div>
                 )}
-                {/* Product Badges - Top Right (stacked vertically) */}
-                <div className="absolute right-3 top-3 z-10 flex flex-col gap-1.5">
+                {/* Product Badges - Top Right (stacked vertically, auto-fit to text length) */}
+                <div className="absolute right-3 top-3 z-10 flex flex-col items-end gap-1.5 max-w-[45%] pointer-events-none">
                     {product?.isNewArrival && (
-                        <span className="inline-block rounded-full px-3 py-1 text-xs font-bold text-white shadow-sm" style={{ backgroundColor: 'var(--success)' }}>
+                        <span className="inline-flex items-center w-auto rounded-full px-3 py-1 text-xs font-bold text-white shadow-sm whitespace-nowrap" style={{ backgroundColor: 'var(--success)' }}>
                             New
                         </span>
                     )}
                     {product?.isBestSeller && (
-                        <span className="inline-block rounded-full px-3 py-1 text-xs font-bold text-white shadow-sm" style={{ backgroundColor: 'var(--secondary)' }}>
+                        <span className="inline-flex items-center w-auto rounded-full px-3 py-1 text-xs font-bold text-white shadow-sm whitespace-nowrap" style={{ backgroundColor: 'var(--secondary)' }}>
                             Best Seller
                         </span>
                     )}
                     {product?.isFeatured && (
-                        <span className="inline-block rounded-full bg-purple-600 px-3 py-1 text-xs font-bold text-white shadow-sm">
+                        <span className="inline-flex items-center w-auto rounded-full bg-purple-600 px-3 py-1 text-xs font-bold text-white shadow-sm whitespace-nowrap">
                             Featured
                         </span>
                     )}
                     {showDiscount && (
-                        <span className="inline-block rounded-full px-3 py-1 text-xs font-bold text-white shadow-sm" style={{ backgroundColor: 'var(--error)' }}>
+                        <span className="inline-flex items-center w-auto rounded-full px-3 py-1 text-xs font-bold text-white shadow-sm whitespace-nowrap" style={{ backgroundColor: 'var(--error)' }}>
                             {pricing.discountPercentage}% OFF
                         </span>
                     )}
