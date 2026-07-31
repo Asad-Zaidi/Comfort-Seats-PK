@@ -70,6 +70,9 @@ const Customize = () => {
             toast.error("WhatsApp number not configured. Please submit the form instead.");
             return;
         }
+        if (window.fbq) {
+            window.fbq("track", "Contact");
+        }
         window.open(
             `https://wa.me/${whatsappNumber.replace(/[^\d]/g, "")}?text=${encodeURIComponent(buildWhatsAppMessage())}`,
             "_blank"
@@ -97,6 +100,9 @@ const Customize = () => {
             });
             setSubmitted(true);
             toast.success("Request submitted! We'll contact you soon.");
+            if (window.fbq) {
+                window.fbq("track", "Lead");
+            }
         } catch (err) {
             const msg = err.response?.data?.message || "Something went wrong.";
             setFormError(msg);

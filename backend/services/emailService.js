@@ -268,17 +268,95 @@ const getSiteBaseUrl = () => {
   return url.replace(/\/+$/, '');
 };
 
+// Helper: get normalized items array from an order
+const getOrderItems = (order) => {
+  if (!order) return [];
+  if (Array.isArray(order.items) && order.items.length > 0) {
+    return order.items;
+  }
+  if (order.product && order.product.name) {
+    return [{
+      name: order.product.name,
+      price: order.product.price || 0,
+      imageUrl: order.product.imageUrl || '',
+      color: order.product.color || '',
+      size: order.product.size || '',
+      selectedStandType: order.product.selectedStandType || '',
+      slug: order.product.slug || '',
+      quantity: order.quantity || 1,
+      actualPrice: order.product.actualPrice || 0,
+      discountPrice: order.product.discountPrice || 0,
+      isDiscountEnabled: order.product.isDiscountEnabled || false,
+    }];
+  }
+  return [];
+};
+
+// Helper: build inline image attachments for all items
+const buildProductImageAttachments = (items) => {
+  if (!Array.isArray(items)) return [];
+  return items.map((item, index) => {
+    if (!item.imageUrl) return null;
+    const cid = `product-image-${index}`;
+    let filename = `product-${index}.png`;
+    const urlParts = item.imageUrl.split('?')[0].split('/');
+    const lastPart = urlParts[urlParts.length - 1];
+    if (lastPart && lastPart.includes('.')) {
+      filename = lastPart;
+    }
+    return {
+      filename,
+      path: item.imageUrl,
+      cid,
+    };
+  }).filter(Boolean);
+};
+
+// Render multi-item product cards HTML for emails
+const renderItemsHtml = (items) => {
+  if (!items || items.length === 0) return '';
+  return items.map((p, index) => {
+    const colorText = p.color
+      ? (isHexColor(p.color) ? getColorName(p.color) : p.color)
+      : 'N/A';
+    const productUrl = getProductUrl(p);
+    const imageSrc = p.imageUrl
+      ? (p.imageUrl.startsWith('http') || p.imageUrl.startsWith('data:') ? p.imageUrl : `cid:product-image-${index}`)
+      : null;
+    const imageBlock = imageSrc
+      ? `<img src="${escapeHtml(imageSrc)}" alt="${escapeHtml(p.name)}" style="width:90px;height:90px;object-fit:cover;border-radius:10px;border:1px solid #e5e7eb;" />`
+      : `<div style="width:90px;height:90px;border-radius:10px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:11px;">No Image</div>`;
+
+    return `
+      <div style="display:flex;gap:14px;align-items:center;background:#ffffff;border:1px solid #eef0f3;border-radius:12px;padding:14px;margin-bottom:12px;">
+        <a href="${productUrl}" target="_blank" style="text-decoration:none;">${imageBlock}</a>
+        <div style="flex:1;">
+          <a href="${productUrl}" target="_blank" style="text-decoration:none;color:#111827;"><p style="margin:0 0 4px;font-size:15px;font-weight:700;color:#111827;">${escapeHtml(p.name)} &rarr;</p></a>
+          <p style="margin:0;font-size:13px;color:#6b7280;">Quantity: <strong style="color:#374151;">${p.quantity || 1}</strong> &nbsp;&middot;&nbsp; Unit Price: <strong style="color:#374151;">${formatPrice(p.price)}</strong> &nbsp;&middot;&nbsp; Subtotal: <strong style="color:#111827;">${formatPrice(p.price * (p.quantity || 1))}</strong></p>
+          <p style="margin:4px 0 0;font-size:13px;color:#6b7280;">Color: <strong style="color:#374151;">${escapeHtml(colorText)}</strong>${p.size ? ` &nbsp;&middot;&nbsp; Size: <strong style="color:#374151;">${escapeHtml(p.size)}</strong>` : ''}${p.selectedStandType ? ` &nbsp;&middot;&nbsp; Stand: <strong style="color:#374151;">${escapeHtml(p.selectedStandType)}</strong>` : ''}</p>
+          <div style="margin-top:8px;">
+            <a href="${productUrl}" target="_blank" style="display:inline-block;background:#2F6FED;color:#ffffff;text-decoration:none;padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;">View Product &rarr;</a>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+};
+
 const ensureOrderProductSlug = async (order) => {
-  if (!order || !order.product) return;
-  if (!order.product.slug && order.product.productId) {
-    try {
-      const Product = require('../models/Product');
-      const foundProd = await Product.findById(order.product.productId).select('slug').lean();
-      if (foundProd && foundProd.slug) {
-        order.product.slug = foundProd.slug;
+  if (!order) return;
+  const items = getOrderItems(order);
+  const Product = require('../models/Product');
+  for (const item of items) {
+    if (!item.slug && item.productId) {
+      try {
+        const foundProd = await Product.findById(item.productId).select('slug').lean();
+        if (foundProd && foundProd.slug) {
+          item.slug = foundProd.slug;
+        }
+      } catch (err) {
+        console.warn('[emailService] Could not populate product slug for email:', err.message);
       }
-    } catch (err) {
-      console.warn('[emailService] Could not populate product slug for email:', err.message);
     }
   }
 };
@@ -298,13 +376,10 @@ const getAdminOrderUrl = () => {
 
 // Build the professional HTML email body for an order (admin notification)
 const buildOrderEmailHtml = (order) => {
-  const p = order.product || {};
+  const items = getOrderItems(order);
   const c = order.customer || {};
   const isCancelled = order.status === 'cancelled';
   const isCompleted = order.status === 'completed';
-  const colorText = p.color
-    ? (isHexColor(p.color) ? getColorName(p.color) : p.color)
-    : 'N/A';
   const orderId = shortOrderId(order);
   const dateStr = order.createdAt
     ? new Date(order.createdAt).toLocaleString('en-US', {
@@ -316,7 +391,6 @@ const buildOrderEmailHtml = (order) => {
     })
     : 'N/A';
 
-  const productUrl = getProductUrl(p);
   const adminOrdersUrl = getAdminOrderUrl();
 
   const headerBg = isCancelled ? 'linear-gradient(135deg,#E5484D,#b91c1c)' : 'linear-gradient(135deg,#2F6FED,#1e4fbf)';
@@ -327,9 +401,7 @@ const buildOrderEmailHtml = (order) => {
       ? 'A customer order has just been <strong style="color:#16a34a;">confirmed</strong>. Please find the complete order and shipping details below.'
       : 'A new order has been placed. Please find the complete order and shipping details below.';
 
-  const imageBlock = order.product && order.product.imageUrl
-    ? `<img src="cid:product-image" alt="${escapeHtml(p.name)}" style="width:120px;height:120px;object-fit:cover;border-radius:12px;border:1px solid #e5e7eb;" />`
-    : `<div style="width:120px;height:120px;border-radius:12px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:12px;">No Image</div>`;
+  const itemsHtml = renderItemsHtml(items);
 
   return `
     <div style="font-family: 'Segoe UI', Arial, sans-serif; background:#f4f5f7; padding:24px;">
@@ -358,23 +430,14 @@ const buildOrderEmailHtml = (order) => {
               <tr><td style="padding:4px 0;color:#9ca3af;">Date</td><td style="padding:4px 0;text-align:right;">${dateStr}</td></tr>
               <tr><td style="padding:4px 0;color:#9ca3af;">Status</td><td style="padding:4px 0;text-align:right;font-weight:600;color:#16a34a;">${statusLabel(order.status)}</td></tr>
               <tr><td style="padding:4px 0;color:#9ca3af;">Payment</td><td style="padding:4px 0;text-align:right;">${paymentLabel(order.paymentMethod)}</td></tr>
-              <tr><td style="padding:4px 0;color:#9ca3af;">Total</td><td style="padding:4px 0;text-align:right;font-weight:700;color:#111827;">${formatPrice(order.totalPrice)}</td></tr>
+              <tr><td style="padding:4px 0;color:#9ca3af;">Total Items</td><td style="padding:4px 0;text-align:right;font-weight:600;">${items.reduce((a, b) => a + (b.quantity || 1), 0)} items</td></tr>
+              <tr><td style="padding:4px 0;color:#9ca3af;">Total Amount</td><td style="padding:4px 0;text-align:right;font-weight:700;color:#111827;">${formatPrice(order.totalPrice)}</td></tr>
             </table>
           </div>
 
-          <!-- Product -->
-          <div style="display:flex;gap:16px;align-items:center;background:#ffffff;border:1px solid #eef0f3;border-radius:12px;padding:16px;margin-bottom:20px;">
-            <a href="${productUrl}" target="_blank" style="text-decoration:none;">${imageBlock}</a>
-            <div style="flex:1;">
-              <a href="${productUrl}" target="_blank" style="text-decoration:none;color:#111827;"><p style="margin:0 0 6px;font-size:16px;font-weight:700;color:#111827;">${escapeHtml(p.name)} &rarr;</p></a>
-              <p style="margin:0;font-size:13px;color:#6b7280;">Quantity: <strong style="color:#374151;">${order.quantity || 1}</strong></p>
-              <p style="margin:4px 0 0;font-size:13px;color:#6b7280;">Color: <strong style="color:#374151;">${escapeHtml(colorText)}</strong>${p.size ? ` &nbsp;&middot;&nbsp; Size: <strong style="color:#374151;">${escapeHtml(p.size)}</strong>` : ''}</p>
-              <p style="margin:4px 0 0;font-size:13px;color:#6b7280;">Unit Price: <strong style="color:#374151;">${formatPrice(p.price)}</strong></p>
-              <div style="margin-top:10px;">
-                <a href="${productUrl}" target="_blank" style="display:inline-block;background:#2F6FED;color:#ffffff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;">View Product on Store &rarr;</a>
-              </div>
-            </div>
-          </div>
+          <!-- Products List -->
+          <h3 style="margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:0.04em;color:#6b7280;">Ordered Products (${items.length})</h3>
+          ${itemsHtml}
 
           <!-- Payment Method Details -->
           <div style="background:#f9fafb;border:1px solid #eef0f3;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
@@ -439,9 +502,10 @@ const sendOrderConfirmationEmail = async (order) => {
       html: buildOrderEmailHtml(order),
     };
 
-    const attachment = buildProductImageAttachment(order.product && order.product.imageUrl);
+    const items = getOrderItems(order);
+    const itemAttachments = buildProductImageAttachments(items);
     const receiptAtt = buildReceiptAttachment(order.paymentReceipt);
-    const attachments = [attachment, receiptAtt].filter(Boolean);
+    const attachments = [...itemAttachments, receiptAtt].filter(Boolean);
     if (attachments.length) {
       mailOptions.attachments = attachments;
     }
@@ -467,11 +531,8 @@ const sendOrderConfirmationEmail = async (order) => {
 const buildCustomerOrderEmailHtml = (order, opts = {}) => {
   const confirmed = !!opts.confirmed;
   const cancelled = !!opts.cancelled;
-  const p = order.product || {};
+  const items = getOrderItems(order);
   const c = order.customer || {};
-  const colorText = p.color
-    ? (isHexColor(p.color) ? getColorName(p.color) : p.color)
-    : 'N/A';
   const orderId = shortOrderId(order);
   const dateStr = order.createdAt
     ? new Date(order.createdAt).toLocaleString('en-US', {
@@ -483,8 +544,6 @@ const buildCustomerOrderEmailHtml = (order, opts = {}) => {
     })
     : 'N/A';
 
-  const productUrl = getProductUrl(p);
-
   const heading = cancelled
     ? 'Your Order Has Been Cancelled'
     : confirmed
@@ -495,11 +554,8 @@ const buildCustomerOrderEmailHtml = (order, opts = {}) => {
     : confirmed
       ? 'Great news! Your order has been confirmed and is being prepared for shipping. Here are the complete details of your purchase.'
       : 'We have received your order and it is now pending confirmation. Here is the complete summary of the product(s) you ordered.';
-  const statusColor = cancelled ? '#E5484D' : confirmed ? '#16a34a' : '#d97706';
 
-  const imageBlock = order.product && order.product.imageUrl
-    ? `<img src="cid:product-image" alt="${escapeHtml(p.name)}" style="width:120px;height:120px;object-fit:cover;border-radius:12px;border:1px solid #e5e7eb;" />`
-    : `<div style="width:120px;height:120px;border-radius:12px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:12px;">No Image</div>`;
+  const itemsHtml = renderItemsHtml(items);
 
   return `
     <div style="font-family: 'Segoe UI', Arial, sans-serif; background:#f4f5f7; padding:24px;">
@@ -523,23 +579,14 @@ const buildCustomerOrderEmailHtml = (order, opts = {}) => {
               <tr><td style="padding:4px 0;color:#9ca3af;">Date</td><td style="padding:4px 0;text-align:right;">${dateStr}</td></tr>
               <tr><td style="padding:4px 0;color:#9ca3af;">Status</td><td style="padding:4px 0;text-align:right;font-weight:600;color:${cancelled ? '#E5484D' : confirmed ? '#16a34a' : '#d97706'};">${statusLabel(order.status)}</td></tr>
               <tr><td style="padding:4px 0;color:#9ca3af;">Payment</td><td style="padding:4px 0;text-align:right;">${paymentLabel(order.paymentMethod)}</td></tr>
-              <tr><td style="padding:4px 0;color:#9ca3af;">Total</td><td style="padding:4px 0;text-align:right;font-weight:700;color:#111827;">${formatPrice(order.totalPrice)}</td></tr>
+              <tr><td style="padding:4px 0;color:#9ca3af;">Total Items</td><td style="padding:4px 0;text-align:right;font-weight:600;">${items.reduce((a, b) => a + (b.quantity || 1), 0)} items</td></tr>
+              <tr><td style="padding:4px 0;color:#9ca3af;">Total Amount</td><td style="padding:4px 0;text-align:right;font-weight:700;color:#111827;">${formatPrice(order.totalPrice)}</td></tr>
             </table>
           </div>
 
-          <!-- Product -->
-          <div style="display:flex;gap:16px;align-items:center;background:#ffffff;border:1px solid #eef0f3;border-radius:12px;padding:16px;margin-bottom:20px;">
-            <a href="${productUrl}" target="_blank" style="text-decoration:none;">${imageBlock}</a>
-            <div style="flex:1;">
-              <a href="${productUrl}" target="_blank" style="text-decoration:none;color:#111827;"><p style="margin:0 0 6px;font-size:16px;font-weight:700;color:#111827;">${escapeHtml(p.name)} &rarr;</p></a>
-              <p style="margin:0;font-size:13px;color:#6b7280;">Quantity: <strong style="color:#374151;">${order.quantity || 1}</strong></p>
-              <p style="margin:4px 0 0;font-size:13px;color:#6b7280;">Color: <strong style="color:#374151;">${escapeHtml(colorText)}</strong>${p.size ? ` &nbsp;&middot;&nbsp; Size: <strong style="color:#374151;">${escapeHtml(p.size)}</strong>` : ''}</p>
-              <p style="margin:4px 0 0;font-size:13px;color:#6b7280;">Unit Price: <strong style="color:#374151;">${formatPrice(p.price)}</strong></p>
-              <div style="margin-top:10px;">
-                <a href="${productUrl}" target="_blank" style="display:inline-block;background:#2F6FED;color:#ffffff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;">View Product Page &rarr;</a>
-              </div>
-            </div>
-          </div>
+          <!-- Products List -->
+          <h3 style="margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:0.04em;color:#6b7280;">Your Products (${items.length})</h3>
+          ${itemsHtml}
 
           <!-- Payment Method Details -->
           <div style="background:#f9fafb;border:1px solid #eef0f3;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
@@ -613,9 +660,10 @@ const sendCustomerOrderEmail = async (order, opts = {}) => {
       html: buildCustomerOrderEmailHtml(order, opts),
     };
 
-    const attachment = buildProductImageAttachment(order.product && order.product.imageUrl);
+    const items = getOrderItems(order);
+    const itemAttachments = buildProductImageAttachments(items);
     const receiptAtt = buildReceiptAttachment(order.paymentReceipt);
-    const attachments = [attachment, receiptAtt].filter(Boolean);
+    const attachments = [...itemAttachments, receiptAtt].filter(Boolean);
     if (attachments.length) {
       mailOptions.attachments = attachments;
     }
@@ -708,9 +756,7 @@ const buildStatusUpdateCustomerEmailHtml = (order, newStatus) => {
       break;
   }
 
-  const imageBlock = order.product && order.product.imageUrl
-    ? `<img src="cid:product-image" alt="${escapeHtml(p.name)}" style="width:120px;height:120px;object-fit:cover;border-radius:12px;border:1px solid #e5e7eb;" />`
-    : `<div style="width:120px;height:120px;border-radius:12px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:12px;">No Image</div>`;
+  const itemsHtml = renderItemsHtml(items);
 
   const trackingBlock = (newStatus === 'shipped' || s.courierName || s.trackingNumber) ? `
         <!-- Shipment Tracking Details -->
@@ -756,19 +802,9 @@ const buildStatusUpdateCustomerEmailHtml = (order, newStatus) => {
             </table>
           </div>
 
-          <!-- Product -->
-          <div style="display:flex;gap:16px;align-items:center;background:#ffffff;border:1px solid #eef0f3;border-radius:12px;padding:16px;margin-bottom:20px;">
-            <a href="${productUrl}" target="_blank" style="text-decoration:none;">${imageBlock}</a>
-            <div style="flex:1;">
-              <a href="${productUrl}" target="_blank" style="text-decoration:none;color:#111827;"><p style="margin:0 0 6px;font-size:16px;font-weight:700;color:#111827;">${escapeHtml(p.name)} &rarr;</p></a>
-              <p style="margin:0;font-size:13px;color:#6b7280;">Quantity: <strong style="color:#374151;">${order.quantity || 1}</strong></p>
-              <p style="margin:4px 0 0;font-size:13px;color:#6b7280;">Color: <strong style="color:#374151;">${escapeHtml(colorText)}</strong>${p.size ? ` &nbsp;&middot;&nbsp; Size: <strong style="color:#374151;">${escapeHtml(p.size)}</strong>` : ''}</p>
-              <p style="margin:4px 0 0;font-size:13px;color:#6b7280;">Unit Price: <strong style="color:#374151;">${formatPrice(p.price)}</strong></p>
-              <div style="margin-top:10px;">
-                <a href="${productUrl}" target="_blank" style="display:inline-block;background:#2F6FED;color:#ffffff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;">View Product Page &rarr;</a>
-              </div>
-            </div>
-          </div>
+          <!-- Products List -->
+          <h3 style="margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:0.04em;color:#6b7280;">Your Products (${items.length})</h3>
+          ${itemsHtml}
 
           <!-- Delivery -->
           <div style="background:#f9fafb;border:1px solid #eef0f3;border-radius:12px;padding:18px 20px;">
@@ -800,7 +836,7 @@ const buildStatusUpdateCustomerEmailHtml = (order, newStatus) => {
  * Build HTML email body for Admin on order status updates
  */
 const buildStatusUpdateAdminEmailHtml = (order, previousStatus, newStatus) => {
-  const p = order.product || {};
+  const items = getOrderItems(order);
   const c = order.customer || {};
   const s = order.shipping || {};
   const orderId = shortOrderId(order);
@@ -812,8 +848,8 @@ const buildStatusUpdateAdminEmailHtml = (order, previousStatus, newStatus) => {
     minute: '2-digit',
   });
 
-  const productUrl = getProductUrl(p);
   const adminOrdersUrl = getAdminOrderUrl();
+  const itemsHtml = renderItemsHtml(items);
 
   const trackingBlock = (newStatus === 'shipped' || s.courierName || s.trackingNumber) ? `
         <!-- Shipment Tracking Info -->
@@ -864,14 +900,9 @@ const buildStatusUpdateAdminEmailHtml = (order, previousStatus, newStatus) => {
             </table>
           </div>
 
-          <!-- Product Details -->
-          <div style="background:#ffffff;border:1px solid #eef0f3;border-radius:12px;padding:16px;margin-bottom:20px;">
-            <a href="${productUrl}" target="_blank" style="text-decoration:none;color:#111827;"><p style="margin:0 0 6px;font-size:15px;font-weight:700;color:#111827;">Product: ${escapeHtml(p.name)} &rarr;</p></a>
-            <p style="margin:0;font-size:13px;color:#6b7280;">Quantity: ${order.quantity || 1} &nbsp;&middot;&nbsp; Total: ${formatPrice(order.totalPrice)}</p>
-            <div style="margin-top:10px;">
-              <a href="${productUrl}" target="_blank" style="display:inline-block;background:#2F6FED;color:#ffffff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;">View Product on Store &rarr;</a>
-            </div>
-          </div>
+          <!-- Product Details List -->
+          <h3 style="margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:0.04em;color:#6b7280;">Ordered Products (${items.length})</h3>
+          ${itemsHtml}
 
           <!-- Customer & Address -->
           <div style="background:#f9fafb;border:1px solid #eef0f3;border-radius:12px;padding:18px 20px;">
@@ -918,8 +949,9 @@ const sendOrderStatusUpdateEmails = async ({ order, previousStatus, newStatus })
         html: buildStatusUpdateCustomerEmailHtml(order, newStatus),
       };
 
-      const attachment = buildProductImageAttachment(order.product && order.product.imageUrl);
-      const attachments = [attachment].filter(Boolean);
+      const items = getOrderItems(order);
+      const itemAttachments = buildProductImageAttachments(items);
+      const attachments = [...itemAttachments].filter(Boolean);
       if (attachments.length) {
         mailOptionsCustomer.attachments = attachments;
       }
@@ -941,8 +973,9 @@ const sendOrderStatusUpdateEmails = async ({ order, previousStatus, newStatus })
         html: buildStatusUpdateAdminEmailHtml(order, previousStatus, newStatus),
       };
 
-      const attachment = buildProductImageAttachment(order.product && order.product.imageUrl);
-      const attachments = [attachment].filter(Boolean);
+      const items = getOrderItems(order);
+      const itemAttachments = buildProductImageAttachments(items);
+      const attachments = [...itemAttachments].filter(Boolean);
       if (attachments.length) {
         mailOptionsAdmin.attachments = attachments;
       }

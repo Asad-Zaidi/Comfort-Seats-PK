@@ -1,250 +1,12 @@
-// import { useState, useEffect } from "react";
-// import { useLocation } from "react-router-dom";
-// import { NavLink } from "react-router-dom";
-// import { HiX } from "react-icons/hi";
-// import { FaBars } from "react-icons/fa";
-// import Logo from "../assets/Logo.png";
-// import { useSiteConfig } from "../utils/siteConfig";
-// import api from "../api/api";
-
-// const Navbar = () => {
-//     const [menuOpen, setMenuOpen] = useState(false);
-//     const [productsDropdownOpen, setProductsDropdownOpen] = useState(false);
-//     const [categories, setCategories] = useState([]);
-//     const location = useLocation();
-//     const { logoUrl, siteName } = useSiteConfig();
-
-//     const navItems = [
-//         { name: "Home", path: "/" },
-//         { name: "Products", path: "/products" },
-//         { name: "About Us", path: "/about" },
-//         { name: "Contact Us", path: "/contact" },
-//         { name: "Customize", path: "/customization" },
-//     ];
-
-//     // Fetch categories from API
-//     useEffect(() => {
-//         const fetchCategories = async () => {
-//             try {
-//                 const res = await api.get("/site-content");
-//                 if (res.data?.success && Array.isArray(res.data.data?.categories)) {
-//                     setCategories(res.data.data.categories.filter(cat => cat.name));
-//                 }
-//             } catch (err) {
-//                 console.error("Failed to load categories:", err);
-//             }
-//         };
-//         fetchCategories();
-//     }, []);
-
-//     // Hide the regular navbar on any admin route
-//     if (location.pathname.startsWith("/admin")) return null;
-
-//     return (
-//         <header className="sticky top-0 z-50 bg-white/30 backdrop-blur-md border-b border-gray-200 shadow-sm">
-//             <div className="max-w-7xl mx-auto px-5 lg:px-2">
-//                 <div className="flex items-center justify-between h-16">
-//                     {/* Logo */}
-//                     <NavLink
-//                         to="/"
-//                         className="text-2xl md:text-3xl font-bold tracking-wide"
-//                         onClick={() => setMenuOpen(false)}
-//                     >
-//                         <img
-//                             src={logoUrl || Logo}
-//                             alt={`${siteName} - Premium Furniture in Lahore`}
-//                             loading="eager"
-//                             className="h-12 w-auto"
-//                         />
-//                     </NavLink>
-
-//                     {/* Desktop Navigation */}
-//                     <nav className="hidden md:flex items-center gap-4">
-//                         <NavLink
-//                             to="/"
-//                             end
-//                             className={({ isActive }) =>
-//                                 `px-2 py-1 rounded-xl text-base lg:text-md font-semibold transition-all duration-300
-//                                 ${isActive
-//                                     ? "bg-orange-500 text-white"
-//                                     : "text-gray-800 hover:text-orange-500 hover:bg-orange-50"
-//                                 }`
-//                             }
-//                         >
-//                             Home
-//                         </NavLink>
-
-//                         {/* Products with Dropdown */}
-//                         <div
-//                             className="relative"
-//                             onMouseEnter={() => setProductsDropdownOpen(true)}
-//                             onMouseLeave={() => setProductsDropdownOpen(false)}
-//                         >
-//                             <NavLink
-//                                 to="/products"
-//                                 className={({ isActive }) =>
-//                                     `px-2 py-1 rounded-xl text-base lg:text-md font-semibold transition-all duration-300
-//                                     ${isActive
-//                                         ? "bg-orange-500 text-white"
-//                                         : "text-gray-800 hover:text-orange-500 hover:bg-orange-50"
-//                                     }`
-//                                 }
-//                             >
-//                                 Products
-//                             </NavLink>
-
-//                             {/* Dropdown Menu */}
-//                             {productsDropdownOpen && categories.length > 0 && (
-//                                 <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
-//                                     <div className="max-h-96 overflow-y-auto">
-//                                         {categories.map((cat) => {
-//                                             const catName = cat.name || cat;
-//                                             return (
-//                                                 <NavLink
-//                                                     key={catName}
-//                                                     to={`/products?category=${encodeURIComponent(catName)}`}
-//                                                     className="flex items-center gap-3 px-4 py-3 hover:bg-orange-50 transition-colors"
-//                                                     onClick={() => setProductsDropdownOpen(false)}
-//                                                 >
-//                                                     {cat.image && (
-//                                                         <img
-//                                                             src={cat.image}
-//                                                             alt={catName}
-//                                                             className="w-8 h-8"
-//                                                         />
-//                                                     )}
-//                                                     <span className="text-sm font-medium text-gray-800 hover:text-orange-600">
-//                                                         {catName}
-//                                                     </span>
-//                                                 </NavLink>
-//                                             );
-//                                         })}
-//                                     </div>
-//                                 </div>
-//                             )}
-//                         </div>
-
-//                         <NavLink
-//                             to="/about"
-//                             className={({ isActive }) =>
-//                                 `px-2 py-1 rounded-xl text-base lg:text-md font-semibold transition-all duration-300
-//                                 ${isActive
-//                                     ? "bg-orange-500 text-white"
-//                                     : "text-gray-800 hover:text-orange-500 hover:bg-orange-50"
-//                                 }`
-//                             }
-//                         >
-//                             About Us
-//                         </NavLink>
-
-//                         <NavLink
-//                             to="/contact"
-//                             className={({ isActive }) =>
-//                                 `px-2 py-1 rounded-xl text-base lg:text-md font-semibold transition-all duration-300
-//                                 ${isActive
-//                                     ? "bg-orange-500 text-white"
-//                                     : "text-gray-800 hover:text-orange-500 hover:bg-orange-50"
-//                                 }`
-//                             }
-//                         >
-//                             Contact Us
-//                         </NavLink>
-
-//                         <NavLink
-//                             to="/customization"
-//                             className={({ isActive }) =>
-//                                 `px-2 py-1 rounded-xl text-base lg:text-md font-semibold transition-all duration-300
-//                                 ${isActive
-//                                     ? "bg-orange-500 text-white"
-//                                     : "text-gray-800 hover:text-orange-500 hover:bg-orange-50"
-//                                 }`
-//                             }
-//                         >
-//                             Customize
-//                         </NavLink>
-//                     </nav>
-
-//                     {/* Mobile Menu Button */}
-//                     <button
-//                         className="md:hidden text-gray-800"
-//                         onClick={() => setMenuOpen(!menuOpen)}
-//                     >
-//                         {menuOpen ? (
-//                             <HiX size={20} />
-//                         ) : (
-//                             <FaBars size={20} />
-//                         )}
-//                     </button>
-//                 </div>
-//             </div>
-
-//             {/* Mobile Navigation */}
-//             <div
-//                 className={`md:hidden absolute top-full left-0 w-full bg-white border-t border-gray-200 shadow-lg overflow-hidden transition-all duration-300 ${menuOpen ? "max-h-[32rem] opacity-100" : "max-h-0 opacity-0"
-//                     }`}
-//             >
-//                 <nav className="bg-white">
-//                     {navItems.map((item) => (
-//                         <NavLink
-//                             key={item.path}
-//                             to={item.path}
-//                             end={item.path === "/"}
-//                             onClick={() => setMenuOpen(false)}
-//                             className={({ isActive }) =>
-//                                 `block z-100 px-6 py-4 text-base font-medium border-b border-gray-100 transition-colors ${item.path === "/"
-//                                     ? "text-blue-600 bg-blue-50"
-//                                     : "text-gray-800 hover:text-orange-500 hover:bg-gray-50"
-//                                 }`
-//                             }
-//                         >
-//                             {item.name}
-//                         </NavLink>
-//                     ))}
-
-//                     {/* Mobile Categories */}
-//                     {categories.length > 0 && (
-//                         <div className="border-b border-gray-100 max-h-64 overflow-y-auto">
-//                             <div className="px-6 py-3 bg-gray-50 sticky top-0">
-//                                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Categories</span>
-//                             </div>
-//                             {categories.map((cat) => {
-//                                 const catName = cat.name || cat;
-//                                 return (
-//                                     <NavLink
-//                                         key={catName}
-//                                         to={`/products?category=${encodeURIComponent(catName)}`}
-//                                         onClick={() => setMenuOpen(false)}
-//                                         className="flex items-center gap-3 px-6 py-3 text-base font-medium text-gray-800 hover:text-orange-500 hover:bg-gray-50"
-//                                     >
-//                                         {cat.image && (
-//                                             <img
-//                                                 src={cat.image}
-//                                                 alt={catName}
-//                                                 className="w-6 h-6 rounded object-cover border border-gray-200"
-//                                             />
-//                                         )}
-//                                         <span>{catName}</span>
-//                                     </NavLink>
-//                                 );
-//                             })}
-//                         </div>
-//                     )}
-//                 </nav>
-//             </div>
-//         </header>
-//     );
-// };
-
-// export default Navbar;
-
-
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import { HiX, HiChevronDown } from "react-icons/hi";
 import { FaBars } from "react-icons/fa";
+import { FaCartShopping, FaHeart } from "react-icons/fa6";
 import Logo from "../assets/Logo.png";
 import { useSiteConfig } from "../utils/siteConfig";
+import { useShop } from "../context/ShopContext";
 import api from "../api/api";
 
 const Navbar = () => {
@@ -257,6 +19,7 @@ const Navbar = () => {
     const dropdownItemRefs = useRef([]);
     const dropdownTimeoutRef = useRef(null);
     const { logoUrl, siteName } = useSiteConfig();
+    const { cartCount, wishlistCount } = useShop();
 
     const navItems = [
         { name: "Home", path: "/" },
@@ -352,11 +115,11 @@ const Navbar = () => {
             }}
         >
             <div className="max-w-full mx-auto px-5 lg:px-32">
-                <div className="flex items-center justify-between h-16">
+                <div className="flex items-center justify-between h-16 relative">
                     {/* Logo */}
                     <NavLink
                         to="/"
-                        className="text-2xl md:text-3xl font-bold tracking-wide"
+                        className="text-2xl md:text-3xl font-bold tracking-wide z-10"
                         onClick={closeAll}
                     >
                         <img
@@ -367,23 +130,29 @@ const Navbar = () => {
                         />
                     </NavLink>
 
-                    {/* Desktop Navigation */}
-                    <nav className="hidden md:flex items-center gap-4">
+                    {/* Desktop Navigation - Centered */}
+                    <nav
+                        className="hidden lg:flex items-center gap-1 xl:gap-2.5 p-1 lg:p-1.5 rounded-full border shadow-xs transition-all duration-300 absolute left-1/2 -translate-x-1/2"
+                        style={{
+                            borderColor: 'var(--border)',
+                            backgroundColor: 'color-mix(in srgb, var(--header-bg) 80%, transparent)',
+                        }}
+                    >
                         <NavLink
                             to="/"
                             end
                             style={({ isActive }) => ({
-                                backgroundColor: isActive ? 'var(--header-active-link, var(--primary))' : 'transparent',
+                                backgroundColor: isActive ? 'var(--header-active-link, var(--primary))' : undefined,
                                 color: isActive ? '#ffffff' : 'var(--header-text)',
                             })}
-                            className="px-3 py-1.5 rounded-xl text-base lg:text-md font-semibold transition-all duration-300 hover:opacity-90"
+                            className="px-2.5 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-xs xl:text-sm font-semibold transition-all duration-300 hover:bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] hover:text-[var(--primary)] whitespace-nowrap"
                         >
                             Home
                         </NavLink>
 
                         {/* Products with Dropdown */}
                         <div
-                            className="relative"
+                            className="relative flex items-center"
                             onMouseEnter={handleProductsMouseEnter}
                             onMouseLeave={handleProductsMouseLeave}
                             onKeyDown={handleKeyDown}
@@ -391,10 +160,10 @@ const Navbar = () => {
                             <NavLink
                                 to="/products"
                                 style={({ isActive }) => ({
-                                    backgroundColor: isActive ? 'var(--header-active-link, var(--primary))' : 'transparent',
+                                    backgroundColor: isActive ? 'var(--header-active-link, var(--primary))' : undefined,
                                     color: isActive ? '#ffffff' : 'var(--header-text)',
                                 })}
-                                className="px-3 py-1.5 rounded-xl text-base lg:text-md font-semibold transition-all duration-300 hover:opacity-90"
+                                className="px-2.5 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-xs xl:text-sm font-semibold transition-all duration-300 hover:bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] hover:text-[var(--primary)] whitespace-nowrap"
                             >
                                 Products
                             </NavLink>
@@ -444,23 +213,12 @@ const Navbar = () => {
                         </div>
 
                         <NavLink
-                            to="/about"
-                            style={({ isActive }) => ({
-                                backgroundColor: isActive ? 'var(--header-active-link, var(--primary))' : 'transparent',
-                                color: isActive ? '#ffffff' : 'var(--header-text)',
-                            })}
-                            className="px-3 py-1.5 rounded-xl text-base lg:text-md font-semibold transition-all duration-300 hover:opacity-90"
-                        >
-                            About Us
-                        </NavLink>
-
-                        <NavLink
                             to="/contact"
                             style={({ isActive }) => ({
-                                backgroundColor: isActive ? 'var(--header-active-link, var(--primary))' : 'transparent',
+                                backgroundColor: isActive ? 'var(--header-active-link, var(--primary))' : undefined,
                                 color: isActive ? '#ffffff' : 'var(--header-text)',
                             })}
-                            className="px-3 py-1.5 rounded-xl text-base lg:text-md font-semibold transition-all duration-300 hover:opacity-90"
+                            className="px-2.5 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-xs xl:text-sm font-semibold transition-all duration-300 hover:bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] hover:text-[var(--primary)] whitespace-nowrap"
                         >
                             Contact Us
                         </NavLink>
@@ -468,44 +226,88 @@ const Navbar = () => {
                         <NavLink
                             to="/customization"
                             style={({ isActive }) => ({
-                                backgroundColor: isActive ? 'var(--header-active-link, var(--primary))' : 'transparent',
+                                backgroundColor: isActive ? 'var(--header-active-link, var(--primary))' : undefined,
                                 color: isActive ? '#ffffff' : 'var(--header-text)',
                             })}
-                            className="px-3 py-1.5 rounded-xl text-base lg:text-md font-semibold transition-all duration-300 hover:opacity-90"
+                            className="px-2.5 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-xs xl:text-sm font-semibold transition-all duration-300 hover:bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] hover:text-[var(--primary)] whitespace-nowrap"
                         >
                             Customize
                         </NavLink>
+
+                        <NavLink
+                            to="/about"
+                            style={({ isActive }) => ({
+                                backgroundColor: isActive ? 'var(--header-active-link, var(--primary))' : undefined,
+                                color: isActive ? '#ffffff' : 'var(--header-text)',
+                            })}
+                            className="px-2.5 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-xs xl:text-sm font-semibold transition-all duration-300 hover:bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] hover:text-[var(--primary)] whitespace-nowrap"
+                        >
+                            About Us
+                        </NavLink>
                     </nav>
 
-                    {/* Mobile Menu Button */}
-                    <button
-                        className="md:hidden relative z-[101]"
-                        style={{ color: 'var(--header-text)' }}
-                        onClick={() => setMenuOpen(!menuOpen)}
-                    >
-                        {menuOpen ? (
-                            <HiX size={20} />
-                        ) : (
-                            <FaBars size={20} />
-                        )}
-                    </button>
+                    {/* Right Side Icons & Mobile Menu Button */}
+                    <div className="flex items-center gap-3 z-10">
+                        <NavLink
+                            to="/favorites"
+                            aria-label="Favorites"
+                            className="relative p-2 rounded-xl transition-all duration-300 hover:opacity-80 hover:bg-black/5"
+                            style={{ color: 'var(--header-text)' }}
+                        >
+                            <FaHeart size={18} className="transition-colors hover:text-red-500" />
+                            {wishlistCount > 0 && (
+                                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm">
+                                    {wishlistCount > 9 ? '9+' : wishlistCount}
+                                </span>
+                            )}
+                        </NavLink>
+
+                        <NavLink
+                            to="/cart"
+                            aria-label="Shopping Cart"
+                            className="relative p-2 rounded-xl transition-all duration-300 hover:opacity-80 hover:bg-black/5"
+                            style={{ color: 'var(--header-text)' }}
+                        >
+                            <FaCartShopping size={18} />
+                            {cartCount > 0 && (
+                                <span
+                                    className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-sm"
+                                    style={{ backgroundColor: 'var(--primary)' }}
+                                >
+                                    {cartCount > 9 ? '9+' : cartCount}
+                                </span>
+                            )}
+                        </NavLink>
+
+                        {/* Mobile Menu Button */}
+                        <button
+                            className="lg:hidden relative z-[101] p-1.5"
+                            style={{ color: 'var(--header-text)' }}
+                            onClick={() => setMenuOpen(!menuOpen)}
+                            aria-label="Toggle menu"
+                        >
+                            {menuOpen ? (
+                                <HiX size={20} />
+                            ) : (
+                                <FaBars size={20} />
+                            )}
+                        </button>
+                    </div>
                 </div>
             </div>
 
             {/* Backdrop overlay */}
             <div
-                className={`md:hidden fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 z-[90] ${
-                    menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-                }`}
+                className={`lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 z-[90] ${menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                    }`}
                 onClick={closeAll}
                 aria-hidden="true"
             />
 
             {/* Mobile Navigation */}
             <div
-                className={`md:hidden absolute top-full left-0 w-full backdrop-blur-md shadow-lg border-t overflow-hidden transition-all duration-300 z-[95] ${
-                    menuOpen ? "max-h-[32rem] opacity-100" : "max-h-0 opacity-0"
-                }`}
+                className={`lg:hidden absolute top-full left-0 w-full backdrop-blur-md shadow-lg border-t overflow-hidden transition-all duration-300 z-[95] ${menuOpen ? "max-h-[32rem] opacity-100" : "max-h-0 opacity-0"
+                    }`}
                 style={{
                     backgroundColor: 'var(--header-bg)',
                     borderColor: 'var(--border)',
@@ -541,9 +343,8 @@ const Navbar = () => {
                                             >
                                                 <HiChevronDown
                                                     size={18}
-                                                    className={`transition-transform duration-300 ${
-                                                        mobileCategoriesOpen ? "rotate-180" : ""
-                                                    }`}
+                                                    className={`transition-transform duration-300 ${mobileCategoriesOpen ? "rotate-180" : ""
+                                                        }`}
                                                 />
                                             </button>
                                         )}
@@ -552,9 +353,8 @@ const Navbar = () => {
                                     {/* Nested category list */}
                                     {categories.length > 0 && (
                                         <div
-                                            className={`overflow-hidden transition-all duration-300 ${
-                                                mobileCategoriesOpen ? "max-h-80" : "max-h-0"
-                                            }`}
+                                            className={`overflow-hidden transition-all duration-300 ${mobileCategoriesOpen ? "max-h-80" : "max-h-0"
+                                                }`}
                                         >
                                             <div className="max-h-80 overflow-y-auto" style={{ backgroundColor: 'var(--bg-secondary)' }}>
                                                 {categories.map((cat) => {

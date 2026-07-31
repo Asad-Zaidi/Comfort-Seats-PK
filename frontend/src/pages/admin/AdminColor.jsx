@@ -579,6 +579,7 @@ const COLOR_GROUPS = [
             { key: "secondary", label: "Secondary", desc: "Accent/secondary brand color" },
             { key: "secondaryHover", label: "Secondary Hover", desc: "Hover state for secondary" },
             { key: "accent", label: "Accent", desc: "Alert & accent highlights" },
+            { key: "cardBg", label: "Card Background", desc: "Background color of product and content cards" },
         ]
     },
     {
@@ -1227,14 +1228,17 @@ const AdminColor = () => {
                                     </div>
                                     <div className="flex items-center gap-2 shrink-0">
                                         <div className="flex items-center gap-0.5">
-                                            <span className="w-3 h-3 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: p.colors.primary }} />
-                                            <span className="w-3 h-3 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: p.colors.secondary }} />
-                                            <span className="w-3 h-3 rounded-full border border-black/10 shadow-xs" style={{ backgroundColor: p.colors.background }} />
+                                            <span className="w-3 h-3 rounded-full border border-black/10 shadow-xs" title="Primary" style={{ backgroundColor: p.colors.primary }} />
+                                            <span className="w-3 h-3 rounded-full border border-black/10 shadow-xs" title="Secondary" style={{ backgroundColor: p.colors.secondary }} />
+                                            <span className="w-3 h-3 rounded-full border border-black/10 shadow-xs" title="Card BG" style={{ backgroundColor: p.colors.cardBg || p.colors.background }} />
+                                            <span className="w-3 h-3 rounded-full border border-black/10 shadow-xs" title="Background" style={{ backgroundColor: p.colors.background }} />
                                         </div>
                                         <button
                                             onClick={(e) => applyAndSavePalette(p, e)}
                                             title={`Apply & Save ${p.name} Live to Website`}
+                                            className="text-gray-400 hover:text-amber-500 transition-colors p-0.5"
                                         >
+                                            <FiZap size={11} />
                                         </button>
                                     </div>
                                 </div>

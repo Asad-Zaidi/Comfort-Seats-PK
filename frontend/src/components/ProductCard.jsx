@@ -1,9 +1,10 @@
-import { FaStar } from "react-icons/fa";
+import { FaStar, FaHeart } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { calculateTotalPrice, formatPrice } from "../utils/priceCalculator";
 import { stripHtml } from "../utils/sanitizeHtml";
+import { useShop } from "../context/ShopContext";
 
 const ProductCard = ({
     image,
@@ -20,6 +21,18 @@ const ProductCard = ({
 }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
+    const { toggleWishlist, isInWishlist } = useShop();
+
+    const targetProduct = product || { _id: name, name, price, image };
+    const productId = targetProduct._id || targetProduct.id || name;
+    const isWishlisted = isInWishlist(productId);
+
+    const handleHeartClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleWishlist(targetProduct);
+    };
+
     const displayImage = isHovered && hoverImage ? hoverImage : image;
 
     // Use shared price calculator for discount-aware and default-color pricing
@@ -95,6 +108,18 @@ const ProductCard = ({
                     animate={{ opacity: imageLoaded ? 1 : 0 }}
                     transition={{ duration: 0.4 }}
                 />
+                {/* Wishlist Floating Button */}
+                <button
+                    onClick={handleHeartClick}
+                    className={`absolute bottom-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full shadow-md backdrop-blur-md transition-all duration-300 ${
+                        isWishlisted
+                            ? 'bg-red-500 text-white'
+                            : 'bg-white/80 text-gray-600 hover:bg-white hover:text-red-500'
+                    }`}
+                    aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                >
+                    <FaHeart size={15} />
+                </button>
             </div>
 
             {/* Content */}

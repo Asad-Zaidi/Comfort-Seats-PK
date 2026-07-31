@@ -77,10 +77,35 @@ const InputField = ({ id, name, label, icon: Icon, type = "text", value, onChang
 const Checkout = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { product, quantity: initialQuantity, selectedColor, selectedSize, selectedStandType } = location.state || {};
+    const { product, quantity: initialQuantity, selectedColor, selectedSize, selectedStandType, cartItems } = location.state || {};
     const { siteUrl, siteName } = useSiteConfig();
 
-    const [quantity, setQuantity] = useState(initialQuantity || 1);
+    const checkoutItems = useMemo(() => {
+        if (Array.isArray(cartItems) && cartItems.length > 0) {
+            return cartItems;
+        }
+        if (product) {
+            return [{
+                id: product._id || product.id || '1',
+                product,
+                name: product.name,
+                image: product.imageUrl || product.image || (Array.isArray(product.images) && product.images[0]?.url) || (Array.isArray(product.images) && product.images[0]) || '',
+                price: product.price || 0,
+                quantity: initialQuantity || 1,
+                selectedColor,
+                selectedSize,
+                selectedStandType,
+                actualPrice: product.actualPrice || 0,
+                isDiscountEnabled: product.isDiscountEnabled === true,
+            }];
+        }
+        return [];
+    }, [cartItems, product, initialQuantity, selectedColor, selectedSize, selectedStandType]);
+
+    const hasItems = checkoutItems.length > 0;
+    const effectiveProduct = product || (checkoutItems.length > 0 ? (checkoutItems[0].product || checkoutItems[0]) : null);
+    const effectiveQuantity = checkoutItems.length === 1 ? checkoutItems[0].quantity : 1;
+
     const [form, setForm] = useState({ fullName: "", phone: "", email: "", address: "", city: "" });
     const [paymentMethod, setPaymentMethod] = useState("cod");
     const [paymentSettings, setPaymentSettings] = useState(null);
@@ -153,6 +178,7 @@ const Checkout = () => {
         }
     }, [paymentMethod, selectedOnlineMethodId, paymentSettings]);
 
+
     const handleReceiptChange = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -175,16 +201,27 @@ const Checkout = () => {
         if (receiptInputRef.current) receiptInputRef.current.value = "";
     };
 
-    const subtotal = useMemo(() => (product ? product.price * quantity : 0), [product, quantity]);
+    const subtotal = useMemo(() => {
+        return checkoutItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    }, [checkoutItems]);
     const deliveryCharge = deliveryMethod === "fast" ? Number(deliverySettings.fastDeliveryCharge) || 0 : 0;
     const total = subtotal + deliveryCharge;
-    const displayPrice = product?.price || 0;
 
-    // Determine if discount is enabled for display
-    const isDiscountEnabled = product?.isDiscountEnabled === true;
-    const actualPrice = product?.actualPrice || 0;
+    const hasFiredInitiateCheckoutRef = useRef(false);
 
-    if (!product) {
+    useEffect(() => {
+        if (hasItems && total > 0 && !hasFiredInitiateCheckoutRef.current) {
+            hasFiredInitiateCheckoutRef.current = true;
+            if (window.fbq) {
+                window.fbq("track", "InitiateCheckout", {
+                    value: total,
+                    currency: "PKR"
+                });
+            }
+        }
+    }, [hasItems, total]);
+
+    if (!hasItems) {
         return (
             <>
                 <SEO title={`Checkout - ${siteName}`} description="Complete your order." canonicalUrl={`${siteUrl}/checkout`} />
@@ -222,6 +259,9 @@ const Checkout = () => {
             return;
         }
         setReceiptError("");
+        if (window.fbq) {
+            window.fbq("track", "AddPaymentInfo");
+        }
         setIsOrderModalOpen(true);
     };
 
@@ -233,7 +273,6 @@ const Checkout = () => {
         if (!m) return null;
         return { methodId: m._id, name: m.name, type: m.type || 'Bank', icon: m.logo || m.icon || '' };
     })();
-    const productImage = product.imageUrl || "https://images.unsplash.com/photo-1505843490701-5be5d6f48db6?w=500";
 
     return (
         <div className="min-h-screen transition-colors duration-300" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
@@ -535,57 +574,49 @@ const Checkout = () => {
 
                         <div className="sticky top-6 space-y-6">
                             <div className="rounded-2xl border p-5 sm:p-6 shadow-xs transition-colors duration-300" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)' }}>
-                                <h2 className="text-base font-semibold" style={{ color: 'var(--text)' }}>Order Summary</h2>
+                                <h2 className="text-base font-semibold mb-4" style={{ color: 'var(--text)' }}>
+                                    Order Summary ({checkoutItems.reduce((a, i) => a + i.quantity, 0)} {checkoutItems.reduce((a, i) => a + i.quantity, 0) === 1 ? 'item' : 'items'})
+                                </h2>
 
-                                <div className="mt-5 flex gap-4">
-                                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
-                                        <img src={productImage} alt={product.name} className="h-full w-full object-cover" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{product.name}</p>
-                                        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
-                                            {selectedColor && (
-                                                <span className="inline-flex items-center gap-1.5">
-                                                    <span className="h-3 w-3 rounded-full border" style={{ borderColor: 'var(--border)', backgroundColor: isHexColor(selectedColor) ? selectedColor : "#E5E7EB" }} />
-                                                    {getColorName(selectedColor)}
-                                                </span>
-                                            )}
-                                            {selectedSize && <span>Size: {selectedSize}</span>}
-                                            {selectedStandType && <span>Stand: {selectedStandType}</span>}
-                                        </div>
-                                        <div className="mt-2 flex items-center gap-3">
-                                            <div className="flex items-center overflow-hidden rounded-lg border" style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--border)' }}>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                                                    style={{ color: 'var(--text-secondary)' }}
-                                                    className="px-3 py-1.5 transition hover:opacity-80"
-                                                >
-                                                    −
-                                                </button>
-                                                <span className="w-8 text-center text-sm font-medium" style={{ color: 'var(--text)' }}>{quantity}</span>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setQuantity((q) => q + 1)}
-                                                    style={{ color: 'var(--text-secondary)' }}
-                                                    className="px-3 py-1.5 transition hover:opacity-80"
-                                                >
-                                                    +
-                                                </button>
+                                <div className="space-y-4 max-h-80 overflow-y-auto pr-1">
+                                    {checkoutItems.map((item, idx) => {
+                                        const itemImg = item.image || (item.product?.images?.[0]?.url || item.product?.images?.[0] || item.product?.image || '');
+                                        const colorName = item.selectedColor ? (isHexColor(item.selectedColor) ? getColorName(item.selectedColor) : item.selectedColor) : null;
+
+                                        return (
+                                            <div key={item.id || idx} className="flex gap-3 pb-3 border-b last:border-b-0 last:pb-0" style={{ borderColor: 'var(--border)' }}>
+                                                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+                                                    {itemImg ? (
+                                                        <img src={itemImg} alt={item.name} className="h-full w-full object-cover" />
+                                                    ) : (
+                                                        <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">No Image</div>
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{item.name}</p>
+                                                    <div className="mt-0.5 flex flex-wrap gap-x-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                                                        {colorName && (
+                                                            <span className="inline-flex items-center gap-1">
+                                                                <span className="h-2.5 w-2.5 rounded-full border border-black/10 inline-block" style={{ backgroundColor: isHexColor(item.selectedColor) ? item.selectedColor : "#E5E7EB" }} />
+                                                                {colorName}
+                                                            </span>
+                                                        )}
+                                                        {item.selectedSize && <span>Size: {item.selectedSize}</span>}
+                                                        {item.selectedStandType && <span>Stand: {item.selectedStandType}</span>}
+                                                    </div>
+                                                    <div className="mt-1 flex items-center justify-between text-xs">
+                                                        <span style={{ color: 'var(--text-secondary)' }}>Qty: <span className="font-semibold" style={{ color: 'var(--text)' }}>{item.quantity}</span></span>
+                                                        <span className="font-semibold text-sm" style={{ color: 'var(--text)' }}>Rs. {formatPrice(item.price * item.quantity)}</span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className="flex flex-col items-end">
-                                                <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Rs. {formatPrice(product.price)}</span>
-                                                {isDiscountEnabled && actualPrice > 0 && (
-                                                    <span className="text-xs line-through" style={{ color: 'var(--text-light, #9ca3af)' }}>Rs. {formatPrice(actualPrice)}</span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
+                                        );
+                                    })}
                                 </div>
 
                                 <div className="mt-6 space-y-2.5 border-t pt-5 text-sm" style={{ borderColor: 'var(--border)' }}>
                                     <div className="flex justify-between" style={{ color: 'var(--text-secondary)' }}>
-                                        <span>Subtotal ({quantity} items)</span>
+                                        <span>Subtotal</span>
                                         <span className="font-medium" style={{ color: 'var(--text)' }}>Rs. {formatPrice(subtotal)}</span>
                                     </div>
                                     <div className="flex justify-between" style={{ color: 'var(--text-secondary)' }}>
@@ -633,12 +664,13 @@ const Checkout = () => {
             <OrderModal
                 isOpen={isOrderModalOpen}
                 onClose={() => setIsOrderModalOpen(false)}
-                product={product}
-                quantity={quantity}
-                selectedColor={selectedColor}
-                selectedSize={selectedSize}
-                selectedStandType={selectedStandType}
-                displayPrice={displayPrice}
+                product={effectiveProduct}
+                items={checkoutItems}
+                quantity={effectiveQuantity}
+                selectedColor={selectedColor || (checkoutItems.length > 0 ? checkoutItems[0].selectedColor : null)}
+                selectedSize={selectedSize || (checkoutItems.length > 0 ? checkoutItems[0].selectedSize : null)}
+                selectedStandType={selectedStandType || (checkoutItems.length > 0 ? checkoutItems[0].selectedStandType : null)}
+                displayPrice={subtotal}
                 deliveryMethod={deliveryMethod}
                 deliveryCharge={deliveryCharge}
                 prefillShipping={{

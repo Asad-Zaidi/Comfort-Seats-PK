@@ -355,6 +355,7 @@ const Products = () => {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [subcategoriesByCategoryMap, setSubcategoriesByCategoryMap] = useState({});
   const [paginationInfo, setPaginationInfo] = useState({ total: 0, page: 1, pages: 1, limit: 20 });
+  const lastTrackedSearchRef = useRef("");
 
   const isSearchResultsPage = useMemo(() => {
     return Boolean(urlSearchParam && urlSearchParam.trim().length > 0);
@@ -504,6 +505,14 @@ const Products = () => {
           const pagination = res.data.pagination || { total: list.length, page: pageParam, pages: 1, limit: 20 };
           setProducts(list);
           setPaginationInfo(pagination);
+
+          const currentSearchTerm = urlSearchParam.trim();
+          if (currentSearchTerm && window.fbq && lastTrackedSearchRef.current !== currentSearchTerm) {
+            lastTrackedSearchRef.current = currentSearchTerm;
+            window.fbq("track", "Search", {
+              search_string: currentSearchTerm
+            });
+          }
 
           // Accumulate subcategories for sidebar flyout options
           setSubcategoriesByCategoryMap((prev) => {

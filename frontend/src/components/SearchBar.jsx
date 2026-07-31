@@ -94,6 +94,10 @@ const SearchBar = () => {
 
   const selectProduct = (product) => {
     if (!product) return;
+    const trimmed = query.trim();
+    if (window.fbq && trimmed) {
+      window.fbq("track", "Search", { search_string: trimmed });
+    }
     const slug = product.slug || "";
     const url = slug ? `/products/${slug}` : "/products";
     setIsOpen(false);
@@ -106,6 +110,9 @@ const SearchBar = () => {
   const viewAllResults = () => {
     const trimmed = query.trim();
     if (!trimmed) return;
+    if (window.fbq) {
+      window.fbq("track", "Search", { search_string: trimmed });
+    }
     setIsOpen(false);
     navigate(`/products?search=${encodeURIComponent(trimmed)}`);
   };

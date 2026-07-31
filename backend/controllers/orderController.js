@@ -25,44 +25,81 @@ const uploadBufferToCloudinary = (buffer, folder) => {
 // @access  Public
 const createOrder = async (req, res) => {
     try {
-        const { product, quantity, totalPrice, customer, paymentMethod, deliveryMethod, deliveryCharge, selectedOnlineMethod } = req.body;
+        const { product, items, quantity, totalPrice, customer, paymentMethod, deliveryMethod, deliveryCharge, selectedOnlineMethod } = req.body;
 
-        if (!product || !product.name || !quantity || !totalPrice || !customer) {
-            return res.status(400).json({ success: false, message: 'Missing required order fields' });
+        if (!customer || !customer.fullName || !customer.phone || !customer.address || !customer.city) {
+            return res.status(400).json({ success: false, message: 'Customer details (name, phone, address, city) are required' });
         }
 
-        if (!customer.fullName || !customer.phone || !customer.address || !customer.city) {
-            return res.status(400).json({ success: false, message: 'Customer details are required' });
+        if (!totalPrice) {
+            return res.status(400).json({ success: false, message: 'Total price is required' });
         }
 
-        let productSlug = (product.slug || '').trim();
-        const targetProductId = product.productId || product._id;
-        if (!productSlug && targetProductId) {
-            try {
-                const foundProd = await Product.findById(targetProductId).select('slug').lean();
-                if (foundProd && foundProd.slug) {
-                    productSlug = foundProd.slug;
-                }
-            } catch (err) {
-                console.error('[orderController] Failed to fetch product slug:', err);
-            }
-        }
+        // Build normalized items array
+        let orderItems = [];
+        if (Array.isArray(items) && items.length > 0) {
+            orderItems = items.map((item) => {
+                const pId = item.productId || item.product?._id || item.product?.id || item._id || item.id || null;
+                return {
+                    productId: pId,
+                    name: item.name || item.product?.name || 'Product',
+                    price: Number(item.price) || Number(item.product?.price) || 0,
+                    imageUrl: item.imageUrl || item.image || item.product?.image || (Array.isArray(item.product?.images) && item.product.images[0]?.url) || (Array.isArray(item.product?.images) && item.product.images[0]) || '',
+                    color: item.color || item.selectedColor || '',
+                    size: item.size || item.selectedSize || '',
+                    selectedStandType: item.selectedStandType || '',
+                    slug: item.slug || item.product?.slug || '',
+                    quantity: Number(item.quantity) || 1,
+                    actualPrice: Number(item.actualPrice) || 0,
+                    discountPrice: Number(item.discountPrice) || 0,
+                    isDiscountEnabled: item.isDiscountEnabled === true,
+                };
+            });
+        } else if (product && product.name) {
+            let productSlug = (product.slug || '').trim();
+            const targetProductId = product.productId || product._id;
 
-        const order = await Order.create({
-            product: {
+            orderItems = [{
                 productId: targetProductId || null,
                 name: product.name,
-                price: product.price,
-                imageUrl: product.imageUrl || '',
-                color: product.color || '',
-                size: product.size || '',
+                price: Number(product.price) || 0,
+                imageUrl: product.imageUrl || product.image || '',
+                color: product.color || product.selectedColor || '',
+                size: product.size || product.selectedSize || '',
+                selectedStandType: product.selectedStandType || '',
                 slug: productSlug,
-                // Discount pricing fields for historical accuracy
-                actualPrice: product.actualPrice || 0,
-                discountPrice: product.discountPrice || 0,
-                isDiscountEnabled: product.isDiscountEnabled || false,
-            },
-            quantity,
+                quantity: Number(quantity) || 1,
+                actualPrice: Number(product.actualPrice) || 0,
+                discountPrice: Number(product.discountPrice) || 0,
+                isDiscountEnabled: product.isDiscountEnabled === true,
+            }];
+        }
+
+        if (orderItems.length === 0) {
+            return res.status(400).json({ success: false, message: 'At least one product item is required for the order' });
+        }
+
+        // Primary product for legacy compatibility
+        const firstItem = orderItems[0];
+        const primaryProduct = {
+            productId: firstItem.productId,
+            name: orderItems.length > 1 ? `${orderItems.length} Items Order (${firstItem.name} + more)` : firstItem.name,
+            price: firstItem.price,
+            imageUrl: firstItem.imageUrl,
+            color: firstItem.color,
+            size: firstItem.size,
+            slug: firstItem.slug,
+            actualPrice: firstItem.actualPrice,
+            discountPrice: firstItem.discountPrice,
+            isDiscountEnabled: firstItem.isDiscountEnabled,
+        };
+
+        const totalQuantity = orderItems.reduce((acc, item) => acc + item.quantity, 0);
+
+        const order = await Order.create({
+            items: orderItems,
+            product: primaryProduct,
+            quantity: totalQuantity,
             totalPrice,
             customer: {
                 fullName: customer.fullName,
@@ -83,12 +120,14 @@ const createOrder = async (req, res) => {
             status: 'pending',
         });
 
-        // Increment the product's buyCount when an order is placed
-        if (product.productId) {
-            Product.findByIdAndUpdate(product.productId, { $inc: { buyCount: quantity } }).catch((err) =>
-                console.error('[orderController] Failed to increment buyCount:', err)
-            );
-        }
+        // Increment buyCount for all products in the order
+        orderItems.forEach((item) => {
+            if (item.productId) {
+                Product.findByIdAndUpdate(item.productId, { $inc: { buyCount: item.quantity } }).catch((err) =>
+                    console.error('[orderController] Failed to increment buyCount:', err)
+                );
+            }
+        });
 
         // Send emails immediately for COD orders (no receipt needed)
         // For online payments, emails are sent from the receipt upload endpoint

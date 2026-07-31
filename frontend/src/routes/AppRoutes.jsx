@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-
 import Home from "../pages/Home";
 import Products from "../pages/Products";
 import ProductDetail from "../pages/ProductDetail";
@@ -9,6 +8,8 @@ import Customize from "../pages/Customize";
 import Policy from "../pages/Policy";
 import AdminLogin from "../pages/admin/AdminLogin";
 import AdminRoutes from "../routes/AdminRoutes";
+import Cart from "../pages/Cart";
+import FavoriteProduct from "../pages/FavoriteProduct";
 import Checkout from "../pages/Checkout";
 import NotFound from "../pages/NotFound";
 
@@ -19,14 +20,18 @@ const AppRoutes = () => {
             <Route path="/home" element={<Navigate to="/" replace />} />
             <Route path="/products" element={<Products />} />
             <Route path="/search" element={<Products />} />
- 			{/* SEO-friendly product detail URLs: /products/category-slug/product-name */}
- 			<Route path="/products/:categorySlug/:nameSlug" element={<ProductDetail />} />
- 			{/* SEO-friendly product detail URLs with subcategory: /products/category-slug/subcategory-slug/product-name */}
- 			<Route path="/products/:categorySlug/:subcategorySlug/:nameSlug" element={<ProductDetail />} />
+            {/* SEO-friendly product detail URLs: /products/category-slug/product-name */}
+            <Route path="/products/:categorySlug/:nameSlug" element={<ProductDetail />} />
+            {/* SEO-friendly product detail URLs with subcategory: /products/category-slug/subcategory-slug/product-name */}
+            <Route path="/products/:categorySlug/:subcategorySlug/:nameSlug" element={<ProductDetail />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/customization" element={<Customize />} />
             <Route path="/policy" element={<Policy />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/favorites" element={<FavoriteProduct />} />
+            <Route path="/favourites" element={<Navigate to="/favorites" replace />} />
+            <Route path="/wishlist" element={<Navigate to="/favorites" replace />} />
             <Route path="/checkout" element={<Checkout />} />
 
             {/* Admin Login */}

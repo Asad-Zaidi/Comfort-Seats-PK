@@ -42,6 +42,11 @@ const FloatingWhatsapp = ({ product, productUrl }) => {
                 href={chatUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => {
+                    if (window.fbq) {
+                        window.fbq("track", "Contact");
+                    }
+                }}
                 className="group flex h-14 w-14 hover:w-44 items-center overflow-hidden rounded-full bg-[#1fc05a] text-white shadow-lg hover:shadow-2xl transition-all duration-300" >
                 {/* Icon */}
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center">
