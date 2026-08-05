@@ -171,43 +171,58 @@ const Navbar = () => {
                             {/* Dropdown Menu */}
                             {productsDropdownOpen && categories.length > 0 && (
                                 <div
-                                    className="absolute top-full left-0 mt-2 w-72 rounded-xl shadow-2xl border py-2 z-50 transition-colors"
+                                    className="absolute top-full left-0 mt-2 min-w-[16rem] max-w-[90vw] rounded-2xl shadow-2xl border p-2 z-50 transition-all duration-200 backdrop-blur-sm"
                                     style={{
-                                        backgroundColor: 'var(--header-dropdown-bg, var(--card-bg))',
+                                        backgroundColor: 'color-mix(in srgb, var(--header-dropdown-bg, var(--card-bg)) 90%, transparent)',
                                         borderColor: 'var(--border)',
                                     }}
                                 >
-                                    <div className="max-h-96 overflow-y-auto" role="listbox">
-                                        {categories.map((cat, index) => {
-                                            const catName = cat.name || cat;
-                                            return (
-                                                <NavLink
-                                                    key={catName}
-                                                    ref={el => dropdownItemRefs.current[index] = el}
-                                                    to={`/products?category=${encodeURIComponent(catName)}`}
-                                                    className={`flex items-center gap-3 px-4 py-3 transition-colors hover:opacity-80 ${highlightedIndex === index ? 'bg-opacity-20' : ''}`}
-                                                    style={{
-                                                        color: 'var(--header-dropdown-text, var(--text))',
-                                                        backgroundColor: highlightedIndex === index ? 'var(--primary-hover)' : 'transparent'
-                                                    }}
-                                                    onClick={() => setProductsDropdownOpen(false)}
-                                                    onMouseEnter={() => setHighlightedIndex(index)}
-                                                >
-                                                    {cat.image && (
-                                                        <img
-                                                            src={cat.image}
-                                                            alt={catName}
-                                                            className="w-8 h-8 rounded object-cover border"
-                                                            style={{ borderColor: 'var(--border)' }}
-                                                        />
-                                                    )}
-                                                    <span className="text-sm font-medium">
-                                                        {catName}
-                                                    </span>
-                                                </NavLink>
-                                            );
-                                        })}
-                                    </div>
+                                    {(() => {
+                                        const ITEMS_PER_COL = 7;
+                                        const columns = [];
+                                        for (let i = 0; i < categories.length; i += ITEMS_PER_COL) {
+                                            columns.push(categories.slice(i, i + ITEMS_PER_COL));
+                                        }
+
+                                        return (
+                                            <div className="flex gap-2 divide-x divide-[var(--border)]" role="listbox">
+                                                {columns.map((col, colIdx) => (
+                                                    <div key={colIdx} className={`flex flex-col gap-1 min-w-[15rem] ${colIdx > 0 ? 'pl-2' : ''}`}>
+                                                        {col.map((cat, rowIdx) => {
+                                                            const index = colIdx * ITEMS_PER_COL + rowIdx;
+                                                            const catName = cat.name || cat;
+                                                            return (
+                                                                <NavLink
+                                                                    key={catName}
+                                                                    ref={el => dropdownItemRefs.current[index] = el}
+                                                                    to={`/products?category=${encodeURIComponent(catName)}`}
+                                                                    className="group flex items-center gap-3 px-3.5 py-2.5 rounded-xl border border-transparent transition-all duration-200 hover:border-[var(--primary)] hover:bg-[var(--primary-hover,var(--primary))] hover:!text-white"
+                                                                    style={{
+                                                                        color: highlightedIndex === index ? '#ffffff' : 'var(--header-dropdown-text, var(--text))',
+                                                                        backgroundColor: highlightedIndex === index ? 'var(--primary-hover, var(--primary))' : 'transparent',
+                                                                        borderColor: highlightedIndex === index ? 'var(--primary-hover, var(--primary))' : 'transparent'
+                                                                    }}
+                                                                    onClick={() => setProductsDropdownOpen(false)}
+                                                                    onMouseEnter={() => setHighlightedIndex(index)}
+                                                                >
+                                                                    {cat.image && (
+                                                                        <img
+                                                                            src={cat.image}
+                                                                            alt={catName}
+                                                                            className="w-7 h-7 rounded-lg object-cover shrink-0"
+                                                                        />
+                                                                    )}
+                                                                    <span className="text-sm font-medium transition-colors group-hover:text-white  whitespace-nowrap">
+                                                                        {catName}
+                                                                    </span>
+                                                                </NavLink>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                             )}
                         </div>
@@ -364,18 +379,19 @@ const Navbar = () => {
                                                             key={catName}
                                                             to={`/products?category=${encodeURIComponent(catName)}`}
                                                             onClick={closeAll}
-                                                            className="flex items-center gap-3 pl-10 pr-6 py-3 text-sm font-medium transition-colors hover:opacity-80"
-                                                            style={{ color: 'var(--text)' }}
+                                                            className="group flex items-center gap-3 pl-10 pr-6 py-3 text-sm font-medium transition-colors hover:bg-[var(--primary)] hover:!text-white"
+                                                            style={({ isActive }) => ({
+                                                                color: isActive ? 'var(--primary)' : 'var(--text)',
+                                                            })}
                                                         >
                                                             {cat.image && (
                                                                 <img
                                                                     src={cat.image}
                                                                     alt={catName}
-                                                                    className="w-6 h-6 rounded object-cover border"
-                                                                    style={{ borderColor: 'var(--border)' }}
+                                                                    className="w-6 h-6 rounded object-cover shrink-0"
                                                                 />
                                                             )}
-                                                            <span>{catName}</span>
+                                                            <span className="transition-colors group-hover:text-white">{catName}</span>
                                                         </NavLink>
                                                     );
                                                 })}

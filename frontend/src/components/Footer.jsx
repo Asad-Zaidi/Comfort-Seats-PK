@@ -1,17 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FiMapPin, FiPhone, FiMail, FiArrowUpRight } from "react-icons/fi";
-import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
-import { FaTiktok } from "react-icons/fa6";
+import { FiMapPin, FiMail, FiArrowUpRight } from "react-icons/fi";
+import { FaTiktok, FaFacebook, FaWhatsapp, FaInstagram, FaPhone } from "react-icons/fa6";
 import api from "../api/api";
 import { useSiteConfig } from "../utils/siteConfig";
 import { sanitizeHtml, isHtmlContent } from "../utils/sanitizeHtml";
 
 const socialLinks = [
-    { key: "instagram", label: "Instagram", icon: FaInstagram },
-    { key: "facebook", label: "Facebook", icon: FaFacebookF },
-    { key: "tiktok", label: "TikTok", icon: FaTiktok },
-    { key: "whatsapp", label: "WhatsApp", icon: FaWhatsapp },
+    { key: "instagram", label: "Instagram", icon: FaInstagram, color: "#E1306C" },
+    { key: "facebook", label: "Facebook", icon: FaFacebook, color: "#1877F2" },
+    { key: "tiktok", label: "TikTok", icon: FaTiktok, color: "#FE2C55" },
+    { key: "whatsapp", label: "WhatsApp", icon: FaWhatsapp, color: "#25D366" },
 ];
 
 // Normalizes whatever's stored in the DB (a raw number, a username, or a full URL) into a clickable link
@@ -120,7 +119,7 @@ const Footer = () => {
 
                         {activeSocials.length > 0 && (
                             <div className="mt-6 flex flex-wrap gap-3">
-                                {activeSocials.map(({ key, label, icon: Icon }) => (
+                                {activeSocials.map(({ key, label, icon: Icon, color }) => (
                                     <a
                                         key={key}
                                         href={resolveSocialUrl(key, contact[key])}
@@ -130,11 +129,25 @@ const Footer = () => {
                                         title={label}
                                         style={{
                                             borderColor: 'var(--footer-border, #374151)',
-                                            color: 'var(--footer-link, #9ca3af)',
+                                            color: color || 'var(--footer-link, #9ca3af)',
                                         }}
-                                        className="flex h-10 w-10 items-center justify-center rounded-full border transition hover:opacity-90"
+                                        onMouseEnter={(e) => {
+                                            if (color) {
+                                                e.currentTarget.style.backgroundColor = color;
+                                                e.currentTarget.style.borderColor = color;
+                                                e.currentTarget.style.color = '#ffffff';
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (color) {
+                                                e.currentTarget.style.backgroundColor = 'transparent';
+                                                e.currentTarget.style.borderColor = 'var(--footer-border, #374151)';
+                                                e.currentTarget.style.color = color;
+                                            }
+                                        }}
+                                        className="flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-300 hover:scale-110 shadow-sm"
                                     >
-                                        <Icon size={15} />
+                                        <Icon size={20} />
                                     </a>
                                 ))}
                             </div>
@@ -228,13 +241,13 @@ const Footer = () => {
                         <ul className="mt-5 space-y-4">
                             {contact?.address && (
                                 <li className="flex items-start gap-2.5 text-sm">
-                                    <FiMapPin size={15} className="mt-0.5 shrink-0" style={{ color: 'var(--primary)' }} />
+                                    <FiMapPin size={15} className="mt-0.5 shrink-0 text-red-700" />
                                     <span>{contact.address}</span>
                                 </li>
                             )}
                             {contact?.phone && (
                                 <li className="flex items-start gap-2.5 text-sm">
-                                    <FiPhone size={15} className="mt-0.5 shrink-0" style={{ color: 'var(--primary)' }} />
+                                    <FaPhone size={15} className="mt-0.5 shrink-0 text-blue-700" />
                                     <a href={`tel:${contact.phone}`} className="transition hover:opacity-80">
                                         {contact.phone}
                                     </a>
@@ -242,7 +255,7 @@ const Footer = () => {
                             )}
                             {contact?.email && (
                                 <li className="flex items-start gap-2.5 text-sm">
-                                    <FiMail size={15} className="mt-0.5 shrink-0" style={{ color: 'var(--primary)' }} />
+                                    <FiMail size={15} className="mt-0.5 shrink-0 text-green-700" />
                                     <a href={`mailto:${contact.email}`} className="break-all transition hover:opacity-80">
                                         {contact.email}
                                     </a>
