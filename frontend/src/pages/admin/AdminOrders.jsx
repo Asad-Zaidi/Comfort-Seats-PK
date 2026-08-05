@@ -13,7 +13,7 @@ const statusColors = {
     shipped: "bg-indigo-100 text-indigo-700",
     delivered: "bg-green-100 text-green-700",
     cancelled: "bg-red-100 text-red-700",
-    returned: "bg-gray-100 text-gray-700", // backward compatibility for historical orders
+    returned: "bg-gray-100 text-gray-700",
 };
 
 const statusOptions = [
@@ -203,16 +203,14 @@ const AdminOrders = () => {
             {toast && (
                 <div className="fixed top-6 right-6 z-50 max-w-sm w-full animate-[fadeIn_0.25s_ease-out]">
                     <div
-                        className={`flex items-start gap-3 rounded-xl border px-4 py-3 shadow-lg bg-white ${
-                            toast.type === "success" ? "border-green-200" : "border-red-200"
-                        }`}
+                        className={`flex items-start gap-3 rounded-xl border px-4 py-3 shadow-lg bg-white ${toast.type === "success" ? "border-green-200" : "border-red-200"
+                            }`}
                     >
                         <div
-                            className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                                toast.type === "success"
+                            className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${toast.type === "success"
                                     ? "bg-green-100 text-green-600"
                                     : "bg-red-100 text-red-600"
-                            }`}
+                                }`}
                         >
                             <FaBell size={14} />
                         </div>
@@ -275,9 +273,8 @@ const AdminOrders = () => {
                         return (
                             <div
                                 key={order._id}
-                                className={`bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition cursor-pointer hover:shadow-md ${
-                                    selectedOrder?._id === order._id ? "ring-2 ring-[#2F6FED]" : ""
-                                }`}
+                                className={`bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition cursor-pointer hover:shadow-md ${selectedOrder?._id === order._id ? "ring-2 ring-[#2F6FED]" : ""
+                                    }`}
                                 onClick={() =>
                                     setSelectedOrder(selectedOrder?._id === order._id ? null : order)
                                 }
@@ -323,9 +320,8 @@ const AdminOrders = () => {
                                         <div className="flex items-center gap-2">
                                             {getStatusIcon(order.status)}
                                             <span
-                                                className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                                                    statusColors[order.status] || statusColors.pending
-                                                }`}
+                                                className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusColors[order.status] || statusColors.pending
+                                                    }`}
                                             >
                                                 {order.status ? order.status.charAt(0).toUpperCase() + order.status.slice(1) : "Pending"}
                                             </span>
@@ -394,170 +390,169 @@ const AdminOrders = () => {
                                                 </div>
                                             </div>
 
-                                        {/* Customer Info */}
-                                        <div>
-                                            <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">
-                                                Customer
-                                            </h4>
-                                            <p className="text-sm text-gray-900">{order.customer?.fullName}</p>
-                                            <p className="text-xs text-gray-500">{order.customer?.phone}</p>
-                                            <p className="text-xs text-gray-500">{order.customer?.email}</p>
-                                            <p className="text-xs text-gray-500">{order.customer?.address}</p>
-                                            <p className="text-xs text-gray-500">{order.customer?.city}</p>
-                                        </div>
-
-                                        {/* Status Update */}
-                                        <div>
-                                            <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">
-                                                Update Status
-                                            </h4>
-                                            {order.status === "delivered" || order.status === "completed" ? (
-                                                <p className="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 mb-2">
-                                                    ✓ Order Delivered — Status updates are locked.
-                                                </p>
-                                            ) : null}
-                                            <div className="flex flex-wrap gap-1.5">
-                                                {statusOptions.map((s) => {
-                                                    const isDelivered = order.status === "delivered" || order.status === "completed";
-                                                    return (
-                                                        <button
-                                                            key={s.value}
-                                                            disabled={isDelivered}
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleStatusClick(order, s.value);
-                                                            }}
-                                                            className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition ${
-                                                                order.status === s.value
-                                                                    ? `${statusColors[s.value]} border-transparent shadow-sm`
-                                                                    : "border-gray-200 text-gray-500 hover:border-gray-300 hover:bg-gray-50"
-                                                            } ${isDelivered ? "opacity-50 cursor-not-allowed hover:bg-transparent" : ""}`}
-                                                        >
-                                                            {s.label}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleDelete(order._id);
-                                                }}
-                                                className="mt-3 flex items-center gap-1.5 text-xs font-medium text-red-500 hover:text-red-600 transition"
-                                            >
-                                                <FaTrash size={11} /> Delete Order
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    {/* Shipping Information (if present) */}
-                                    {order.shipping && (order.shipping.courierName || order.shipping.trackingNumber) && (
-                                        <div className="mt-4 pt-4 border-t border-gray-200">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <FaTruck className="text-[#2F6FED]" size={13} />
-                                                <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                                    Shipping Information
+                                            {/* Customer Info */}
+                                            <div>
+                                                <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">
+                                                    Customer
                                                 </h4>
+                                                <p className="text-sm text-gray-900">{order.customer?.fullName}</p>
+                                                <p className="text-xs text-gray-500">{order.customer?.phone}</p>
+                                                <p className="text-xs text-gray-500">{order.customer?.email}</p>
+                                                <p className="text-xs text-gray-500">{order.customer?.address}</p>
+                                                <p className="text-xs text-gray-500">{order.customer?.city}</p>
                                             </div>
-                                            <div className="bg-white rounded-xl border border-gray-200 p-3 space-y-1.5 text-xs text-gray-700 max-w-md">
-                                                {order.shipping.courierName && (
-                                                    <p className="flex justify-between">
-                                                        <span className="text-gray-400 font-medium">Courier:</span>
-                                                        <span className="font-semibold text-gray-900">{order.shipping.courierName}</span>
+
+                                            {/* Status Update */}
+                                            <div>
+                                                <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">
+                                                    Update Status
+                                                </h4>
+                                                {order.status === "delivered" || order.status === "completed" ? (
+                                                    <p className="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 mb-2">
+                                                        ✓ Order Delivered — Status updates are locked.
                                                     </p>
-                                                )}
-                                                {order.shipping.trackingNumber && (
-                                                    <p className="flex justify-between">
-                                                        <span className="text-gray-400 font-medium">Tracking Number:</span>
-                                                        <span className="font-mono font-semibold text-gray-900">{order.shipping.trackingNumber}</span>
-                                                    </p>
-                                                )}
-                                                {order.shipping.trackingUrl && (
-                                                    <p className="pt-1 text-right">
-                                                        <a
-                                                            href={order.shipping.trackingUrl}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="inline-flex items-center gap-1 font-semibold text-[#2F6FED] hover:underline"
-                                                            onClick={(e) => e.stopPropagation()}
-                                                        >
-                                                            View Tracking <FiExternalLink size={12} />
-                                                        </a>
-                                                    </p>
-                                                )}
+                                                ) : null}
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {statusOptions.map((s) => {
+                                                        const isDelivered = order.status === "delivered" || order.status === "completed";
+                                                        return (
+                                                            <button
+                                                                key={s.value}
+                                                                disabled={isDelivered}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleStatusClick(order, s.value);
+                                                                }}
+                                                                className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition ${order.status === s.value
+                                                                        ? `${statusColors[s.value]} border-transparent shadow-sm`
+                                                                        : "border-gray-200 text-gray-500 hover:border-gray-300 hover:bg-gray-50"
+                                                                    } ${isDelivered ? "opacity-50 cursor-not-allowed hover:bg-transparent" : ""}`}
+                                                            >
+                                                                {s.label}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDelete(order._id);
+                                                    }}
+                                                    className="mt-3 flex items-center gap-1.5 text-xs font-medium text-red-500 hover:text-red-600 transition"
+                                                >
+                                                    <FaTrash size={11} /> Delete Order
+                                                </button>
                                             </div>
                                         </div>
-                                    )}
 
-                                    {/* Payment Info */}
-                                    <div className="mt-4 pt-4 border-t border-gray-200 flex flex-wrap items-center gap-6 text-xs text-gray-500">
-                                        <span>
-                                            Payment:{" "}
-                                            <span className="font-semibold text-gray-700 capitalize">
-                                                {order.paymentMethod === "cod"
-                                                    ? "Cash on Delivery"
-                                                    : order.selectedOnlineMethod?.name
-                                                        ? order.selectedOnlineMethod.name
-                                                        : order.paymentMethod === "bank"
-                                                            ? "Bank Transfer"
-                                                            : order.paymentMethod === "card"
-                                                                ? "Card Payment"
-                                                                : order.paymentMethod}
+                                        {/* Shipping Information (if present) */}
+                                        {order.shipping && (order.shipping.courierName || order.shipping.trackingNumber) && (
+                                            <div className="mt-4 pt-4 border-t border-gray-200">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <FaTruck className="text-[#2F6FED]" size={13} />
+                                                    <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                                        Shipping Information
+                                                    </h4>
+                                                </div>
+                                                <div className="bg-white rounded-xl border border-gray-200 p-3 space-y-1.5 text-xs text-gray-700 max-w-md">
+                                                    {order.shipping.courierName && (
+                                                        <p className="flex justify-between">
+                                                            <span className="text-gray-400 font-medium">Courier:</span>
+                                                            <span className="font-semibold text-gray-900">{order.shipping.courierName}</span>
+                                                        </p>
+                                                    )}
+                                                    {order.shipping.trackingNumber && (
+                                                        <p className="flex justify-between">
+                                                            <span className="text-gray-400 font-medium">Tracking Number:</span>
+                                                            <span className="font-mono font-semibold text-gray-900">{order.shipping.trackingNumber}</span>
+                                                        </p>
+                                                    )}
+                                                    {order.shipping.trackingUrl && (
+                                                        <p className="pt-1 text-right">
+                                                            <a
+                                                                href={order.shipping.trackingUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-1 font-semibold text-[#2F6FED] hover:underline"
+                                                                onClick={(e) => e.stopPropagation()}
+                                                            >
+                                                                View Tracking <FiExternalLink size={12} />
+                                                            </a>
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Payment Info */}
+                                        <div className="mt-4 pt-4 border-t border-gray-200 flex flex-wrap items-center gap-6 text-xs text-gray-500">
+                                            <span>
+                                                Payment:{" "}
+                                                <span className="font-semibold text-gray-700 capitalize">
+                                                    {order.paymentMethod === "cod"
+                                                        ? "Cash on Delivery"
+                                                        : order.selectedOnlineMethod?.name
+                                                            ? order.selectedOnlineMethod.name
+                                                            : order.paymentMethod === "bank"
+                                                                ? "Bank Transfer"
+                                                                : order.paymentMethod === "card"
+                                                                    ? "Card Payment"
+                                                                    : order.paymentMethod}
+                                                </span>
+                                                {order.selectedOnlineMethod?.type && (
+                                                    <span className="ml-1.5 inline-flex items-center rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600">
+                                                        {order.selectedOnlineMethod.type}
+                                                    </span>
+                                                )}
                                             </span>
-                                            {order.selectedOnlineMethod?.type && (
-                                                <span className="ml-1.5 inline-flex items-center rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600">
-                                                    {order.selectedOnlineMethod.type}
+                                            {order.transactionRef && (
+                                                <span>
+                                                    Trx Ref:{" "}
+                                                    <span className="font-semibold text-gray-700">{order.transactionRef}</span>
                                                 </span>
                                             )}
-                                        </span>
-                                        {order.transactionRef && (
                                             <span>
-                                                Trx Ref:{" "}
-                                                <span className="font-semibold text-gray-700">{order.transactionRef}</span>
+                                                Total:{" "}
+                                                <span className="font-semibold text-gray-700">
+                                                    Rs. {order.totalPrice?.toFixed(2)}
+                                                </span>
                                             </span>
-                                        )}
-                                        <span>
-                                            Total:{" "}
-                                            <span className="font-semibold text-gray-700">
-                                                Rs. {order.totalPrice?.toFixed(2)}
+                                            <span>
+                                                Order ID:{" "}
+                                                <span className="text-gray-400">#{order._id.slice(-8)}</span>
                                             </span>
-                                        </span>
-                                        <span>
-                                            Order ID:{" "}
-                                            <span className="text-gray-400">#{order._id.slice(-8)}</span>
-                                        </span>
-                                    </div>
-
-                                    {/* Payment Receipt */}
-                                    {order.paymentReceipt && (
-                                        <div className="mt-4 pt-4 border-t border-gray-200">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <FaImage className="text-[#2F6FED]" size={13} />
-                                                <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                                    Payment Receipt
-                                                </h4>
-                                            </div>
-                                            <a
-                                                href={order.paymentReceipt}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                onClick={(e) => e.stopPropagation()}
-                                                className="inline-block"
-                                            >
-                                                <img
-                                                    src={order.paymentReceipt}
-                                                    alt="Payment receipt"
-                                                    className="max-h-48 rounded-xl border border-gray-200 object-contain hover:opacity-90 transition"
-                                                />
-                                            </a>
                                         </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    );
-                })}
-            </div>
+
+                                        {/* Payment Receipt */}
+                                        {order.paymentReceipt && (
+                                            <div className="mt-4 pt-4 border-t border-gray-200">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <FaImage className="text-[#2F6FED]" size={13} />
+                                                    <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                                        Payment Receipt
+                                                    </h4>
+                                                </div>
+                                                <a
+                                                    href={order.paymentReceipt}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className="inline-block"
+                                                >
+                                                    <img
+                                                        src={order.paymentReceipt}
+                                                        alt="Payment receipt"
+                                                        className="max-h-48 rounded-xl border border-gray-200 object-contain hover:opacity-90 transition"
+                                                    />
+                                                </a>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
             )}
         </div>
     );
