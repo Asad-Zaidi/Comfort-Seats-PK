@@ -13,13 +13,22 @@ const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [productsDropdownOpen, setProductsDropdownOpen] = useState(false);
     const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
+    const [policyDropdownOpen, setPolicyDropdownOpen] = useState(false);
+    const [mobilePoliciesOpen, setMobilePoliciesOpen] = useState(false);
     const [categories, setCategories] = useState([]);
     const location = useLocation();
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
     const dropdownItemRefs = useRef([]);
     const dropdownTimeoutRef = useRef(null);
+    const policyTimeoutRef = useRef(null);
     const { logoUrl, siteName } = useSiteConfig();
     const { cartCount, wishlistCount } = useShop();
+
+    const policyItems = [
+        { name: "Privacy Policy", path: "/policy#privacy-policy" },
+        { name: "Return Policy", path: "/policy#return-policy" },
+        { name: "Warranty Policy", path: "/policy#warranty-policy" },
+    ];
 
     const navItems = [
         { name: "Home", path: "/" },
@@ -27,6 +36,7 @@ const Navbar = () => {
         { name: "About Us", path: "/about" },
         { name: "Contact Us", path: "/contact" },
         { name: "Customize", path: "/customization" },
+        { name: "Policies", path: "/policy" },
     ];
 
     // Fetch categories from API
@@ -44,9 +54,12 @@ const Navbar = () => {
         fetchCategories();
     }, []);
 
-    // Reset mobile categories collapse whenever the menu itself closes
+    // Reset mobile dropdown collapses whenever the menu itself closes
     useEffect(() => {
-        if (!menuOpen) setMobileCategoriesOpen(false);
+        if (!menuOpen) {
+            setMobileCategoriesOpen(false);
+            setMobilePoliciesOpen(false);
+        }
     }, [menuOpen]);
 
     // Scroll to highlighted item
@@ -62,6 +75,9 @@ const Navbar = () => {
     const closeAll = () => {
         setMenuOpen(false);
         setMobileCategoriesOpen(false);
+        setMobilePoliciesOpen(false);
+        setProductsDropdownOpen(false);
+        setPolicyDropdownOpen(false);
     };
 
     const handleProductsMouseEnter = () => {
@@ -77,6 +93,19 @@ const Navbar = () => {
             setProductsDropdownOpen(false);
             setHighlightedIndex(-1); // Reset on mouse leave
         }, 200); // 200ms delay
+    };
+
+    const handlePolicyMouseEnter = () => {
+        if (policyTimeoutRef.current) {
+            clearTimeout(policyTimeoutRef.current);
+        }
+        setPolicyDropdownOpen(true);
+    };
+
+    const handlePolicyMouseLeave = () => {
+        policyTimeoutRef.current = setTimeout(() => {
+            setPolicyDropdownOpen(false);
+        }, 200);
     };
 
     const handleKeyDown = (e) => {
@@ -132,7 +161,7 @@ const Navbar = () => {
 
                     {/* Desktop Navigation - Centered */}
                     <nav
-                        className="hidden lg:flex items-center gap-1 xl:gap-2.5 p-1 lg:p-1.5 rounded-full border shadow-xs transition-all duration-300 absolute left-1/2 -translate-x-1/2"
+                        className="hidden lg:flex items-center gap-1 xl:gap-1 p-1 lg:p-1 rounded-full border shadow-xs transition-all duration-300 absolute left-1/2 -translate-x-1/2"
                         style={{
                             borderColor: 'var(--border)',
                             backgroundColor: 'color-mix(in srgb, var(--header-bg) 80%, transparent)',
@@ -163,9 +192,10 @@ const Navbar = () => {
                                     backgroundColor: isActive ? 'var(--header-active-link, var(--primary))' : undefined,
                                     color: isActive ? '#ffffff' : 'var(--header-text)',
                                 })}
-                                className="px-2.5 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-xs xl:text-sm font-semibold transition-all duration-300 hover:bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] hover:text-[var(--primary)] whitespace-nowrap"
+                                className="flex items-center gap-1 px-2.5 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-xs xl:text-sm font-semibold transition-all duration-300 hover:bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] hover:text-[var(--primary)] whitespace-nowrap"
                             >
-                                Products
+                                <span>Products</span>
+                                <HiChevronDown className={`transition-transform duration-200 ${productsDropdownOpen ? 'rotate-180' : ''}`} size={14} />
                             </NavLink>
 
                             {/* Dropdown Menu */}
@@ -249,6 +279,54 @@ const Navbar = () => {
                             Customize
                         </NavLink>
 
+                        {/* Policies with Dropdown */}
+                        <div
+                            className="relative flex items-center"
+                            onMouseEnter={handlePolicyMouseEnter}
+                            onMouseLeave={handlePolicyMouseLeave}
+                        >
+                            <NavLink
+                                to="/policy"
+                                style={({ isActive }) => ({
+                                    backgroundColor: isActive ? 'var(--header-active-link, var(--primary))' : undefined,
+                                    color: isActive ? '#ffffff' : 'var(--header-text)',
+                                })}
+                                className="flex items-center gap-1 px-2.5 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-xs xl:text-sm font-semibold transition-all duration-300 hover:bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] hover:text-[var(--primary)] whitespace-nowrap"
+                            >
+                                <span>Policies</span>
+                                <HiChevronDown className={`transition-transform duration-200 ${policyDropdownOpen ? 'rotate-180' : ''}`} size={14} />
+                            </NavLink>
+
+                            {/* Dropdown Menu */}
+                            {policyDropdownOpen && (
+                                <div
+                                    className="absolute top-full left-0 mt-2 min-w-[13rem] rounded-2xl shadow-2xl border p-2 z-50 transition-all duration-200 backdrop-blur-sm"
+                                    style={{
+                                        backgroundColor: 'color-mix(in srgb, var(--header-dropdown-bg, var(--card-bg)) 90%, transparent)',
+                                        borderColor: 'var(--border)',
+                                    }}
+                                >
+                                    <div className="flex flex-col gap-1">
+                                        {policyItems.map((pItem) => (
+                                            <NavLink
+                                                key={pItem.path}
+                                                to={pItem.path}
+                                                onClick={() => setPolicyDropdownOpen(false)}
+                                                className="group flex items-center px-3.5 py-2.5 rounded-xl border border-transparent transition-all duration-200 hover:border-[var(--primary)] hover:bg-[var(--primary-hover,var(--primary))] hover:!text-white text-xs xl:text-sm font-medium"
+                                                style={{
+                                                    color: 'var(--header-dropdown-text, var(--text))',
+                                                }}
+                                            >
+                                                <span className="transition-colors group-hover:text-white whitespace-nowrap">
+                                                    {pItem.name}
+                                                </span>
+                                            </NavLink>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
                         <NavLink
                             to="/about"
                             style={({ isActive }) => ({
@@ -331,6 +409,7 @@ const Navbar = () => {
                 <nav className="overflow-y-auto max-h-[32rem]">
                     {navItems.map((item) => {
                         const isProducts = item.path === "/products";
+                        const isPolicies = item.path === "/policy";
 
                         if (isProducts) {
                             return (
@@ -398,6 +477,60 @@ const Navbar = () => {
                                             </div>
                                         </div>
                                     )}
+                                </div>
+                            );
+                        }
+
+                        if (isPolicies) {
+                            return (
+                                <div key={item.path} className="border-b" style={{ borderColor: 'var(--border)' }}>
+                                    <div className="flex items-center">
+                                        <NavLink
+                                            to={item.path}
+                                            onClick={closeAll}
+                                            style={({ isActive }) => ({
+                                                backgroundColor: isActive ? 'color-mix(in srgb, var(--primary) 12%, transparent)' : 'transparent',
+                                                color: isActive ? 'var(--primary)' : 'var(--header-text)',
+                                            })}
+                                            className="flex-1 px-6 py-4 text-base font-medium transition-colors"
+                                        >
+                                            {item.name}
+                                        </NavLink>
+
+                                        <button
+                                            type="button"
+                                            aria-label="Toggle policy options"
+                                            onClick={() => setMobilePoliciesOpen(!mobilePoliciesOpen)}
+                                            className="px-6 py-4"
+                                            style={{ color: 'var(--header-text)' }}
+                                        >
+                                            <HiChevronDown
+                                                size={18}
+                                                className={`transition-transform duration-300 ${mobilePoliciesOpen ? "rotate-180" : ""}`}
+                                            />
+                                        </button>
+                                    </div>
+
+                                    {/* Nested policy list */}
+                                    <div
+                                        className={`overflow-hidden transition-all duration-300 ${mobilePoliciesOpen ? "max-h-48" : "max-h-0"}`}
+                                    >
+                                        <div className="py-1" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                                            {policyItems.map((pItem) => (
+                                                <NavLink
+                                                    key={pItem.path}
+                                                    to={pItem.path}
+                                                    onClick={closeAll}
+                                                    className="block pl-10 pr-6 py-3 text-sm font-medium transition-colors hover:bg-[var(--primary)] hover:!text-white"
+                                                    style={({ isActive }) => ({
+                                                        color: isActive ? 'var(--primary)' : 'var(--text)',
+                                                    })}
+                                                >
+                                                    {pItem.name}
+                                                </NavLink>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             );
                         }

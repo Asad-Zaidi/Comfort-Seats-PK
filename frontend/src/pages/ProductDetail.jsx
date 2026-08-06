@@ -7,6 +7,7 @@ import {
     FaTruck,
     FaHeart,
     FaShoppingCart,
+    FaWhatsapp,
 } from "react-icons/fa";
 import {
     FiArrowLeft,
@@ -422,6 +423,44 @@ const ProductDetail = () => {
         }
     }, [productColorOptions.length, product, selectedColorVariant, selectedColor, selectedStandType, quantity, displayPrice, productUrl, siteName, contactWhatsapp, toast]);
 
+    const handleOrderOnWhatsapp = useCallback(() => {
+        if (productColorOptions.length > 0 && !selectedColor) {
+            toast.error("Please select a color variant first.");
+            return;
+        }
+        if (!contactWhatsapp) {
+            toast.error("WhatsApp number is not configured.");
+            return;
+        }
+
+        const selectedColorName = selectedColorVariant?.name || selectedColor || '';
+        const category = Array.isArray(product?.category) ? product.category[0] : product?.category || '';
+
+        const lines = [
+            `Hello, I would like to order this product:\n`,
+            `*Product:* ${product?.name || 'N/A'}`,
+        ];
+
+        if (product?.sku) lines.push(`*SKU:* ${product.sku}`);
+        if (category) lines.push(`*Category:* ${category}`);
+        if (selectedColorName) lines.push(`*Color:* ${selectedColorName}`);
+        if (selectedStandType) lines.push(`*Stand Type:* ${selectedStandType}`);
+        if (selectedSize) lines.push(`*Size:* ${selectedSize}`);
+        lines.push(`*Quantity:* ${quantity}`);
+        lines.push(`*Total Price:* Rs. ${formatPrice(displayPrice * quantity)}`);
+        lines.push(`*Product Link:* ${productUrl}`);
+        lines.push(`\nPlease confirm my order. Thank you!`);
+
+        const message = lines.join('\n');
+        const waUrl = buildWhatsAppUrl(contactWhatsapp, message);
+        if (waUrl) {
+            if (window.fbq) {
+                window.fbq("track", "Contact");
+            }
+            window.open(waUrl, '_blank', 'noopener,noreferrer');
+        }
+    }, [productColorOptions.length, product, selectedColorVariant, selectedColor, selectedStandType, selectedSize, quantity, displayPrice, productUrl, contactWhatsapp, toast]);
+
     const handleTabClick = (tabName) => setActiveTab(tabName);
 
     // Handle wishlist toggle
@@ -704,7 +743,7 @@ const ProductDetail = () => {
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-col gap-3 sm:flex-row">
+                                    <div className="flex flex-col gap-3 sm:flex-row flex-wrap">
                                         <AnimatedActionButton
                                             onClick={handleAddToCart}
                                             disabled={!isColorInStock}
@@ -733,6 +772,19 @@ const ProductDetail = () => {
                                                 {isColorInStock ? "Buy Now" : "Out of Stock"}
                                             </AnimatedActionButton>
                                         )}
+                                        <AnimatedActionButton
+                                            onClick={handleOrderOnWhatsapp}
+                                            disabled={!isColorInStock}
+                                            style={{ backgroundColor: '#25D366', color: '#ffffff' }}
+                                            className="flex-1"
+                                        >
+                                            <FaWhatsapp size={18} />
+                                            Order on WhatsApp
+                                        </AnimatedActionButton>
+                                    </div>
+
+                                    {/* Favorite & Share Row */}
+                                    <div className="mt-4 flex items-center justify-end gap-3">
                                         <AnimatedIconButton
                                             onClick={handleWishlistToggle}
                                             aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}

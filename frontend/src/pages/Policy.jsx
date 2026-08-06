@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import SEO from "../components/SEO";
 import { useSiteConfig } from "../utils/siteConfig";
 import api from "../api/api";
@@ -6,6 +7,7 @@ import { FiLoader } from "react-icons/fi";
 import { sanitizeHtml, isHtmlContent } from "../utils/sanitizeHtml";
 
 const PolicyPage = () => {
+    const location = useLocation();
     const { siteUrl, siteName } = useSiteConfig();
     const [loading, setLoading] = useState(true);
     const [privacyPolicy, setPrivacyPolicy] = useState("");
@@ -36,6 +38,18 @@ const PolicyPage = () => {
         };
         fetchPolicies();
     }, []);
+
+    useEffect(() => {
+        if (!loading && location.hash) {
+            const targetId = location.hash.replace("#", "");
+            const element = document.getElementById(targetId);
+            if (element) {
+                setTimeout(() => {
+                    element.scrollIntoView({ behavior: "smooth" });
+                }, 100);
+            }
+        }
+    }, [location.hash, loading]);
 
     const formatPolicyText = (text) => {
         if (!text) return "";
@@ -88,7 +102,7 @@ const PolicyPage = () => {
             <div className="mx-auto max-w-full px-5 py-16 lg:px-32">
                 <div className="mx-auto max-w-full space-y-16">
                     {/* Privacy Policy */}
-                    <section>
+                    <section id="privacy-policy" className="scroll-mt-24">
                         <h2 className="text-3xl font-bold text-[#12131A]">Privacy Policy</h2>
                         <p className="mt-2 text-sm text-gray-500">Last updated: July 2026</p>
 
@@ -109,7 +123,7 @@ const PolicyPage = () => {
                     </section>
 
                     {/* Return Policy */}
-                    <section className="border-t border-gray-100 pt-16">
+                    <section id="return-policy" className="border-t border-gray-100 pt-16 scroll-mt-24">
                         <h2 className="text-3xl font-bold text-[#12131A]">Return Policy</h2>
                         <p className="mt-2 text-sm text-gray-500">Last updated: July 2026</p>
 
@@ -130,7 +144,7 @@ const PolicyPage = () => {
                     </section>
 
                     {/* Warranty Policy */}
-                    <section className="border-t border-gray-100 pt-16">
+                    <section id="warranty-policy" className="border-t border-gray-100 pt-16 scroll-mt-24">
                         <h2 className="text-3xl font-bold text-[#12131A]">Warranty Policy</h2>
                         <p className="mt-2 text-sm text-gray-500">Last updated: July 2026</p>
 

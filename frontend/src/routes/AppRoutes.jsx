@@ -28,6 +28,7 @@ const AppRoutes = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/customization" element={<Customize />} />
             <Route path="/policy" element={<Policy />} />
+            <Route path="/policies" element={<Navigate to="/policy" replace />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/favorites" element={<FavoriteProduct />} />
             <Route path="/favourites" element={<Navigate to="/favorites" replace />} />
