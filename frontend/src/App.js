@@ -21,6 +21,7 @@ import { SiteConfigProvider, useSiteConfig } from "./utils/siteConfig";
 import { ThemeProvider, useTheme } from "./utils/themeContext";
 import { ShopProvider } from "./context/ShopContext";
 import FacebookPixel from "./components/FacebookPixel";
+import AnalyticsProvider from "./analytics/components/AnalyticsProvider";
 
 const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
 if (token) setAuthToken(token);
@@ -74,12 +75,14 @@ function App() {
       <ThemeProvider>
         <ToastProvider>
           <ShopProvider>
-            <FacebookPixel />
-            <FaviconUpdater />
-            <LegacyColorApplier />
-            <AnnouncementBar />
-            <Navbar />
-            <AppRoutes />
+            <AnalyticsProvider>
+              <FacebookPixel />
+              <FaviconUpdater />
+              <LegacyColorApplier />
+              <AnnouncementBar />
+              <Navbar />
+              <AppRoutes />
+            </AnalyticsProvider>
           </ShopProvider>
         </ToastProvider>
       </ThemeProvider>

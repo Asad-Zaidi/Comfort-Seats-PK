@@ -16,6 +16,8 @@ const customizationRoutes = require("./routes/customizationRoutes");
 const announcementRoutes = require("./routes/announcementRoutes");
 const sitemapRoutes = require("./routes/sitemapRoutes");
 const themeRoutes = require("./routes/themeRoutes");
+const analyticsRoutes = require("./analytics/routes/analyticsRoutes");
+const { getIO } = require("./analytics/socket/analyticsSocket");
 
 
 const app = express();
@@ -74,6 +76,11 @@ app.get("/", (req, res) => {
 // Serve the dynamically generated XML sitemap (includes all products)
 app.use("/", sitemapRoutes);
 
+app.use((req, res, next) => {
+    req.io = getIO();
+    next();
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/contact", contactRoutes);
@@ -84,5 +91,6 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/customizations", customizationRoutes);
 app.use("/api/announcement", announcementRoutes);
 app.use("/api/themes", themeRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 module.exports = app;

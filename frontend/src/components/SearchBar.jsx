@@ -3,6 +3,7 @@ import { FiSearch, FiX } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 import SearchDropdown from "./SearchDropdown";
+import useAnalytics from "../analytics/hooks/useAnalytics";
 
 const useDebouncedValue = (value, delay) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -24,6 +25,7 @@ const SearchBar = () => {
   const inputRef = useRef(null);
   const isInitialMount = useRef(true);
   const navigate = useNavigate();
+  const { trackSearch } = useAnalytics();
   const debouncedQuery = useDebouncedValue(query, 300);
 
   const displayedResults = useMemo(() => {
@@ -56,6 +58,7 @@ const SearchBar = () => {
 
         const items = Array.isArray(data?.data) ? data.data : [];
         setResults(items);
+        trackSearch(trimmed, items.length);
       } catch (err) {
         console.error("Search failed:", err);
         setError("Something went wrong while searching.");
@@ -64,7 +67,7 @@ const SearchBar = () => {
         setIsSearching(false);
       }
     },
-    []
+    [trackSearch]
   );
 
   useEffect(() => {

@@ -5,17 +5,15 @@ import {
     FiBox,
     FiClock,
     FiDollarSign,
-    FiEye,
     FiLoader,
-    FiMessageSquare,
     FiPackage,
     FiShoppingBag,
     FiShoppingCart,
-    FiStar,
     FiArrowRight,
 } from "react-icons/fi";
 import api from "../../api/api";
 import { useSiteConfig } from "../../utils/siteConfig";
+import AnalyticsCharts from "../../components/admin/AnalyticsCharts";
 
 const statusColors = {
     pending: { bg: "#fef3c7", color: "#d97706" },
@@ -97,21 +95,10 @@ const AdminDashboard = () => {
     const recentOrders = [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 6);
     const lowStockProducts = products.filter((p) => p.inStock && Number(p.stock) > 0 && Number(p.stock) <= 5).sort((a, b) => Number(a.stock) - Number(b.stock)).slice(0, 5);
 
-    const totalViews = products.reduce((sum, p) => sum + Number(p.views || 0), 0);
-    const totalReviews = products.reduce((sum, p) => sum + Number(p.totalReviews || 0), 0);
-    const ratedProducts = products.filter((p) => Number(p.avgRating) > 0);
-    const overallRating = ratedProducts.length ? ratedProducts.reduce((sum, p) => sum + Number(p.avgRating), 0) / ratedProducts.length : 0;
-
     const tintPrimary = { bg: `color-mix(in srgb, ${c.primary} 10%, transparent)`, color: c.primary };
     const tintPurple = { bg: "#ede9fe", color: "#7c3aed" };
     const tintGreen = { bg: "#d1fae5", color: "#059669" };
     const tintAmber = { bg: "#fef3c7", color: "#d97706" };
-
-    const websiteStats = [
-        { label: "Overall Rating", value: overallRating ? overallRating.toFixed(1) : "0.0", icon: <FiStar size={16} />, tint: tintAmber, sub: `${totalReviews} reviews across ${products.length} products` },
-        { label: "Total Product Views", value: totalViews.toLocaleString("en-US"), icon: <FiEye size={16} />, tint: tintPrimary, sub: "Across all products" },
-        { label: "Total Reviews", value: totalReviews.toLocaleString("en-US"), icon: <FiMessageSquare size={16} />, tint: tintPurple, sub: "All customer reviews" },
-    ];
 
     const stats = [
         { label: "Total Revenue", value: formatCurrency(totalRevenue), icon: <FiDollarSign size={16} />, tint: tintPrimary, sub: `${completedOrders.length} completed orders` },
@@ -159,20 +146,8 @@ const AdminDashboard = () => {
                 ))}
             </div>
 
-            <div className="mt-6">
-                <h2 className="mb-4 text-base font-semibold" style={{ color: c.text }}>Website Statistics</h2>
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                    {websiteStats.map((stat) => (
-                        <div key={stat.label} className="rounded-2xl border p-6 shadow-sm" style={{ borderColor: c.border, backgroundColor: c['card-bg'] }}>
-                            <div className="flex items-center justify-between">
-                                <p className="text-sm font-medium" style={{ color: c['text-secondary'] }}>{stat.label}</p>
-                                <span className="flex h-9 w-9 items-center justify-center rounded-xl text-lg" style={{ backgroundColor: stat.tint.bg, color: stat.tint.color }}>{stat.icon}</span>
-                            </div>
-                            <h3 className="mt-4 text-3xl font-bold" style={{ color: c.text }}>{stat.value}</h3>
-                            <p className="mt-1 text-xs" style={{ color: c['text-secondary'] }}>{stat.sub}</p>
-                        </div>
-                    ))}
-                </div>
+            <div className="mt-8">
+                <AnalyticsCharts products={products} orders={orders} />
             </div>
 
             {lowStock > 0 && (

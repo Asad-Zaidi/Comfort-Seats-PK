@@ -20,6 +20,7 @@ import Breadcrumb from "../components/Breadcrumb";
 import { useToast } from "../components/ToastNotification";
 import { useSiteConfig } from "../utils/siteConfig";
 import { useShop } from "../context/ShopContext";
+import useAnalytics from "../analytics/hooks/useAnalytics";
 import WhatsappFloatingButton from "../components/FloatingWhatsapp";
 import ShareMenu from "../components/ShareMenu";
 import Footer from "../components/Footer";
@@ -125,6 +126,7 @@ const ProductDetail = () => {
     const toast = useToast();
     const { siteUrl, siteName } = useSiteConfig();
     const { addToCart: addToCartContext, toggleWishlist, isInWishlist } = useShop();
+    const { trackProductView, trackAddToCart, trackBuyNow } = useAnalytics();
     const isWishlisted = isInWishlist(product?._id || product?.id);
     const navigate = useNavigate();
     const trackedProductIdRef = useRef(null);
@@ -274,6 +276,7 @@ const ProductDetail = () => {
     useEffect(() => {
         if (product && product._id && trackedProductIdRef.current !== product._id) {
             trackedProductIdRef.current = product._id;
+            trackProductView(product);
             if (window.fbq) {
                 window.fbq("track", "ViewContent", {
                     content_ids: [product._id],
@@ -284,7 +287,7 @@ const ProductDetail = () => {
                 });
             }
         }
-    }, [product]);
+    }, [product, trackProductView]);
 
     // Set default size
     useEffect(() => {
@@ -347,6 +350,7 @@ const ProductDetail = () => {
             toast.error("Please select a color variant first.");
             return;
         }
+        trackAddToCart(product, quantity, selectedColor);
         addToCartContext({
             product,
             quantity,
@@ -363,6 +367,7 @@ const ProductDetail = () => {
             toast.error("Please select a color variant first.");
             return;
         }
+        trackBuyNow(product, quantity, selectedColor);
         // Build order product with discount info
         const orderProduct = buildOrderProduct(product, displayPrice, selectedColor, selectedSize, selectedStandType);
         navigate("/checkout", {

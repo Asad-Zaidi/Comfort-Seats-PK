@@ -1,0 +1,14 @@
+const express = require("express");
+const router = express.Router();
+const analyticsController = require("../controllers/analyticsController");
+const { analyticsBotFilter } = require("../middleware/analyticsMiddleware");
+
+// Public endpoints (Client tracking)
+router.post("/pulse", analyticsBotFilter, analyticsController.trackPulse);
+router.post("/event", analyticsBotFilter, analyticsController.trackEvent);
+router.post("/performance", analyticsController.trackPerformance);
+
+// Admin endpoints (Dashboard stats)
+router.get("/dashboard", analyticsController.getDashboardAnalytics);
+
+module.exports = router;
