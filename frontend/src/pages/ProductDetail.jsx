@@ -716,33 +716,53 @@ const ProductDetail = () => {
                             {/* Quantity & Actions */}
                             <FadeInUp delay={0.8}>
                                 <div className="mt-8 space-y-6">
-                                    <div className="flex items-center gap-4">
-                                        <label className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Qty:</label>
-                                        <div className="flex items-center overflow-hidden rounded-xl border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--input-bg)' }}>
-                                            <button
-                                                type="button"
-                                                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                                                className="flex h-11 w-11 items-center justify-center transition hover:opacity-80"
-                                                style={{ color: 'var(--text-secondary)' }}
-                                                aria-label="Decrease quantity"
+                                    {/* Qty and Favorite/Share Row */}
+                                    <div className="flex items-center justify-between gap-4 flex-wrap">
+                                        <div className="flex items-center gap-4">
+                                            <label className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Qty:</label>
+                                            <div className="flex items-center overflow-hidden rounded-xl border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--input-bg)' }}>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                                                    className="flex h-11 w-11 items-center justify-center transition hover:opacity-80"
+                                                    style={{ color: 'var(--text-secondary)' }}
+                                                    aria-label="Decrease quantity"
+                                                >
+                                                    <FaMinus size={12} />
+                                                </button>
+                                                <span className="w-14 text-center text-base font-semibold" style={{ color: 'var(--text)' }}>
+                                                    {quantity}
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setQuantity((q) => q + 1)}
+                                                    className="flex h-11 w-11 items-center justify-center transition hover:opacity-80"
+                                                    style={{ color: 'var(--text-secondary)' }}
+                                                    aria-label="Increase quantity"
+                                                >
+                                                    <FaPlus size={12} />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* Favorite & Share Buttons on the right side */}
+                                        <div className="flex items-center gap-3">
+                                            <AnimatedIconButton
+                                                onClick={handleWishlistToggle}
+                                                aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                                                className={isWishlisted ? "border-red-500 bg-red-50 text-red-500" : ""}
                                             >
-                                                <FaMinus size={12} />
-                                            </button>
-                                            <span className="w-14 text-center text-base font-semibold" style={{ color: 'var(--text)' }}>
-                                                {quantity}
-                                            </span>
-                                            <button
-                                                type="button"
-                                                onClick={() => setQuantity((q) => q + 1)}
-                                                className="flex h-11 w-11 items-center justify-center transition hover:opacity-80"
-                                                style={{ color: 'var(--text-secondary)' }}
-                                                aria-label="Increase quantity"
-                                            >
-                                                <FaPlus size={12} />
-                                            </button>
+                                                <FaHeart size={18} className={isWishlisted ? "fill-current" : ""} />
+                                            </AnimatedIconButton>
+                                            <ShareMenu
+                                                productUrl={productUrl}
+                                                productName={product.name}
+                                                productImage={galleryImages[0]}
+                                            />
                                         </div>
                                     </div>
 
+                                    {/* Action Buttons Row */}
                                     <div className="flex flex-col gap-3 sm:flex-row flex-wrap">
                                         <AnimatedActionButton
                                             onClick={handleAddToCart}
@@ -781,22 +801,6 @@ const ProductDetail = () => {
                                             <FaWhatsapp size={18} />
                                             Order on WhatsApp
                                         </AnimatedActionButton>
-                                    </div>
-
-                                    {/* Favorite & Share Row */}
-                                    <div className="mt-4 flex items-center justify-end gap-3">
-                                        <AnimatedIconButton
-                                            onClick={handleWishlistToggle}
-                                            aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-                                            className={isWishlisted ? "border-red-500 bg-red-50 text-red-500" : ""}
-                                        >
-                                            <FaHeart size={18} className={isWishlisted ? "fill-current" : ""} />
-                                        </AnimatedIconButton>
-                                        <ShareMenu
-                                            productUrl={productUrl}
-                                            productName={product.name}
-                                            productImage={galleryImages[0]}
-                                        />
                                     </div>
                                 </div>
                             </FadeInUp>
