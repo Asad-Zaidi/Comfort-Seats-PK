@@ -455,7 +455,7 @@ const SEO = ({
     // const fullTitle = (title || siteTitle).includes("-") ? (title || siteTitle) : `${title || siteTitle} - ${siteName}`;
 
     const finalSiteName = siteName || "Comfort Seats PK";
-    const finalSiteTitle = siteTitle || "Comfort Seats PK - Premium Furniture in Lahore";
+    const finalSiteTitle = siteTitle || "Comfort Seats PK - Premium Chairs in Lahore";
 
     const baseTitle = title || finalSiteTitle;
 
