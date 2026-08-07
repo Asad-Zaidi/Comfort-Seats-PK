@@ -47,7 +47,7 @@ const PreviewHome = () => {
                         <span style={{ color: 'var(--primary)' }}>Built to Last.</span>
                     </h1>
                     <p className="text-sm mb-6 leading-6" style={{ color: 'var(--text-secondary)' }}>
-                        Premium office chairs, gaming chairs, sofas, and complete furniture solutions
+                        Premium Office Chairs, Gaming Chairs, Bar Stools & Office Furniture Shop in Lahore.
                     </p>
                     <div className="flex gap-3">
                         <button

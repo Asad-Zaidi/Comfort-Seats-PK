@@ -578,7 +578,7 @@ const Products = () => {
       <Breadcrumb crumbs={breadcrumbs.map(b => ({ name: b.name, path: b.url.replace(siteUrl, '') }))} />
       <SEO
         title={`Products${categoryParam ? ` - ${categoryParam}` : ""} - ${siteName}`}
-        description="Browse our full range of premium office chairs, gaming chairs, sofas, and office furniture in Lahore. Shop ergonomic seating at Comfort Seats PK."
+        description="Browse our full range of Premium Office Chairs, Gaming Chairs, Bar Stools & Office Furniture Shop in Lahore."
         canonicalUrl={`${siteUrl}/products${categoryParam ? `?category=${encodeURIComponent(categoryParam)}` : ''}`}
         products={products}
         breadcrumbs={breadcrumbs}

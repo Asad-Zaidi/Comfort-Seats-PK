@@ -82,9 +82,9 @@ const getCategoryIcon = (name = "") => {
 
 const defaultHomeBanner = {
   eyebrow: "Trusted Since 1995",
-  title: "Comfort, Built\nto Last.",
+  title: "Comfort, Built to Last.",
   description:
-    "Premium office chairs, gaming chairs, sofas, and complete furniture solutions - crafted in Lahore with Years of experience.",
+    "Premium Office Chairs, Gaming Chairs, Bar Stools & Office Furniture Shop in Lahore.",
   primaryButtonText: "Shop Now",
   primaryButtonLink: "/products",
   secondaryButtonText: "Our Story",

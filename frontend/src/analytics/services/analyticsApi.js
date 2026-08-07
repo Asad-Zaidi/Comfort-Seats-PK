@@ -1,6 +1,6 @@
 import api from "../../api/api";
 
-const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000";
 
 export const sendPulse = async (payload) => {
     try {
@@ -26,7 +26,7 @@ export const sendEvent = async (eventName, payload = {}) => {
     try {
         const visitorId = typeof localStorage !== "undefined" ? localStorage.getItem("cs_analytics_vid") : null;
         const sessionId = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("cs_analytics_sid") : null;
-        
+
         const res = await api.post("/analytics/event", {
             visitorId,
             sessionId,

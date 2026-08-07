@@ -19,7 +19,7 @@ const PreviewFooter = () => {
                             </span>
                         </div>
                         <p className="text-xs leading-5" style={{ color: 'var(--footer-link)' }}>
-                            Premium office chairs, gaming chairs and furniture in Pakistan.
+                            Premium Office Chairs, Gaming Chairs, Bar Stools & Office Furniture Shop in Lahore.
                         </p>
                     </div>
 

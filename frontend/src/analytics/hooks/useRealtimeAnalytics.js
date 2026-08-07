@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
-const SOCKET_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const SOCKET_URL = process.env.REACT_APP_API_BASE || "http://localhost:5000";
 
 export const useRealtimeAnalytics = () => {
     const [liveEvents, setLiveEvents] = useState([]);

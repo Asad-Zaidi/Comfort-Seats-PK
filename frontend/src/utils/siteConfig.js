@@ -56,18 +56,39 @@ const defaultColors = {
     announcementText: '#ffffff',
 };
 
+export const resolveSiteUrl = (rawUrl) => {
+    let url = (typeof rawUrl === "string" ? rawUrl : "").trim();
+
+    // 1. If a valid non-localhost URL was configured, use it
+    if (url && !url.includes("localhost") && !url.includes("127.0.0.1")) {
+        return url.replace(/\/+$/, '');
+    }
+
+    // 2. If running in a browser on a live non-localhost origin
+    if (typeof window !== "undefined" && window.location?.origin) {
+        const origin = window.location.origin;
+        if (!origin.includes("localhost") && !origin.includes("127.0.0.1")) {
+            return origin.replace(/\/+$/, '');
+        }
+    }
+
+    // 3. Fallback to main production domain when on localhost or unconfigured
+    const fallback = process.env.REACT_APP_SITE_URL || "https://comfortseatspk.com";
+    return fallback.replace(/\/+$/, '');
+};
+
 const withDefaults = (data = {}) => {
     const safeData = data || {};
     return {
+        ...safeData,
         siteName: safeData.siteName || "Comfort Seats PK",
-        siteUrl: safeData.siteUrl || "https://comfortseatspk.com",
-        siteTitle: safeData.siteTitle || "Comfort Seats PK - Premium Furniture in Lahore",
-        keywords: safeData.keywords || "office chairs, gaming chairs, office furniture, Pakistan, furniture, ergonomic chairs",
+        siteUrl: resolveSiteUrl(safeData.siteUrl),
+        siteTitle: safeData.siteTitle || "Comfort Seats PK - Premium Chairs in Lahore",
+        keywords: safeData.keywords || "Office Chairs, Gaming Chairs, Bar Stools, Waiting Chairs, Office Furniture, Lahore, Furniture, Ergonomic Chairs",
         logoUrl: safeData.logoUrl || "",
         faviconUrl: safeData.faviconUrl || "",
         whatsappNumber: safeData.whatsappNumber || "",
         colors: { ...defaultColors, ...(safeData.colors || {}) },
-        ...safeData,
     };
 };
 
@@ -120,7 +141,7 @@ export const SiteConfigProvider = ({ children }) => {
     }, []);
 
     const siteName = siteContent?.siteName || "";
-    const siteUrl = siteContent?.siteUrl || "";
+    const siteUrl = resolveSiteUrl(siteContent?.siteUrl);
     const siteTitle = siteContent?.siteTitle || "";
     const keywords = siteContent?.keywords || "";
     const logoUrl = siteContent?.logoUrl || "";

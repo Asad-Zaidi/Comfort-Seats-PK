@@ -18,7 +18,7 @@ import api, { postMultipart } from "../api/api";
 import { getColorName } from "../utils/ColorName";
 import Breadcrumb from "../components/Breadcrumb";
 import { useToast } from "../components/ToastNotification";
-import { useSiteConfig } from "../utils/siteConfig";
+import { useSiteConfig, resolveSiteUrl } from "../utils/siteConfig";
 import { useShop } from "../context/ShopContext";
 import useAnalytics from "../analytics/hooks/useAnalytics";
 import WhatsappFloatingButton from "../components/FloatingWhatsapp";
@@ -340,7 +340,7 @@ const ProductDetail = () => {
         setProduct(res.data.data);
     };
 
-    const normalizedSiteUrl = normalizeUrl(siteUrl);
+    const normalizedSiteUrl = normalizeUrl(resolveSiteUrl(siteUrl));
     const productUrl = categorySlug && nameSlug
         ? `${normalizedSiteUrl}/products/${categorySlug}/${nameSlug}`
         : `${normalizedSiteUrl}/products`;

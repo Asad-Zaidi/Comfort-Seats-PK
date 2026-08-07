@@ -24,7 +24,7 @@ const AdminSettings = () => {
     useEffect(() => {
         setForm({
             siteName: siteName || "Comfort Seats PK",
-            siteUrl: siteUrl || "https://comfortseatspk.com/",
+            siteUrl: (siteUrl && !siteUrl.includes("localhost") && !siteUrl.includes("127.0.0.1")) ? siteUrl : "https://comfortseatspk.com/",
             siteTitle: siteTitle || "Comfort Seats PK",
             keywords: keywords || "Chairs, Office Chairs, Gaming Chairs, Ergonomic Chairs, Furniture, Home Office, Comfort Seats, Waiting Chairs, Recliners, Swivel Chairs, Adjustable Chairs, Executive Chairs, Task Chairs, Lounge Chairs, Modern Furniture, Home Decor, Interior Design",
             logoUrl: logoUrl || "",
@@ -109,13 +109,19 @@ const AdminSettings = () => {
     const handleSave = async (e) => {
         e.preventDefault();
         setSaving(true);
+        const sanitizedForm = {
+            ...form,
+            siteUrl: (form.siteUrl && !form.siteUrl.includes("localhost") && !form.siteUrl.includes("127.0.0.1"))
+                ? form.siteUrl
+                : "https://comfortseatspk.com/"
+        };
         try {
-            const res = await api.put("/site-content/settings", form);
+            const res = await api.put("/site-content/settings", sanitizedForm);
             if (!res.data?.success) {
                 throw new Error(res.data?.message || "Failed to update site settings.");
             }
             invalidateSiteContentCache();
-            const updated = { ...form };
+            const updated = { ...sanitizedForm };
             writeCache({ data: updated, fetchedAt: Date.now() });
             setSiteContent(updated);
             toast.success("Site settings updated successfully.");

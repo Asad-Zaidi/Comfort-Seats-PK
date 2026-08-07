@@ -18,10 +18,10 @@ import api, { putMultipart } from "../../api/api";
 import { useToast } from "../../components/ToastNotification";
 
 const defaultBanner = {
-    eyebrow: "Trusted",
-    title: "Comfort, Built\nto Last.",
+    eyebrow: "Trusted Since 1995",
+    title: "Comfort, Built to Last.",
     description:
-        "Premium office chairs, gaming chairs, sofas, and complete furniture solutions.",
+        "Premium Office Chairs, Gaming Chairs, Bar Stools & Office Furniture Shop in Lahore.",
     primaryButtonText: "Shop Now",
     primaryButtonLink: "/products",
     secondaryButtonText: "Our Story",
@@ -70,12 +70,12 @@ const AdminHomeScreen = () => {
     const [desktopImageFile, setDesktopImageFile] = useState(null);
     const [desktopImagePreview, setDesktopImagePreview] = useState("");
     const desktopFileInputRef = useRef(null);
-    
+
     // Mobile image state
     const [mobileImageFile, setMobileImageFile] = useState(null);
     const [mobileImagePreview, setMobileImagePreview] = useState("");
     const mobileFileInputRef = useRef(null);
-    
+
 
     // Quote section state
     const [quoteLabel, setQuoteLabel] = useState("Designed For Modern Workspaces");
@@ -97,16 +97,16 @@ const AdminHomeScreen = () => {
                     setBanner(fetchedBanner);
                     setDesktopImagePreview(fetchedBanner.desktopImage || "");
                     setMobileImagePreview(fetchedBanner.mobileImage || "");
-                    
+
                     const fetchedWhyChooseUs = res.data.data?.whyChooseUs;
                     if (Array.isArray(fetchedWhyChooseUs) && fetchedWhyChooseUs.length > 0) {
-                        setWhyChooseUs(fetchedWhyChooseUs.map(({ icon, title, desc }) => ({ 
-                            icon: icon || "", 
-                            title: title || "", 
-                            desc: desc || "" 
+                        setWhyChooseUs(fetchedWhyChooseUs.map(({ icon, title, desc }) => ({
+                            icon: icon || "",
+                            title: title || "",
+                            desc: desc || ""
                         })));
                     }
-                    
+
                     const hours = res.data.data?.businessHours;
                     if (Array.isArray(hours) && hours.length > 0) {
                         setBusinessHours(hours.map(({ label, value }) => ({ label: label || "", value: value || "" })));
@@ -149,7 +149,7 @@ const AdminHomeScreen = () => {
                 setStatus({ type: "error", message: "Image file must be less than 5MB." });
                 return;
             }
-            
+
             setDesktopImageFile(file);
             setDesktopImagePreview(URL.createObjectURL(file));
             setStatus(null);
@@ -168,7 +168,7 @@ const AdminHomeScreen = () => {
                 setStatus({ type: "error", message: "Image file must be less than 5MB." });
                 return;
             }
-            
+
             setMobileImageFile(file);
             setMobileImagePreview(URL.createObjectURL(file));
             setStatus(null);
@@ -220,24 +220,24 @@ const AdminHomeScreen = () => {
 
         try {
             const formData = new FormData();
-            
+
             // Append desktop image file if selected
             if (desktopImageFile) {
                 formData.append("desktopImage", desktopImageFile);
             }
-            
+
             // Append mobile image file if selected
             if (mobileImageFile) {
                 formData.append("mobileImage", mobileImageFile);
             }
-            
+
             // Append all banner fields
             Object.entries(banner).forEach(([key, value]) => {
                 if (typeof value === 'string') {
                     formData.append(key, value);
                 }
             });
-            
+
             const res = await putMultipart("/site-content/home-banner", formData);
             if (res.data?.success) {
                 const updatedData = res.data.data || {};
@@ -261,10 +261,10 @@ const AdminHomeScreen = () => {
         e.preventDefault();
 
         const cleanedValues = whyChooseUs
-            .map((item) => ({ 
-                icon: item.icon.trim(), 
-                title: item.title.trim(), 
-                desc: item.desc.trim() 
+            .map((item) => ({
+                icon: item.icon.trim(),
+                title: item.title.trim(),
+                desc: item.desc.trim()
             }))
             .filter((item) => item.title);
 
@@ -387,11 +387,10 @@ const AdminHomeScreen = () => {
 
             {status && (
                 <div
-                    className={`mb-6 flex items-center gap-2.5 rounded-xl px-4 py-3 text-sm ${
-                        status.type === "success"
+                    className={`mb-6 flex items-center gap-2.5 rounded-xl px-4 py-3 text-sm ${status.type === "success"
                             ? "bg-[#10B981]/10 text-[#10B981]"
                             : "bg-[#E5484D]/10 text-[#E5484D]"
-                    }`}
+                        }`}
                 >
                     {status.type === "success" ? <FiCheckCircle size={16} /> : <FiAlertCircle size={16} />}
                     {status.message}
@@ -487,7 +486,7 @@ const AdminHomeScreen = () => {
                                     <FiMonitor className="text-[#2F6FED]" size={18} />
                                     <h3 className="text-sm font-semibold text-[#12131A]">Desktop Banner</h3>
                                 </div>
-                                
+
                                 <div className="flex items-center gap-3">
                                     <button
                                         type="button"
@@ -545,7 +544,7 @@ const AdminHomeScreen = () => {
                                     <FiSmartphone className="text-[#7C3AED]" size={18} />
                                     <h3 className="text-sm font-semibold text-[#12131A]">Mobile Banner</h3>
                                 </div>
-                                
+
                                 <div className="flex items-center gap-3">
                                     <button
                                         type="button"
@@ -582,7 +581,7 @@ const AdminHomeScreen = () => {
                                         <img
                                             src={mobileImagePreview}
                                             alt="Mobile banner preview"
-                                        className="aspect-[3/4] w-full max-w-[250px] rounded-lg border border-gray-200 object-cover"
+                                            className="aspect-[3/4] w-full max-w-[250px] rounded-lg border border-gray-200 object-cover"
                                             onError={(e) => { e.target.style.display = 'none'; }}
                                         />
                                     </div>
@@ -680,7 +679,7 @@ const AdminHomeScreen = () => {
                                 <FiSmartphone size={14} className="text-[#7C3AED]" />
                                 <span className="text-xs font-semibold uppercase tracking-wide text-[#7C3AED]">Mobile Preview</span>
                             </div>
-                        <div className="mx-auto max-w-[200px]">
+                            <div className="mx-auto max-w-[200px]">
                                 {mobileImagePreview ? (
                                     <img
                                         src={mobileImagePreview}

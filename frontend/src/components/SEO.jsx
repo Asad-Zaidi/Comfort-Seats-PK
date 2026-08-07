@@ -438,11 +438,11 @@ const generateCollectionPageSchema = (products, siteUrl, siteName, category) => 
 
 const SEO = ({
     title,
-    description = `Premium office chairs, gaming chairs, sofas & office furniture in Lahore. Shop ergonomic seating crafted for comfort and durability.`,
+    description = `Premium office Chairs, Gaming Chairs, Stools & Office furniture in Lahore. Shop ergonomic seating crafted for comfort and durability.`,
     canonicalUrl,
     ogImage,
     ogType = "website",
-    keywords = `office chairs, gaming chairs, office furniture, Pakistan, furniture, ergonomic chairs`,
+    keywords = `Office Chairs, Gaming Chairs, Bar Stools, Waiting Chairs, Office Furniture, Lahore, Furniture, Ergonomic Chairs`,
     product,
     breadcrumbs,
     includeOrganization = true,

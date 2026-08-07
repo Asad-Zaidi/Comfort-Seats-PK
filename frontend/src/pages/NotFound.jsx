@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
-import { 
-    FiHome, 
-    FiArrowLeft, 
-    FiShoppingBag, 
-    FiInfo, 
-    FiMail, 
+import {
+    FiHome,
+    FiArrowLeft,
+    FiShoppingBag,
+    FiInfo,
+    FiMail,
 } from "react-icons/fi";
 import SEO from "../components/SEO";
 import { useSiteConfig } from "../utils/siteConfig";
@@ -17,7 +17,7 @@ const NotFound = () => {
         <div className="relative min-h-screen overflow-hidden bg-slate-50/50 flex flex-col justify-between selection:bg-[#2F6FED]/10 selection:text-[#2F6FED]">
             <SEO
                 title={`404 - Page Not Found - ${siteName}`}
-                description={`The page you are looking for does not exist or has been moved. Browse ${siteName} - premium office chairs, gaming chairs & furniture in Lahore.`}
+                description={`The page you are looking for does not exist or has been moved. Browse ${siteName} - Premium Office Chairs, Gaming Chairs, Bar Stools & Office Furniture Shop in Lahore.`}
                 canonicalUrl={`${siteUrl}/404`}
             />
 
@@ -33,11 +33,11 @@ const NotFound = () => {
 
             {/* Main Content Area */}
             <main className="relative z-10 mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
-                
+
                 {/* Glassmorphic Container Card */}
                 <div className="w-full rounded-3xl border border-white/80 bg-white/75 p-8 sm:p-12 md:p-16 shadow-2xl shadow-blue-500/5 backdrop-blur-xl transition-all">
                     <div className="flex flex-col items-center text-center">
-                        
+
                         {/* Status Pill Badge */}
                         <div className="inline-flex items-center gap-2 rounded-full border border-[#2F6FED]/20 bg-[#2F6FED]/5 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#2F6FED]">
                             <span className="relative flex h-2 w-2">
@@ -59,7 +59,7 @@ const NotFound = () => {
                         <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl md:text-4xl">
                             Oops! Page not found
                         </h2>
-                        
+
                         <p className="mt-3 max-w-md text-sm sm:text-base leading-relaxed text-slate-600">
                             The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
                         </p>
@@ -88,7 +88,7 @@ const NotFound = () => {
                             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                                 Need help finding something?
                             </p>
-                            
+
                             <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
                                 <Link
                                     to="/products"
