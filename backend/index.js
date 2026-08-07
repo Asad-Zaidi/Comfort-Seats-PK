@@ -70,7 +70,7 @@ app.use(morgan("dev"));
 connectDB();
 
 app.get("/", (req, res) => {
-    res.json({ message: "Backend is Running Locally" });
+    res.json({ message: "Backend is Running...!!!" });
 });
 
 // Serve the dynamically generated XML sitemap (includes all products)
