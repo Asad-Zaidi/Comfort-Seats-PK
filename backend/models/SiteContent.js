@@ -120,17 +120,17 @@ const SiteContentSchema = new mongoose.Schema({
         title: {
             type: String,
             trim: true,
-            default: 'Comfort, Built\nto Last.'
+            default: 'Comfort, Built to Last.'
         },
         description: {
             type: String,
             trim: true,
-            default: 'Premium office chairs, gaming chairs, sofas, and complete furniture solutions'
+            default: 'Premium Office Chairs, Gaming Chairs, Stools, Chair Accessories, Furniture etc.'
         },
         primaryButtonText: {
             type: String,
             trim: true,
-            default: 'Shop Now'
+            default: 'Explore Our Products'
         },
         primaryButtonLink: {
             type: String,
@@ -165,7 +165,7 @@ const SiteContentSchema = new mongoose.Schema({
         imageAlt: {
             type: String,
             trim: true,
-            default: 'Premium office chair'
+            default: 'Premium Office Chair'
         },
         statValue: {
             type: String,
@@ -180,7 +180,7 @@ const SiteContentSchema = new mongoose.Schema({
         keywords: {
             type: String,
             trim: true,
-            default: 'office chairs, gaming chairs, office furniture, Pakistan, furniture, ergonomic chairs'
+            default: 'office chairs, gaming chairs, stools, chair accessories, furniture, Pakistan, Ergonomic Chairs'
         }
     },
     categories: {
@@ -253,7 +253,7 @@ const SiteContentSchema = new mongoose.Schema({
         heroImageAlt: {
             type: String,
             trim: true,
-            default: 'Comfort Seats PK - Modern office chair and furniture manufacturer in Lahore, Pakistan'
+            default: 'Comfort Seats PK - Modern Office Chair and Furniture Manufacturer in Lahore, Pakistan'
         },
         stats: {
             type: [AboutStatSchema],
