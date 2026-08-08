@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import api from "../api/api";
 
 const AnnouncementBar = () => {
+    const location = useLocation();
     const [announcement, setAnnouncement] = useState(null);
     const [dismissed, setDismissed] = useState(false);
 
@@ -17,6 +18,8 @@ const AnnouncementBar = () => {
     }, []);
 
     useEffect(() => {
+        if (location.pathname.startsWith("/admin")) return;
+
         const fetchAnnouncement = async () => {
             try {
                 const res = await api.get("/announcement");
@@ -28,8 +31,10 @@ const AnnouncementBar = () => {
             }
         };
         fetchAnnouncement();
-    }, []);
+    }, [location.pathname]);
 
+    // Hide announcement bar completely on any admin route or if disabled/dismissed
+    if (location.pathname.startsWith("/admin")) return null;
     if (!announcement || !announcement.enabled || dismissed) return null;
 
     const handleDismiss = () => {

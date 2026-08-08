@@ -38,6 +38,7 @@ const quickLinks = [
     { label: "About Us", to: "/about" },
     { label: "Contact", to: "/contact" },
     { label: "Customize", to: "/customization" },
+    { label: "Blog", to: "/blog" },
 ];
 
 const policyLinks = [

@@ -709,6 +709,7 @@ const buildStatusUpdateCustomerEmailHtml = (order, newStatus) => {
   const p = order.product || {};
   const c = order.customer || {};
   const s = order.shipping || {};
+  const items = getOrderItems(order);
   const colorText = p.color
     ? (isHexColor(p.color) ? getColorName(p.color) : p.color)
     : 'N/A';

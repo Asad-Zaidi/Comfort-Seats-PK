@@ -12,6 +12,8 @@ import Cart from "../pages/Cart";
 import FavoriteProduct from "../pages/FavoriteProduct";
 import Checkout from "../pages/Checkout";
 import NotFound from "../pages/NotFound";
+import Blog from "../pages/Blog";
+import BlogDetail from "../pages/BlogDetail";
 
 const AppRoutes = () => {
     return (
@@ -34,6 +36,8 @@ const AppRoutes = () => {
             <Route path="/favourites" element={<Navigate to="/favorites" replace />} />
             <Route path="/wishlist" element={<Navigate to="/favorites" replace />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogDetail />} />
 
             {/* Admin Login */}
             <Route path="/admin/login" element={<AdminLogin />} />

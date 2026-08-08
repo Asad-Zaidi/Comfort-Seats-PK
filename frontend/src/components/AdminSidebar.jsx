@@ -23,6 +23,7 @@ import {
     FiStar,
     FiMessageSquare,
 } from "react-icons/fi";
+import { FaBlog } from "react-icons/fa6";
 
 const AdminSidebar = ({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, onChangePassword }) => {
     const toast = useToast();
@@ -102,6 +103,11 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, on
             name: "Checkout",
             path: "/admin/checkout",
             icon: <FiCreditCard />,
+        },
+        {
+            name: "Blog",
+            path: "/admin/blogs",
+            icon: <FaBlog />,
         },
     ];
 

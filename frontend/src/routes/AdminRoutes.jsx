@@ -17,6 +17,7 @@ import AdminColor from "../pages/admin/AdminColor";
 import AdminCheckout from "../pages/admin/AdminCheckout";
 import AdminReviews from "../pages/admin/AdminReviews";
 import AdminMessages from "../pages/admin/AdminMessages";
+import AdminBlog from "../pages/admin/AdminBlog";
 
 const AdminRoutes = () => {
     const isAuthenticated = typeof window !== "undefined" && !!localStorage.getItem("adminToken");
@@ -40,6 +41,7 @@ const AdminRoutes = () => {
                 <Route path="policies" element={<AdminPolicies />} />
                 <Route path="colors" element={<AdminColor />} />
                 <Route path="checkout" element={<AdminCheckout />} />
+                <Route path="blogs" element={<AdminBlog />} />
 
                 {/* Default Route */}
                 <Route index element={<Navigate to="dashboard" replace />} />

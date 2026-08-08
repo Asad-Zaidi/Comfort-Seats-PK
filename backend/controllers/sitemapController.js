@@ -1,5 +1,6 @@
 const Product = require("../models/Product");
 const SiteContent = require("../models/SiteContent");
+const Blog = require("../models/Blog");
 
 // Build the absolute base URL from the incoming request so the sitemap
 // works correctly regardless of the deployed domain/protocol.
@@ -97,6 +98,18 @@ const generateSitemap = async (req, res) => {
                     );
                 }
             }
+        });
+
+        // Dynamic blog post pages
+        const blogs = await Blog.find({ isPublished: true }, "slug updatedAt createdAt").lean();
+        blogs.forEach((blog) => {
+            if (!blog.slug) return;
+            const lastmod = (blog.updatedAt || blog.createdAt || new Date())
+                .toISOString()
+                .split("T")[0];
+            urls.push(
+                buildUrlEntry(baseUrl + "/blog/" + blog.slug, lastmod, "weekly", "0.7")
+            );
         });
 
         const xml =

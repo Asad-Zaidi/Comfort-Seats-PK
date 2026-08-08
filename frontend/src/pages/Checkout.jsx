@@ -85,8 +85,10 @@ const Checkout = () => {
             return cartItems;
         }
         if (product) {
+            const rawId = product._id || product.productId || (product.id && product.id !== '1' ? product.id : undefined);
             return [{
-                id: product._id || product.id || '1',
+                id: rawId || `${product.name || 'product'}_checkout_item`,
+                productId: rawId || undefined,
                 product,
                 name: product.name,
                 image: product.imageUrl || product.image || (Array.isArray(product.images) && product.images[0]?.url) || (Array.isArray(product.images) && product.images[0]) || '',

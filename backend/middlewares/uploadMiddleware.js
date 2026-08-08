@@ -64,6 +64,12 @@ exports.uploadProductImages = upload.fields([
     { name: 'standImages_4', maxCount: 6 },
 ]);
 
+// Middleware to handle blog creation/update with thumbnail and banner images
+exports.uploadBlogImages = upload.fields([
+    { name: 'thumbnail', maxCount: 1 },
+    { name: 'banner', maxCount: 1 },
+]);
+
 // Generic upload.any() for backward compatibility
 exports.uploadAny = upload.any();
 

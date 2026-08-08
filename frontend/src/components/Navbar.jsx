@@ -37,6 +37,7 @@ const Navbar = () => {
         { name: "Contact Us", path: "/contact" },
         { name: "Customize", path: "/customization" },
         { name: "Policies", path: "/policy" },
+        { name: "Blog", path: "/blog" },
     ];
 
     // Fetch categories from API
@@ -277,6 +278,17 @@ const Navbar = () => {
                             className="px-2.5 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-xs xl:text-sm font-semibold transition-all duration-300 hover:bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] hover:text-[var(--primary)] whitespace-nowrap"
                         >
                             Customize
+                        </NavLink>
+
+                        <NavLink
+                            to="/blog"
+                            style={({ isActive }) => ({
+                                backgroundColor: isActive ? 'var(--header-active-link, var(--primary))' : undefined,
+                                color: isActive ? '#ffffff' : 'var(--header-text)',
+                            })}
+                            className="px-2.5 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-xs xl:text-sm font-semibold transition-all duration-300 hover:bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] hover:text-[var(--primary)] whitespace-nowrap"
+                        >
+                            Blog
                         </NavLink>
 
                         {/* Policies with Dropdown */}

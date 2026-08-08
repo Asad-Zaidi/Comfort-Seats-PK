@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const { sendOrderConfirmationEmail, sendCustomerOrderEmail, sendOrderStatusUpdateEmails } = require('../services/emailService');
@@ -5,6 +6,19 @@ const cloudinary = require('../utils/cloudinary');
 const fs = require('fs');
 const { cleanupTempFile } = require('../middlewares/uploadMiddleware');
 const streamifier = require('streamifier');
+
+// Helper: validate and return a valid MongoDB ObjectId or null
+const toValidObjectId = (val) => {
+    if (!val) return null;
+    const str = String(val).trim();
+    if (/^[0-9a-fA-F]{24}$/.test(str)) {
+        return new mongoose.Types.ObjectId(str);
+    }
+    if (val instanceof mongoose.Types.ObjectId) {
+        return val;
+    }
+    return null;
+};
 
 // Helper: upload a buffer to Cloudinary using a stream (for memory storage multer)
 const uploadBufferToCloudinary = (buffer, folder) => {
@@ -39,7 +53,8 @@ const createOrder = async (req, res) => {
         let orderItems = [];
         if (Array.isArray(items) && items.length > 0) {
             orderItems = items.map((item) => {
-                const pId = item.productId || item.product?._id || item.product?.id || item._id || item.id || null;
+                const rawId = item.productId || item.product?._id || item.product?.id || item._id || item.id || null;
+                const pId = toValidObjectId(rawId);
                 return {
                     productId: pId,
                     name: item.name || item.product?.name || 'Product',
@@ -57,10 +72,11 @@ const createOrder = async (req, res) => {
             });
         } else if (product && product.name) {
             let productSlug = (product.slug || '').trim();
-            const targetProductId = product.productId || product._id;
+            const rawId = product.productId || product._id || product.id || null;
+            const targetProductId = toValidObjectId(rawId);
 
             orderItems = [{
-                productId: targetProductId || null,
+                productId: targetProductId,
                 name: product.name,
                 price: Number(product.price) || 0,
                 imageUrl: product.imageUrl || product.image || '',
@@ -82,7 +98,7 @@ const createOrder = async (req, res) => {
         // Primary product for legacy compatibility
         const firstItem = orderItems[0];
         const primaryProduct = {
-            productId: firstItem.productId,
+            productId: firstItem.productId || null,
             name: orderItems.length > 1 ? `${orderItems.length} Items Order (${firstItem.name} + more)` : firstItem.name,
             price: firstItem.price,
             imageUrl: firstItem.imageUrl,
@@ -120,9 +136,9 @@ const createOrder = async (req, res) => {
             status: 'pending',
         });
 
-        // Increment buyCount for all products in the order
+        // Increment buyCount for all products in the order with valid ObjectId
         orderItems.forEach((item) => {
-            if (item.productId) {
+            if (item.productId && mongoose.isValidObjectId(item.productId)) {
                 Product.findByIdAndUpdate(item.productId, { $inc: { buyCount: item.quantity } }).catch((err) =>
                     console.error('[orderController] Failed to increment buyCount:', err)
                 );

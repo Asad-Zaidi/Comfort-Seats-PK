@@ -223,7 +223,8 @@ const OrderModal = ({
         if (Array.isArray(items) && items.length > 0) {
             return items.map((item) => {
                 const pObj = item.product || {};
-                const pId = item.productId || pObj._id || pObj.id || item._id || item.id || null;
+                const rawId = item.productId || pObj._id || pObj.id || item._id || item.id || null;
+                const pId = (rawId && rawId !== '1') ? rawId : (pObj._id || item._id || null);
                 const pName = item.name || pObj.name || 'Product';
                 const pPrice = Number(item.price) || Number(pObj.price) || 0;
                 const pImg = item.image || item.imageUrl || pObj.imageUrl || pObj.image || (Array.isArray(pObj.images) && (pObj.images[0]?.url || pObj.images[0])) || '';
@@ -249,8 +250,10 @@ const OrderModal = ({
             });
         }
         if (product) {
+            const rawId = product?.productId || product?._id || product?.id || null;
+            const pId = (rawId && rawId !== '1') ? rawId : (product?._id || null);
             return [{
-                productId: product?.productId || product?._id || product?.id || null,
+                productId: pId,
                 name: product?.name || "Product",
                 price: Number(displayPrice) || Number(product?.price) || 0,
                 imageUrl: product?.imageUrl || product?.image || "",

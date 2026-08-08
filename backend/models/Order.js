@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const OrderItemSchema = new mongoose.Schema({
-    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', default: null },
     name: { type: String, required: true },
     price: { type: Number, required: true },
     imageUrl: { type: String, default: '' },
@@ -21,7 +21,7 @@ const OrderSchema = new mongoose.Schema({
     
     // Legacy single product field preserved for backward compatibility
     product: {
-        productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+        productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', default: null },
         name: { type: String },
         price: { type: Number },
         imageUrl: { type: String },

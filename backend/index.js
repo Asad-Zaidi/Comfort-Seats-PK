@@ -14,6 +14,7 @@ const paymentSettingsRoutes = require("./routes/paymentmethodRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const customizationRoutes = require("./routes/customizationRoutes");
 const announcementRoutes = require("./routes/announcementRoutes");
+const blogRoutes = require("./routes/blogRoutes");
 const sitemapRoutes = require("./routes/sitemapRoutes");
 const themeRoutes = require("./routes/themeRoutes");
 const analyticsRoutes = require("./analytics/routes/analyticsRoutes");
@@ -90,6 +91,7 @@ app.use("/api/payment-settings", paymentSettingsRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/customizations", customizationRoutes);
 app.use("/api/announcement", announcementRoutes);
+app.use("/api/blogs", blogRoutes);
 app.use("/api/themes", themeRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
