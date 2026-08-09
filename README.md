@@ -1,4 +1,4 @@
-# 🛋️ ComfortSeatsPK — Luxury Car Seat Covers & Custom Upholstery Platform
+# 🛋️ ComfortSeatsPK — Luxury and Comfortable Chairs 
 
 ![NodeJS](https://img.shields.io/badge/Node.js-v18%2B-339933?style=for-the-badge&logo=node.js&logoColor=white)
 ![React](https://img.shields.io/badge/React-v19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)
