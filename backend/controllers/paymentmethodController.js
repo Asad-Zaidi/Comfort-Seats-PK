@@ -36,6 +36,8 @@ const buildPaymentSettingsResponse = (settings) => {
 
     return {
         instructions: settings?.instructions || "",
+        codOnlinePaymentEnabled: settings?.codOnlinePaymentEnabled === true,
+        codOnlinePaymentAmount: Number(settings?.codOnlinePaymentAmount) || 0,
         defaultPaymentMethod: settings?.defaultPaymentMethod || "cod",
         // Legacy fields for backward compatibility
         bankTransfer: {
@@ -225,6 +227,30 @@ exports.updateInstructions = async (req, res) => {
             success: false,
             message: "Server Error"
         });
+    }
+};
+
+exports.updateCodOnlinePayment = async (req, res) => {
+    try {
+        const settings = await PaymentSettings.getSingleton();
+        const amount = Number(req.body.codOnlinePaymentAmount);
+
+        if (!Number.isFinite(amount) || amount < 0) {
+            return res.status(400).json({ success: false, message: "A valid non-negative online payment amount is required." });
+        }
+
+        settings.codOnlinePaymentEnabled = req.body.codOnlinePaymentEnabled === true;
+        settings.codOnlinePaymentAmount = amount;
+        await settings.save();
+
+        res.json({
+            success: true,
+            message: "COD online payment settings updated successfully.",
+            data: buildPaymentSettingsResponse(settings)
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: "Server Error" });
     }
 };
 

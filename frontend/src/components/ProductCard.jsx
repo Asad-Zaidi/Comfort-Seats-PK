@@ -5,6 +5,7 @@ import { useState } from "react";
 import { calculateTotalPrice, formatPrice } from "../utils/priceCalculator";
 import { stripHtml } from "../utils/sanitizeHtml";
 import { useShop } from "../context/ShopContext";
+import { useToast } from "./ToastNotification";
 
 const ProductCard = ({
     image,
@@ -22,6 +23,7 @@ const ProductCard = ({
     const [isHovered, setIsHovered] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
     const { toggleWishlist, isInWishlist } = useShop();
+    const toast = useToast();
 
     const targetProduct = product || { _id: name, name, price, image };
     const productId = targetProduct._id || targetProduct.id || name;
@@ -39,12 +41,17 @@ const ProductCard = ({
     const pricing = calculateTotalPrice(product || { price }, null, null, true);
     const displayPrice = pricing.total;
     const actualPrice = pricing.actualTotal;
-    const showDiscount = pricing.isDiscountEnabled && pricing.discountPercentage > 0;
-
     const numReviews = Number(reviews) || 0;
     const numericRating = Number(rating) || 0;
+    const formattedRating = numericRating.toFixed(1);
     const hasReviews = numReviews > 0 && numericRating > 0;
     const roundedRating = hasReviews ? Math.round(numericRating) : 0;
+    const isSoldOut = product?.soldOut === true || (
+        Array.isArray(product?.colors) && product.colors.length > 0
+            ? product.colors.every(color => color.inStock === false || Number(color.stock) <= 0)
+            : product?.inStock === false || Number(product?.stock) <= 0
+    );
+    const showDiscount = !isSoldOut && pricing.isDiscountEnabled && pricing.discountPercentage > 0;
 
     return (
         <Link
@@ -76,17 +83,17 @@ const ProductCard = ({
                 )}
                 {/* Product Badges - Top Right (stacked vertically, auto-fit to text length) */}
                 <div className="absolute right-3 top-3 z-10 flex flex-col items-end gap-1.5 max-w-[45%] pointer-events-none">
-                    {product?.isNewArrival && (
+                    {!isSoldOut && product?.isNewArrival && (
                         <span className="inline-flex items-center w-auto rounded-full px-3 py-1 text-xs font-bold text-white shadow-sm whitespace-nowrap" style={{ backgroundColor: 'var(--success)' }}>
                             New
                         </span>
                     )}
-                    {product?.isBestSeller && (
+                    {!isSoldOut && product?.isBestSeller && (
                         <span className="inline-flex items-center w-auto rounded-full px-3 py-1 text-xs font-bold text-white shadow-sm whitespace-nowrap" style={{ backgroundColor: 'var(--secondary)' }}>
                             Best Seller
                         </span>
                     )}
-                    {product?.isFeatured && (
+                    {!isSoldOut && product?.isFeatured && (
                         <span className="inline-flex items-center w-auto rounded-full bg-purple-600 px-3 py-1 text-xs font-bold text-white shadow-sm whitespace-nowrap">
                             Featured
                         </span>
@@ -108,6 +115,11 @@ const ProductCard = ({
                     animate={{ opacity: imageLoaded ? 1 : 0 }}
                     transition={{ duration: 0.4 }}
                 />
+                {isSoldOut && (
+                    <span className="absolute left-3 bottom-3 z-10 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-sm" style={{ backgroundColor: 'var(--error, #E5484D)' }}>
+                        Sold Out
+                    </span>
+                )}
                 {/* Wishlist Floating Button */}
                 <button
                     onClick={handleHeartClick}
@@ -170,7 +182,7 @@ const ProductCard = ({
                         ))}
                     </div>
                     <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
-                        {numericRating}
+                        {formattedRating}
                     </span>
                     <span className="text-sm" style={{ color: 'var(--text-light)' }}>
                         ({numReviews})
@@ -181,7 +193,13 @@ const ProductCard = ({
                 <div className="mt-auto pt-6">
                     <motion.span
                         whileTap={{ scale: 0.97 }}
-                        className="block w-full py-3 rounded-xl text-center font-semibold tracking-wide transition-all duration-300"
+                        title={isSoldOut ? (product?.soldOut === true ? "Sold Out" : "Out of Stock") : undefined}
+                        onClick={isSoldOut ? (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toast.error(product?.soldOut === true ? "Sold Out" : "Out of Stock");
+                        } : undefined}
+                        className={`block w-full py-3 rounded-xl text-center font-semibold tracking-wide transition-all duration-300 ${isSoldOut ? 'pointer-events-auto cursor-not-allowed opacity-60' : ''}`}
                         style={{
                             backgroundColor: isCustomizable ? 'var(--btn-success-bg, #10B981)' : 'var(--btn-primary-bg, var(--primary))',
                             color: isCustomizable ? 'var(--btn-success-text, #fff)' : 'var(--btn-primary-text, #fff)',

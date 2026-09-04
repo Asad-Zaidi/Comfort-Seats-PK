@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FiTrash2, FiMinus, FiPlus, FiShoppingBag, FiArrowRight } from "react-icons/fi";
-import { useShop, resolveProductImage, resolveColorName } from "../context/ShopContext";
+import { useShop, resolveProductImage, resolveColorName, isProductUnavailable } from "../context/ShopContext";
 import { formatPrice } from "../utils/priceCalculator";
 import { isHexColor } from "../utils/ColorName";
 import { useToast } from "../components/ToastNotification";
@@ -64,6 +64,10 @@ const Cart = () => {
             if (toast && typeof toast.error === "function") {
                 toast.error("Please select at least one item for checkout.");
             }
+            return;
+        }
+        if (selectedCartItems.some(item => isProductUnavailable(item.product, item.selectedColor))) {
+            toast.error("One or more selected products are currently sold out.");
             return;
         }
         // Pass ONLY selected cart items to checkout

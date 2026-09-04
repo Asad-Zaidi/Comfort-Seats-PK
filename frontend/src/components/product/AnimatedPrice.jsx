@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { prefersReducedMotion } from '../../components/animations/AnimationConfigs';
 import { formatPrice } from '../../utils/priceCalculator';
 
-const AnimatedPrice = ({ price, oldPrice, discountBadge, inStock, stockCount, className = "" }) => {
+const AnimatedPrice = ({ price, oldPrice, discountBadge, showDiscountBadge = true, inStock, stockCount, className = "" }) => {
     const shouldAnimate = !prefersReducedMotion();
     
     const showDiscount = oldPrice && oldPrice > price;
@@ -54,13 +54,15 @@ const AnimatedPrice = ({ price, oldPrice, discountBadge, inStock, stockCount, cl
                     >
                         Rs. {formatPrice(oldPrice)}
                     </motion.span>
-                    <motion.span
-                        variants={itemVariants}
-                        style={{ backgroundColor: 'var(--error)', color: '#ffffff' }}
-                        className="rounded-full px-3 py-1 text-xs font-bold"
-                    >
-                        {discountPercentage}% OFF
-                    </motion.span>
+                    {showDiscountBadge && (
+                        <motion.span
+                            variants={itemVariants}
+                            style={{ backgroundColor: 'var(--error)', color: '#ffffff' }}
+                            className="rounded-full px-3 py-1 text-xs font-bold"
+                        >
+                            {discountPercentage}% OFF
+                        </motion.span>
+                    )}
                 </>
             ) : (
                 <motion.span

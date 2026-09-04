@@ -422,6 +422,11 @@ const SiteContentSchema = new mongoose.Schema({
         fastDeliveryCharge: {
             type: Number,
             default: 200
+        },
+        codOnlinePaymentMessage: {
+            type: String,
+            trim: true,
+            default: 'You have to pay Rs. {amount} online in advance for Cash on Delivery.'
         }
     }
 });

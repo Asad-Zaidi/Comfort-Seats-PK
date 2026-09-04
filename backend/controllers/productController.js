@@ -154,6 +154,7 @@ exports.createProduct = async (req, res) => {
             size, price, standTypes, isCustomizable,
             actualPrice, discountPrice, isDiscountEnabled,
             brand, sku, lowStockWarning, isFeatured, isNewArrival, isBestSeller,
+            soldOut,
             status, publishDate, metaOgTitle, metaOgDescription, metaOgImage,
             twitterTitle, twitterDescription, twitterImage, canonicalUrl,
             shippingWeight, shippingDimensions
@@ -287,6 +288,7 @@ exports.createProduct = async (req, res) => {
             isFeatured: isFeatured === true || isFeatured === 'true',
             isNewArrival: isNewArrival === true || isNewArrival === 'true',
             isBestSeller: isBestSeller === true || isBestSeller === 'true',
+            soldOut: soldOut === true || soldOut === 'true',
             status: status || 'Active',
             publishDate: publishDate ? new Date(publishDate) : undefined,
             metaOgTitle: metaOgTitle || '',
@@ -353,6 +355,9 @@ exports.updateProduct = async (req, res) => {
         }
         if (req.body.isBestSeller !== undefined) {
             product.isBestSeller = req.body.isBestSeller === true || req.body.isBestSeller === 'true';
+        }
+        if (req.body.soldOut !== undefined) {
+            product.soldOut = req.body.soldOut === true || req.body.soldOut === 'true';
         }
         if (req.body.lowStockWarning !== undefined) {
             product.lowStockWarning = Number(req.body.lowStockWarning || 5);

@@ -724,13 +724,18 @@ exports.updateColors = async (req, res) => {
 // @access  Private/Admin
 exports.updateDelivery = async (req, res) => {
     try {
-        const { fastDeliveryCharge } = req.body;
+        const { fastDeliveryCharge, codOnlinePaymentMessage } = req.body;
 
         const siteContent = await SiteContent.getSingleton();
 
         if (fastDeliveryCharge !== undefined) {
             const parsed = Number(fastDeliveryCharge);
             siteContent.delivery.fastDeliveryCharge = isNaN(parsed) || parsed < 0 ? 0 : parsed;
+        }
+        if (codOnlinePaymentMessage !== undefined) {
+            siteContent.delivery.codOnlinePaymentMessage = typeof codOnlinePaymentMessage === 'string'
+                ? codOnlinePaymentMessage.trim()
+                : '';
         }
 
         await siteContent.save();
@@ -739,7 +744,8 @@ exports.updateDelivery = async (req, res) => {
             success: true,
             message: 'Delivery settings updated successfully.',
             data: {
-                fastDeliveryCharge: siteContent.delivery.fastDeliveryCharge
+                fastDeliveryCharge: siteContent.delivery.fastDeliveryCharge,
+                codOnlinePaymentMessage: siteContent.delivery.codOnlinePaymentMessage
             }
         });
     } catch (error) {

@@ -67,6 +67,20 @@ const StepNavigation = ({
                         </div>
                     )}
 
+                    {isEdit && !isLastStep && (
+                        <div className="flex items-center">
+                            <button
+                                type="button"
+                                onClick={onSubmit}
+                                disabled={isSubmitting}
+                                className="flex items-center justify-center gap-2 rounded-xl border border-[#2F6FED] bg-white px-5 py-2.5 text-sm font-semibold text-[#2F6FED] shadow-sm transition hover:bg-blue-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                <FiSave size={16} />
+                                <span>Save Changes</span>
+                            </button>
+                        </div>
+                    )}
+
                     {!isLastStep ? (
                         <div className="flex items-center">
                             <button

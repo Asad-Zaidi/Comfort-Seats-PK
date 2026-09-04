@@ -8,6 +8,16 @@ const ShopContext = createContext();
 const CART_STORAGE_KEY = "comfort_seats_cart_session";
 const WISHLIST_STORAGE_KEY = "comfort_seats_wishlist_session";
 
+export const isProductUnavailable = (product, selectedColor) => {
+    if (!product) return true;
+    if (product.soldOut === true) return true;
+    const color = selectedColor && Array.isArray(product.colors)
+        ? product.colors.find(c => c.hex === selectedColor || c.name === selectedColor)
+        : null;
+    if (color) return color.inStock === false || Number(color.stock) <= 0;
+    return product.inStock === false || Number(product.stock) <= 0;
+};
+
 // Helper to resolve the best image URL for a product item
 export const resolveProductImage = (product, selectedColor, selectedStandType) => {
     if (!product) return '';
@@ -108,6 +118,10 @@ export const ShopProvider = ({ children }) => {
     const addToCart = (productData) => {
         const { product, quantity = 1, selectedColor, selectedSize, selectedStandType, price, priceCalculation } = productData;
         if (!product) return;
+        if (isProductUnavailable(product, selectedColor)) {
+            toast.error("This product is currently sold out.");
+            return;
+        }
 
         const colorKey = selectedColor || 'default';
         const sizeKey = selectedSize || 'default';

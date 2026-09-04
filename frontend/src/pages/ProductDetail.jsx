@@ -226,10 +226,11 @@ const ProductDetail = () => {
     // Check if selected color is in stock
     const isColorInStock = useMemo(() => {
         if (!product) return false;
+        if (product.soldOut === true) return false;
         if (selectedColorVariant?.inStock !== undefined) {
-            return selectedColorVariant.inStock;
+            return selectedColorVariant.inStock && Number(selectedColorVariant.stock) > 0;
         }
-        return product.inStock;
+        return product.inStock && Number(product.stock) > 0;
     }, [product, selectedColorVariant]);
 
     // Compute the index of the cover image in galleryImages
@@ -346,6 +347,10 @@ const ProductDetail = () => {
         : `${normalizedSiteUrl}/products`;
 
     const handleAddToCart = () => {
+        if (!isColorInStock) {
+            toast.error("This product is currently sold out.");
+            return;
+        }
         if (productColorOptions.length > 0 && !selectedColor) {
             toast.error("Please select a color variant first.");
             return;
@@ -363,6 +368,10 @@ const ProductDetail = () => {
     };
 
     const handleBuyNow = () => {
+        if (!isColorInStock) {
+            toast.error("This product is currently sold out.");
+            return;
+        }
         if (productColorOptions.length > 0 && !selectedColor) {
             toast.error("Please select a color variant first.");
             return;
@@ -394,6 +403,10 @@ const ProductDetail = () => {
 
 
     const handleCustomizeNow = useCallback(() => {
+        if (!isColorInStock) {
+            toast.error("This product is currently sold out.");
+            return;
+        }
         if (productColorOptions.length > 0 && !selectedColor) {
             toast.error("Please select a color variant first.");
             return;
@@ -426,7 +439,7 @@ const ProductDetail = () => {
             }
             window.open(waUrl, '_blank', 'noopener,noreferrer');
         }
-    }, [productColorOptions.length, product, selectedColorVariant, selectedColor, selectedStandType, quantity, displayPrice, productUrl, siteName, contactWhatsapp, toast]);
+    }, [productColorOptions.length, product, selectedColorVariant, selectedColor, selectedStandType, quantity, displayPrice, productUrl, siteName, contactWhatsapp, toast, isColorInStock]);
 
     const handleOrderOnWhatsapp = useCallback(() => {
         if (productColorOptions.length > 0 && !selectedColor) {
@@ -508,6 +521,8 @@ const ProductDetail = () => {
     const metaDesc = (product.metaDescription || description).substring(0, 160);
 
     const showDiscount = priceCalculation.isDiscountEnabled && priceCalculation.discountPercentage > 0;
+    const isSoldOut = product.soldOut === true || !isColorInStock;
+    const unavailableStatus = isSoldOut && product.soldOut === true ? "Sold Out" : "Out of Stock";
     const discountedTotal = priceCalculation.total;
     const actualTotal = priceCalculation.actualTotal;
 
@@ -555,17 +570,22 @@ const ProductDetail = () => {
                                             {category}
                                         </span>
                                     )}
-                                    {product.isNewArrival && (
+                                    {isSoldOut && (
+                                        <span className="inline-block rounded-full px-3.5 py-1.5 text-xs font-bold text-white" style={{ backgroundColor: 'var(--error, #E5484D)' }}>
+                                            Sold Out
+                                        </span>
+                                    )}
+                                    {!isSoldOut && product.isNewArrival && (
                                         <span className="inline-block rounded-full bg-emerald-500 px-3.5 py-1.5 text-xs font-bold text-white">
                                             New
                                         </span>
                                     )}
-                                    {product.isBestSeller && (
+                                    {!isSoldOut && product.isBestSeller && (
                                         <span className="inline-block rounded-full bg-amber-500 px-3.5 py-1.5 text-xs font-bold text-white">
                                             Best Seller
                                         </span>
                                     )}
-                                    {product.isFeatured && (
+                                    {!isSoldOut && product.isFeatured && (
                                         <span className="inline-block rounded-full bg-purple-600 px-3.5 py-1.5 text-xs font-bold text-white">
                                             Featured
                                         </span>
@@ -601,6 +621,7 @@ const ProductDetail = () => {
                                     <AnimatedPrice
                                         price={discountedTotal}
                                         oldPrice={showDiscount ? actualTotal : null}
+                                        showDiscountBadge={!isSoldOut}
                                         inStock={isColorInStock}
                                         stockCount={displayStock}
                                     />
@@ -769,43 +790,67 @@ const ProductDetail = () => {
 
                                     {/* Action Buttons Row */}
                                     <div className="flex flex-col gap-3 sm:flex-row flex-wrap">
-                                        <AnimatedActionButton
-                                            onClick={handleAddToCart}
-                                            disabled={!isColorInStock}
-                                            variant="outline"
+                                        <div
                                             className="flex-1"
+                                            title={!isColorInStock ? unavailableStatus : undefined}
+                                            onClick={!isColorInStock ? () => toast.error(unavailableStatus) : undefined}
                                         >
-                                            <FaShoppingCart size={16} />
-                                            {isColorInStock ? "Add to Cart" : "Out of Stock"}
-                                        </AnimatedActionButton>
+                                            <AnimatedActionButton
+                                                onClick={handleAddToCart}
+                                                disabled={!isColorInStock}
+                                                variant="outline"
+                                                className="w-full"
+                                            >
+                                                <FaShoppingCart size={16} />
+                                                Add to Cart
+                                            </AnimatedActionButton>
+                                        </div>
                                         {product.isCustomizable ? (
-                                            <AnimatedActionButton
-                                                onClick={handleCustomizeNow}
-                                                disabled={!isColorInStock}
-                                                variant="secondary"
+                                            <div
                                                 className="flex-1"
+                                                title={!isColorInStock ? unavailableStatus : undefined}
+                                                onClick={!isColorInStock ? () => toast.error(unavailableStatus) : undefined}
                                             >
-                                                {isColorInStock ? "Customize Now" : "Out of Stock"}
-                                            </AnimatedActionButton>
+                                                <AnimatedActionButton
+                                                    onClick={handleCustomizeNow}
+                                                    disabled={!isColorInStock}
+                                                    variant="secondary"
+                                                    className="w-full"
+                                                >
+                                                    Customize Now
+                                                </AnimatedActionButton>
+                                            </div>
                                         ) : (
-                                            <AnimatedActionButton
-                                                onClick={handleBuyNow}
-                                                disabled={!isColorInStock}
-                                                variant="primary"
+                                            <div
                                                 className="flex-1"
+                                                title={!isColorInStock ? unavailableStatus : undefined}
+                                                onClick={!isColorInStock ? () => toast.error(unavailableStatus) : undefined}
                                             >
-                                                {isColorInStock ? "Buy Now" : "Out of Stock"}
-                                            </AnimatedActionButton>
+                                                <AnimatedActionButton
+                                                    onClick={handleBuyNow}
+                                                    disabled={!isColorInStock}
+                                                    variant="primary"
+                                                    className="w-full"
+                                                >
+                                                    Buy Now
+                                                </AnimatedActionButton>
+                                            </div>
                                         )}
-                                        <AnimatedActionButton
-                                            onClick={handleOrderOnWhatsapp}
-                                            disabled={!isColorInStock}
-                                            style={{ backgroundColor: '#25D366', color: '#ffffff' }}
+                                        <div
                                             className="flex-1"
+                                            title={!isColorInStock ? unavailableStatus : undefined}
+                                            onClick={!isColorInStock ? () => toast.error(unavailableStatus) : undefined}
                                         >
-                                            <FaWhatsapp size={18} />
-                                            Order on WhatsApp
-                                        </AnimatedActionButton>
+                                            <AnimatedActionButton
+                                                onClick={handleOrderOnWhatsapp}
+                                                disabled={!isColorInStock}
+                                                style={{ backgroundColor: '#25D366', color: '#ffffff' }}
+                                                className="w-full"
+                                            >
+                                                <FaWhatsapp size={18} />
+                                                Order on WhatsApp
+                                            </AnimatedActionButton>
+                                        </div>
                                     </div>
                                 </div>
                             </FadeInUp>

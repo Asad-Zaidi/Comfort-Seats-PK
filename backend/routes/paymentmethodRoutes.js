@@ -4,6 +4,7 @@ const router = express.Router();
 const {
     getPaymentSettings,
     updateInstructions,
+    updateCodOnlinePayment,
     updateDefaultPaymentMethod,
     addPaymentMethod,
     updatePaymentMethod,
@@ -20,6 +21,7 @@ router.get("/", getPaymentSettings);
 
 // Admin
 router.put("/instructions", protect, admin(), updateInstructions);
+router.put("/cod-online-payment", protect, admin(), updateCodOnlinePayment);
 router.put("/default-method", protect, admin(), updateDefaultPaymentMethod);
 
 router.post("/methods", protect, admin(), addPaymentMethod);

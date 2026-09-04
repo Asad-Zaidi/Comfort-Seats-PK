@@ -104,6 +104,17 @@ const PaymentSettingsSchema = new mongoose.Schema({
         trim: true
     },
 
+    codOnlinePaymentEnabled: {
+        type: Boolean,
+        default: false
+    },
+
+    codOnlinePaymentAmount: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+
     defaultPaymentMethod: {
         type: String,
         default: "cod"

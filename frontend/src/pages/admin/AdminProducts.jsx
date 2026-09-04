@@ -45,7 +45,7 @@ const AdminProducts = () => {
                         category: Array.isArray(p.category) ? (p.category[0] || '') : p.category,
                         price: p.price ? `Rs. ${p.price}` : 'Rs. 0',
                         stock: p.stock || 0,
-                        status: p.inStock ? 'Available' : 'Out of Stock',
+                        status: p.soldOut ? 'Sold Out' : (p.inStock ? 'Available' : 'Out of Stock'),
                         raw: p,
                     }));
 
@@ -72,7 +72,7 @@ const AdminProducts = () => {
                     category: Array.isArray(newProduct.category) ? (newProduct.category[0] || '') : newProduct.category,
                     price: newProduct.price ? `Rs. ${newProduct.price}` : 'Rs. 0',
                     stock: newProduct.stock || 0,
-                    status: newProduct.inStock ? 'Available' : 'Out of Stock',
+                    status: newProduct.soldOut ? 'Sold Out' : (newProduct.inStock ? 'Available' : 'Out of Stock'),
                     raw: newProduct,
                 };
 
@@ -103,6 +103,7 @@ const AdminProducts = () => {
             price: product.price ? Number(product.price.replace(/Rs\.\s?/,'')) : 0,
             stock: product.stock,
             inStock: product.status === 'Available',
+            soldOut: product.status === 'Sold Out',
             size: product.size || 'M',
             color: product.color || [],
             description: product.description || ''
@@ -127,7 +128,7 @@ const AdminProducts = () => {
                     category: Array.isArray(p.category) ? (p.category[0] || '') : p.category,
                     price: p.price ? `Rs. ${p.price}` : 'Rs. 0',
                     stock: p.stock || 0,
-                    status: p.inStock ? 'Available' : 'Out of Stock',
+                    status: p.soldOut ? 'Sold Out' : (p.inStock ? 'Available' : 'Out of Stock'),
                     raw: p,
                 };
 
@@ -210,7 +211,7 @@ const AdminProducts = () => {
 
                     <div className="bg-white border rounded-xl p-5 shadow-sm">
                         <p className="text-gray-500">Out of Stock</p>
-                        <h3 className="text-3xl font-bold text-red-600 mt-2">{products.filter((p) => p.status === 'Out of Stock').length}</h3>
+                        <h3 className="text-3xl font-bold text-red-600 mt-2">{products.filter((p) => p.status !== 'Available').length}</h3>
                     </div>
 
                     <div className="bg-white border rounded-xl p-5 shadow-sm">

@@ -95,6 +95,30 @@ const createOrder = async (req, res) => {
             return res.status(400).json({ success: false, message: 'At least one product item is required for the order' });
         }
 
+        // Re-check product availability on the server so stale carts cannot order sold-out products.
+        for (const item of orderItems) {
+            if (!item.productId || !mongoose.isValidObjectId(item.productId)) continue;
+            const currentProduct = await Product.findById(item.productId).select('name soldOut stock inStock colors');
+            if (!currentProduct) {
+                return res.status(409).json({ success: false, message: 'One or more selected products are no longer available.' });
+            }
+            if (currentProduct.soldOut === true) {
+                return res.status(409).json({ success: false, message: `${currentProduct.name || 'A selected product'} is currently sold out.` });
+            }
+            const selectedColor = item.color && Array.isArray(currentProduct.colors)
+                ? currentProduct.colors.find(color => color.hex === item.color || color.name === item.color)
+                : null;
+            const unavailable = selectedColor
+                ? selectedColor.inStock === false || Number(selectedColor.stock) <= 0
+                : currentProduct.inStock === false || Number(currentProduct.stock) <= 0;
+            if (unavailable) {
+                return res.status(409).json({ success: false, message: `${currentProduct.name || 'A selected product'} is currently sold out.` });
+            }
+            if (Number(item.quantity) > Number(selectedColor?.stock ?? currentProduct.stock)) {
+                return res.status(409).json({ success: false, message: `${currentProduct.name || 'A selected product'} does not have enough inventory.` });
+            }
+        }
+
         // Primary product for legacy compatibility
         const firstItem = orderItems[0];
         const primaryProduct = {

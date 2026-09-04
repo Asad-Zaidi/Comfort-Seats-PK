@@ -42,6 +42,7 @@ const defaultFormState = {
     isNewArrival: false,
     isBestSeller: false,
     isCustomizable: false,
+    soldOut: false,
     size: '',
     specifications: [''],
     productImages: [],
@@ -214,6 +215,7 @@ const ProductWizard = ({
                 isNewArrival: !!initialData.isNewArrival,
                 isBestSeller: !!initialData.isBestSeller,
                 isCustomizable: !!initialData.isCustomizable,
+                soldOut: initialData.soldOut === true,
                 size: initialData.size || '',
                 specifications: Array.isArray(initialData.specifications) && initialData.specifications.length > 0
                     ? initialData.specifications
@@ -541,6 +543,7 @@ const ProductWizard = ({
             fd.append("isNewArrival", formData.isNewArrival ? "true" : "false");
             fd.append("isBestSeller", formData.isBestSeller ? "true" : "false");
             fd.append("isCustomizable", formData.isCustomizable ? "true" : "false");
+            fd.append("soldOut", formData.soldOut ? "true" : "false");
             fd.append("status", formData.status || 'Active');
             if (formData.publishDate) fd.append("publishDate", formData.publishDate);
 

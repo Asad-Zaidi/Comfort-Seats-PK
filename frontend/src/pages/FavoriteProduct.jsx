@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FiHeart, FiTrash2, FiShoppingCart, FiArrowRight } from "react-icons/fi";
-import { useShop, resolveProductImage } from "../context/ShopContext";
+import { useShop, resolveProductImage, isProductUnavailable } from "../context/ShopContext";
 import { formatPrice, calculateTotalPrice } from "../utils/priceCalculator";
 import SEO from "../components/SEO";
 import Breadcrumb from "../components/Breadcrumb";
@@ -130,12 +130,13 @@ const FavoriteProduct = () => {
                                                 </div>
 
                                                 <button
-                                                    onClick={() => addToCart({ product, quantity: 1, price: pricing.total })}
+                                                                    onClick={() => addToCart({ product, quantity: 1, price: pricing.total })}
+                                                                    disabled={isProductUnavailable(product)}
                                                     className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold text-white transition hover:opacity-90 shadow-sm"
                                                     style={{ backgroundColor: 'var(--primary)' }}
                                                 >
                                                     <FiShoppingCart size={14} />
-                                                    Add to Cart
+                                                    {isProductUnavailable(product) ? "Sold Out" : "Add to Cart"}
                                                 </button>
                                             </div>
                                         </div>

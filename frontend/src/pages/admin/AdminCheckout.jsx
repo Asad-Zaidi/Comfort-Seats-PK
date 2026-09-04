@@ -38,13 +38,17 @@ const AdminCheckout = () => {
 
     // Delivery settings
     const [fastDeliveryCharge, setFastDeliveryCharge] = useState(200);
+    const [codOnlinePaymentMessage, setCodOnlinePaymentMessage] = useState("You have to pay Rs. {amount} online in advance for Cash on Delivery.");
     const [savingDelivery, setSavingDelivery] = useState(false);
 
     // Payment settings
     const [paymentMethods, setPaymentMethods] = useState([]);
     const [instructions, setInstructions] = useState("");
+    const [codOnlinePaymentEnabled, setCodOnlinePaymentEnabled] = useState(false);
+    const [codOnlinePaymentAmount, setCodOnlinePaymentAmount] = useState(0);
     const [defaultPaymentMethod, setDefaultPaymentMethod] = useState("cod");
     const [savingPayment, setSavingPayment] = useState(false);
+    const [savingCodOnlinePayment, setSavingCodOnlinePayment] = useState(false);
     const [savingDefaultMethod, setSavingDefaultMethod] = useState(false);
 
     // Editing / Adding
@@ -65,6 +69,8 @@ const AdminCheckout = () => {
                 const data = res.data.data;
                 setPaymentMethods(data.paymentMethods || []);
                 setInstructions(data.instructions || "");
+                setCodOnlinePaymentEnabled(data.codOnlinePaymentEnabled === true);
+                setCodOnlinePaymentAmount(data.codOnlinePaymentAmount ?? 0);
                 setDefaultPaymentMethod(data.defaultPaymentMethod || "cod");
             }
         } catch (err) {
@@ -75,6 +81,7 @@ const AdminCheckout = () => {
             const res = await api.get("/site-content");
             if (res.data?.success) {
                 setFastDeliveryCharge(res.data.data?.delivery?.fastDeliveryCharge ?? 200);
+                setCodOnlinePaymentMessage(res.data.data?.delivery?.codOnlinePaymentMessage || "You have to pay Rs. {amount} online in advance for Cash on Delivery.");
             }
         } catch (err) {
             console.error("Failed to load delivery settings:", err);
@@ -119,6 +126,34 @@ const AdminCheckout = () => {
             toast.error(err?.response?.data?.message || "Failed to update instructions.");
         } finally {
             setSavingPayment(false);
+        }
+    };
+
+    // ─── COD online payment requirement ───
+    const handleSaveCodOnlinePayment = async () => {
+        const amount = Number(codOnlinePaymentAmount);
+        if (!Number.isFinite(amount) || amount < 0) {
+            toast.error("Enter a valid non-negative online payment amount.");
+            return;
+        }
+
+        setSavingCodOnlinePayment(true);
+        try {
+            const res = await api.put("/payment-settings/cod-online-payment", {
+                codOnlinePaymentEnabled,
+                codOnlinePaymentAmount: amount,
+            });
+            if (res.data?.success) {
+                await api.put("/site-content/delivery", { codOnlinePaymentMessage });
+                setCodOnlinePaymentAmount(res.data.data.codOnlinePaymentAmount ?? amount);
+                toast.success("COD online payment settings updated successfully.");
+            } else {
+                toast.error(res.data?.message || "Failed to update COD online payment settings.");
+            }
+        } catch (err) {
+            toast.error(err?.response?.data?.message || "Failed to update COD online payment settings.");
+        } finally {
+            setSavingCodOnlinePayment(false);
         }
     };
 
@@ -324,7 +359,7 @@ const AdminCheckout = () => {
                         className="flex items-center justify-center gap-2 rounded-xl bg-[#2F6FED] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#2F6FED]/90 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         <FiSave size={16} />
-                        {savingDelivery ? "Saving..." : "Save Charge"}
+                        {savingDelivery ? "Saving..." : "Save Delivery Options"}
                     </button>
                 </div>
             </section>
@@ -367,6 +402,65 @@ const AdminCheckout = () => {
                         {savingDefaultMethod ? <FiLoader className="animate-spin" size={16} /> : <FiSave size={16} />}
                         {savingDefaultMethod ? "Saving..." : "Save Default Method"}
                     </button>
+                </div>
+            </section>
+
+            {/* ══════════ COD Online Payment Requirement ══════════ */}
+            <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                <div className="flex items-center gap-3">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#2F6FED]/10 text-[#2F6FED]">
+                        <FiCreditCard size={18} />
+                    </span>
+                    <div>
+                        <h2 className="text-lg font-semibold text-gray-800">COD Online Payment Requirement</h2>
+                        <p className="text-sm text-gray-500">
+                            Optionally require customers to pay part of a Cash on Delivery order online.
+                        </p>
+                    </div>
+                </div>
+                <div className="mt-5 space-y-4">
+                    <div>
+                        <label className="mb-1.5 block text-sm font-medium text-gray-700">COD Online Payment Notice</label>
+                        <input
+                            type="text"
+                            value={codOnlinePaymentMessage}
+                            onChange={(e) => setCodOnlinePaymentMessage(e.target.value)}
+                            placeholder="You have to pay Rs. {amount} online in advance for Cash on Delivery."
+                            className="block w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 outline-none transition focus:border-[#2F6FED] focus:bg-white focus:ring-4 focus:ring-[#2F6FED]/10"
+                        />
+                        <p className="mt-1 text-xs text-gray-400">Use <code>{'{amount}'}</code> where the online payment amount should appear.</p>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(240px,1fr)_220px_auto] md:items-end">
+                        <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+                            <div>
+                                <p className="text-sm font-medium text-gray-700">Enable requirement</p>
+                                <p className="text-xs text-gray-400">Show the notice for COD checkout</p>
+                            </div>
+                            <Toggle enabled={codOnlinePaymentEnabled} onChange={setCodOnlinePaymentEnabled} />
+                        </div>
+                        <div className="w-full">
+                            <label className="mb-1.5 block text-sm font-medium text-gray-700">Online Amount (Rs.)</label>
+                            <div className="relative">
+                                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-400">Rs.</span>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value={codOnlinePaymentAmount}
+                                    onChange={(e) => setCodOnlinePaymentAmount(e.target.value)}
+                                    className="block w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-12 pr-4 text-sm text-gray-900 outline-none transition focus:border-[#2F6FED] focus:bg-white focus:ring-4 focus:ring-[#2F6FED]/10"
+                                />
+                            </div>
+                        </div>
+                        <button
+                            onClick={handleSaveCodOnlinePayment}
+                            disabled={savingCodOnlinePayment}
+                            className="flex items-center justify-center gap-2 rounded-xl bg-[#2F6FED] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#2F6FED]/90 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            {savingCodOnlinePayment ? <FiLoader className="animate-spin" size={16} /> : <FiSave size={16} />}
+                            {savingCodOnlinePayment ? "Saving..." : "Save COD Settings"}
+                        </button>
+                    </div>
                 </div>
             </section>
 

@@ -195,6 +195,7 @@ const ProductSchema = new mongoose.Schema({
     isFeatured: { type: Boolean, default: false },
     isNewArrival: { type: Boolean, default: false },
     isBestSeller: { type: Boolean, default: false },
+    soldOut: { type: Boolean, default: false },
     status: { type: String, enum: ['Active', 'Inactive', 'Draft', 'Scheduled'], default: 'Active' },
     publishDate: { type: Date },
     metaOgTitle: { type: String, trim: true, default: '' },

@@ -35,6 +35,7 @@ const AnimatedButton = ({
             className={`
                 ${baseClasses}
                 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none
+                ${disabled ? 'pointer-events-none opacity-60' : ''}
                 ${className}
             `}
             {...props}

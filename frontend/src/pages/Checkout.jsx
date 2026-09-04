@@ -112,7 +112,10 @@ const Checkout = () => {
     const [paymentMethod, setPaymentMethod] = useState("cod");
     const [paymentSettings, setPaymentSettings] = useState(null);
     const [paymentInstructions, setPaymentInstructions] = useState("");
-    const [deliverySettings, setDeliverySettings] = useState({ fastDeliveryCharge: 200 });
+    const [deliverySettings, setDeliverySettings] = useState({
+        fastDeliveryCharge: 200,
+        codOnlinePaymentMessage: "You have to pay Rs. {amount} online in advance for Cash on Delivery.",
+    });
     const [deliveryMethod, setDeliveryMethod] = useState("standard");
     const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
     const [receiptFile, setReceiptFile] = useState(null);
@@ -161,6 +164,7 @@ const Checkout = () => {
                 if (res.data?.success) {
                     setDeliverySettings({
                         fastDeliveryCharge: res.data.data?.delivery?.fastDeliveryCharge ?? 200,
+                        codOnlinePaymentMessage: res.data.data?.delivery?.codOnlinePaymentMessage || "You have to pay Rs. {amount} online in advance for Cash on Delivery.",
                     });
                 }
             } catch (err) {
@@ -444,6 +448,20 @@ const Checkout = () => {
                                     );
                                 })}
                             </div>
+
+                            {paymentMethod === "cod" && paymentSettings?.codOnlinePaymentEnabled && Number(paymentSettings.codOnlinePaymentAmount) > 0 && (
+                                <p
+                                    className="mt-4 rounded-xl border px-4 py-3 text-sm font-medium"
+                                    style={{
+                                        backgroundColor: 'color-mix(in srgb, var(--primary) 8%, var(--card-bg))',
+                                        borderColor: 'color-mix(in srgb, var(--primary) 25%, transparent)',
+                                        color: 'var(--primary)',
+                                    }}
+                                >
+                                    {(deliverySettings.codOnlinePaymentMessage || "You have to pay Rs. {amount} online in advance for Cash on Delivery.")
+                                        .replace(/\{amount\}/g, formatPrice(paymentSettings.codOnlinePaymentAmount))}
+                                </p>
+                            )}
 
                             {paymentMethod === "online" && (
                                 <div className="mt-4 rounded-xl bg-gradient-to-br from-gray-50/80 to-white p-5 sm:p-6 border border-gray-200/50">

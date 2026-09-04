@@ -202,9 +202,9 @@ const Navbar = () => {
                             {/* Dropdown Menu */}
                             {productsDropdownOpen && categories.length > 0 && (
                                 <div
-                                    className="absolute top-full left-0 mt-2 min-w-[16rem] max-w-[90vw] rounded-2xl shadow-2xl border p-2 z-50 transition-all duration-200 backdrop-blur-sm"
+                                    className="absolute top-full left-0 mt-2 min-w-[16rem] max-w-[90vw] rounded-2xl shadow-2xl border p-2 z-50 transition-all duration-200 backdrop-blur-xl"
                                     style={{
-                                        backgroundColor: 'color-mix(in srgb, var(--header-dropdown-bg, var(--card-bg)) 90%, transparent)',
+                                        backgroundColor: 'color-mix(in srgb, var(--header-dropdown-bg, var(--card-bg)) 95%, transparent)',
                                         borderColor: 'var(--border)',
                                     }}
                                 >
