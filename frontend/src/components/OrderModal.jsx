@@ -172,13 +172,21 @@ const OrderModal = ({
                     const itemIds = Array.isArray(createdOrder.items) && createdOrder.items.length > 0
                         ? createdOrder.items.map(item => String(item.productId || item._id || '')).filter(Boolean)
                         : displayItems.map(item => String(item.productId || '')).filter(Boolean);
+                    const purchaseValue = Number(createdOrder.totalPrice ?? totalPrice);
 
-                    window.fbq("track", "Purchase", {
-                        value: Number(createdOrder.totalPrice || createdOrder.total || totalPrice) || 0,
-                        currency: "PKR",
-                        content_ids: itemIds,
-                        content_type: "product"
-                    });
+                    if (Number.isFinite(purchaseValue) && purchaseValue > 0) {
+                        window.fbq("track", "Purchase", {
+                            value: Number(purchaseValue.toFixed(2)),
+                            currency: "PKR",
+                            content_ids: itemIds,
+                            content_type: "product"
+                        });
+                    } else {
+                        console.error("Purchase event skipped: invalid order total", {
+                            totalPrice: createdOrder.totalPrice,
+                            fallbackTotal: totalPrice
+                        });
+                    }
                 }
 
                 // Clear cart session upon successful order
@@ -302,7 +310,7 @@ const OrderModal = ({
         return (
             <>
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-6">
-                    <div className="rounded-3xl shadow-2xl max-w-md w-full p-6 text-center animate-in fade-in zoom-in-95 duration-300 transition-colors duration-300 relative" style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text)' }}>
+                    <div className="rounded-3xl shadow-2xl max-w-md w-full p-6 text-center animate-in fade-in zoom-in-95 transition-colors duration-300 relative" style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text)' }}>
                         {/* Close Icon */}
                         <button
                             onClick={handleCloseConfirmed}
