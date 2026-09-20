@@ -48,6 +48,8 @@ const OrderSchema = new mongoose.Schema({
         email: { type: String },
         address: { type: String, required: true },
         city: { type: String, required: true },
+        province: { type: String, default: '' },
+        state: { type: String, default: '' },
     },
     paymentMethod: {
         type: String,

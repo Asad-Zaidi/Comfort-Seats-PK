@@ -31,6 +31,7 @@ const OrderModal = ({
         email: "",
         address: "",
         city: "",
+        province: "",
         state: "",
         zipCode: "",
     });
@@ -55,7 +56,8 @@ const OrderModal = ({
                     email: prefillShipping.email || "",
                     address: prefillShipping.address || "",
                     city: prefillShipping.city || "",
-                    state: prefillShipping.state || "",
+                    province: prefillShipping.province || prefillShipping.state || "",
+                    state: prefillShipping.state || prefillShipping.province || "",
                     zipCode: prefillShipping.zipCode || "",
                 });
             } else {
@@ -65,6 +67,7 @@ const OrderModal = ({
                     address: "",
                     email: "",
                     city: "",
+                    province: "",
                     state: "",
                     zipCode: "",
                 });
@@ -157,6 +160,8 @@ const OrderModal = ({
                     email: shipping.email,
                     address: shipping.address,
                     city: shipping.city,
+                    province: shipping.province || shipping.state || "",
+                    state: shipping.state || shipping.province || "",
                 },
                 paymentMethod: paymentMethod,
                 selectedOnlineMethod: selectedOnlineMethod || undefined,
@@ -604,8 +609,10 @@ const OrderModal = ({
                                         <span className="font-semibold text-right max-w-[250px]" style={{ color: 'var(--text)' }}>{shipping.address}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
-                                        <span style={{ color: 'var(--text-secondary)' }}>City</span>
-                                        <span className="font-semibold" style={{ color: 'var(--text)' }}>{shipping.city}</span>
+                                        <span style={{ color: 'var(--text-secondary)' }}>City / Province</span>
+                                        <span className="font-semibold text-right max-w-[250px]" style={{ color: 'var(--text)' }}>
+                                            {[shipping.city, shipping.province || shipping.state].filter(Boolean).join(", ")}
+                                        </span>
                                     </div>
                                 </div>
                             </div>

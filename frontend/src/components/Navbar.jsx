@@ -38,6 +38,8 @@ const Navbar = () => {
         { name: "Customize", path: "/customization" },
         { name: "Policies", path: "/policy" },
         { name: "Blog", path: "/blog" },
+        { name: "Warranty Claim", path: "/warranty" },
+        { name: "Bulk Order", path: "/bulk-order" },
     ];
 
     // Fetch categories from API
@@ -348,6 +350,26 @@ const Navbar = () => {
                             className="px-2.5 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-xs xl:text-sm font-semibold transition-all duration-300 hover:bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] hover:text-[var(--primary)] whitespace-nowrap"
                         >
                             About Us
+                        </NavLink>
+                        <NavLink
+                            to="/warranty"
+                            style={({ isActive }) => ({
+                                backgroundColor: isActive ? 'var(--header-active-link, var(--primary))' : undefined,
+                                color: isActive ? '#ffffff' : 'var(--header-text)',
+                            })}
+                            className="px-2.5 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-xs xl:text-sm font-semibold transition-all duration-300 hover:bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] hover:text-[var(--primary)] whitespace-nowrap"
+                        >
+                            Warranty Claim
+                        </NavLink>
+                        <NavLink
+                            to="/bulk-order"
+                            style={({ isActive }) => ({
+                                backgroundColor: isActive ? 'var(--header-active-link, var(--primary))' : undefined,
+                                color: isActive ? '#ffffff' : 'var(--header-text)',
+                            })}
+                            className="px-2.5 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-xs xl:text-sm font-semibold transition-all duration-300 hover:bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] hover:text-[var(--primary)] whitespace-nowrap"
+                        >
+                            Bulk Order
                         </NavLink>
                     </nav>
 

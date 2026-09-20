@@ -24,6 +24,8 @@ import { useSiteConfig } from "../utils/siteConfig";
 import OrderModal from "../components/OrderModal";
 import { formatPrice } from "../utils/priceCalculator";
 import PaymentMethodSelector from "../components/checkout/PaymentMethods";
+import DropDown from "../components/DropDown";
+import { PAKISTAN_PROVINCES, CITIES_BY_PROVINCE } from "../utils/pakistanLocations";
 
 const paymentOptions = [
     { key: "cod", label: "Cash on Delivery", icon: FaMoneyBillWave, desc: "Pay when you receive" },
@@ -108,7 +110,41 @@ const Checkout = () => {
     const effectiveProduct = product || (checkoutItems.length > 0 ? (checkoutItems[0].product || checkoutItems[0]) : null);
     const effectiveQuantity = checkoutItems.length === 1 ? checkoutItems[0].quantity : 1;
 
-    const [form, setForm] = useState({ fullName: "", phone: "", email: "", address: "", city: "" });
+    const [form, setForm] = useState({ fullName: "", phone: "", email: "", address: "", city: "", province: "" });
+    const [isCustomCity, setIsCustomCity] = useState(false);
+
+    const availableCities = useMemo(() => {
+        if (form.province && CITIES_BY_PROVINCE[form.province]) {
+            return [...CITIES_BY_PROVINCE[form.province], "Other"];
+        }
+        return [];
+    }, [form.province]);
+
+    const handleProvinceChange = (selectedProvince) => {
+        setForm((prev) => {
+            let nextCity = prev.city;
+            if (selectedProvince && selectedProvince !== "Other") {
+                const provinceCities = CITIES_BY_PROVINCE[selectedProvince] || [];
+                if (nextCity && !provinceCities.includes(nextCity) && !isCustomCity) {
+                    nextCity = "";
+                }
+            }
+            return { ...prev, province: selectedProvince, city: nextCity };
+        });
+        if (selectedProvince === "Other") {
+            setIsCustomCity(true);
+        }
+    };
+
+    const handleCitySelectChange = (selectedCity) => {
+        if (selectedCity === "Other") {
+            setIsCustomCity(true);
+            setForm((prev) => ({ ...prev, city: "" }));
+        } else {
+            setIsCustomCity(false);
+            setForm((prev) => ({ ...prev, city: selectedCity }));
+        }
+    };
     const [paymentMethod, setPaymentMethod] = useState("cod");
     const [paymentSettings, setPaymentSettings] = useState(null);
     const [paymentInstructions, setPaymentInstructions] = useState("");
@@ -255,6 +291,14 @@ const Checkout = () => {
             toast.error("Please fill in your name, phone number, and address.");
             return;
         }
+        if (!form.province) {
+            toast.error("Please select your province.");
+            return;
+        }
+        if (!form.city.trim()) {
+            toast.error("Please select or enter your city.");
+            return;
+        }
         if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
             toast.error("Please enter a valid email address.");
             return;
@@ -328,7 +372,7 @@ const Checkout = () => {
                             </div>
 
                             <div className="space-y-4">
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div className="grid grid-cols-1 gap-4">
                                     <InputField
                                         id="checkout-full-name"
                                         name="fullName"
@@ -339,16 +383,7 @@ const Checkout = () => {
                                         placeholder="Your Name"
                                         required
                                     />
-                                    <InputField
-                                        id="checkout-phone"
-                                        name="phone"
-                                        label="Phone Number"
-                                        icon={FiPhone}
-                                        value={form.phone}
-                                        onChange={handleChange}
-                                        placeholder="Phone Number"
-                                        required
-                                    />
+
                                 </div>
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <InputField
@@ -362,14 +397,59 @@ const Checkout = () => {
                                         placeholder="Enter your email"
                                     />
                                     <InputField
-                                        id="checkout-city"
-                                        name="city"
-                                        label="City"
-                                        icon={FiMapPin}
-                                        value={form.city}
+                                        id="checkout-phone"
+                                        name="phone"
+                                        label="Phone Number"
+                                        icon={FiPhone}
+                                        value={form.phone}
                                         onChange={handleChange}
-                                        placeholder="Lahore"
+                                        placeholder="Phone Number"
+                                        required
                                     />
+                                </div>
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <div className="space-y-1.5">
+                                        <label htmlFor="checkout-province" className="block text-sm font-medium" style={{ color: 'var(--text)' }}>
+                                            Province <span className="ml-1" style={{ color: 'var(--error)' }}>*</span>
+                                        </label>
+                                        <DropDown
+                                            id="checkout-province"
+                                            value={form.province}
+                                            onChange={handleProvinceChange}
+                                            options={PAKISTAN_PROVINCES}
+                                            placeholder="Select Province"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label htmlFor="checkout-city" className="block text-sm font-medium" style={{ color: 'var(--text)' }}>
+                                            City <span className="ml-1" style={{ color: 'var(--error)' }}>*</span>
+                                        </label>
+                                        <DropDown
+                                            id="checkout-city"
+                                            value={isCustomCity ? "Other" : (availableCities.includes(form.city) ? form.city : (form.city ? "Other" : ""))}
+                                            onChange={handleCitySelectChange}
+                                            options={availableCities}
+                                            disabled={!form.province}
+                                            disabledPlaceholder="Select province first"
+                                            placeholder="Select City"
+                                            searchable={true}
+                                        />
+                                        {form.province && (isCustomCity || form.province === "Other" || (form.city && !availableCities.includes(form.city))) && (
+                                            <div className="mt-2">
+                                                <input
+                                                    id="checkout-custom-city"
+                                                    type="text"
+                                                    name="city"
+                                                    value={form.city}
+                                                    onChange={handleChange}
+                                                    placeholder="Enter your city / town name"
+                                                    className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition-all focus:ring-4 focus:ring-[var(--primary)]/10"
+                                                    style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text)' }}
+                                                    required
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
 
@@ -699,7 +779,8 @@ const Checkout = () => {
                     email: form.email,
                     address: form.address,
                     city: form.city,
-                    state: form.city,
+                    province: form.province,
+                    state: form.province || form.city,
                     zipCode: "",
                 }}
                 prefillPaymentMethod={checkoutPaymentMethod}

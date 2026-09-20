@@ -93,3 +93,29 @@ exports.cleanupTempFile = cleanupTempFile;
 
 // Allowed MIME types
 exports.ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+// Filter for warranty media uploads (images and videos)
+const warrantyMediaFilter = (req, file, cb) => {
+    const allowedExts = /\.(jpe?g|png|webp|mp4|mov|webm|quicktime)$/i;
+    const isExtAllowed = allowedExts.test(path.extname(file.originalname).toLowerCase());
+    const isMimeAllowed = /^(image\/(jpeg|jpg|png|webp)|video\/(mp4|quicktime|webm))$/i.test(file.mimetype);
+
+    if (isExtAllowed || isMimeAllowed) {
+        return cb(null, true);
+    }
+    cb(new Error('Invalid file type. Supported formats: JPG, PNG, WEBP for images; MP4, MOV, WEBM for video.'));
+};
+
+// Multer instance for warranty claims (up to 50MB per file)
+const warrantyUpload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 50 * 1024 * 1024, // 50MB limit
+    },
+    fileFilter: warrantyMediaFilter,
+});
+
+exports.uploadWarrantyMedia = warrantyUpload.fields([
+    { name: 'images', maxCount: 5 },
+    { name: 'video', maxCount: 1 },
+]);

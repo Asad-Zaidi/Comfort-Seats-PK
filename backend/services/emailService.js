@@ -463,7 +463,7 @@ const buildOrderEmailHtml = (order) => {
             <p style="margin:4px 0 0;font-size:14px;color:#6b7280;">${escapeHtml(c.phone)}</p>
             <p style="margin:4px 0 0;font-size:14px;color:#6b7280;">${escapeHtml(c.email)}</p>
             <p style="margin:4px 0 0;font-size:14px;color:#6b7280;">${escapeHtml(c.address)}</p>
-            <p style="margin:4px 0 0;font-size:14px;color:#6b7280;">${escapeHtml(c.city)}</p>
+            <p style="margin:4px 0 0;font-size:14px;color:#6b7280;">${escapeHtml(c.city)}${c.province || c.state ? `, ${escapeHtml(c.province || c.state)}` : ''}</p>
           </div>
         </div>
 
@@ -614,7 +614,7 @@ const buildCustomerOrderEmailHtml = (order, opts = {}) => {
             <p style="margin:0;font-size:14px;color:#111827;font-weight:600;">${escapeHtml(c.fullName)}</p>
             <p style="margin:4px 0 0;font-size:14px;color:#6b7280;">${escapeHtml(c.phone)}${c.email ? ` &nbsp;&middot;&nbsp; ${escapeHtml(c.email)}` : ''}</p>
             <p style="margin:4px 0 0;font-size:14px;color:#6b7280;">${escapeHtml(c.address)}</p>
-            <p style="margin:4px 0 0;font-size:14px;color:#6b7280;">${escapeHtml(c.city)}</p>
+            <p style="margin:4px 0 0;font-size:14px;color:#6b7280;">${escapeHtml(c.city)}${c.province || c.state ? `, ${escapeHtml(c.province || c.state)}` : ''}</p>
           </div>
         </div>
 
@@ -1312,4 +1312,588 @@ const sendContactMessageEmail = async (contactMessage) => {
   }
 };
 
-module.exports = { sendOrderConfirmationEmail, buildOrderEmailHtml, sendCustomerOrderEmail, buildCustomerOrderEmailHtml, sendOrderStatusUpdateEmails, sendCustomizationEmail, buildCustomizationEmailHtml, sendCustomizationCustomerEmail, buildCustomizationCustomerEmailHtml, sendContactMessageEmail };
+/**
+ * Build professional HTML email body for CUSTOMER warranty claim confirmation.
+ * @param {Object} claim - The WarrantyClaim document
+ */
+const buildWarrantyClaimCustomerEmailHtml = (claim) => {
+  const dateStr = claim.createdAt
+    ? new Date(claim.createdAt).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+    : new Date().toLocaleDateString();
+
+  return `
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; background:#f4f5f7; padding:24px;">
+      <div style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg,#2F6FED,#1e4fbf);padding:26px 32px;color:#ffffff;">
+          <h1 style="margin:0;font-size:22px;font-weight:700;letter-spacing:-0.02em;">Comfort Seats</h1>
+          <p style="margin:6px 0 0;font-size:14px;opacity:0.92;">Warranty Claim Received &mdash; ${escapeHtml(claim.claimId)}</p>
+        </div>
+
+        <!-- Body -->
+        <div style="padding:28px 32px;">
+          <p style="font-size:15px;color:#111827;margin:0 0 6px;">Dear ${escapeHtml(claim.customerName)},</p>
+          <p style="font-size:14px;color:#4b5563;margin:0 0 20px;line-height:1.6;">
+            We have received your warranty claim. Our technical quality inspection team is currently reviewing your submission and attachments. Below is a copy of your claim record.
+          </p>
+
+          <!-- Claim Status Box -->
+          <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <span style="font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#1e40af;font-weight:600;">Status</span>
+              <p style="margin:2px 0 0;font-size:16px;font-weight:700;color:#1d4ed8;">${escapeHtml(claim.status || 'Pending Review')}</p>
+            </div>
+            <div style="text-align:right;">
+              <span style="font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;font-weight:600;">Claim ID</span>
+              <p style="margin:2px 0 0;font-size:15px;font-weight:700;color:#0f172a;">${escapeHtml(claim.claimId)}</p>
+            </div>
+          </div>
+
+          <!-- Claim Summary -->
+          <div style="background:#f9fafb;border:1px solid #eef0f3;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
+            <h3 style="margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:0.04em;color:#6b7280;">Claim Summary</h3>
+            <table style="width:100%;font-size:14px;color:#374151;border-collapse:collapse;">
+              <tr><td style="padding:5px 0;color:#9ca3af;">Order Number</td><td style="padding:5px 0;text-align:right;font-weight:600;color:#111827;">${escapeHtml(claim.orderNumber)}</td></tr>
+              <tr><td style="padding:5px 0;color:#9ca3af;">Product Name</td><td style="padding:5px 0;text-align:right;font-weight:600;color:#111827;">${escapeHtml(claim.productName)}</td></tr>
+              ${claim.productSku ? `<tr><td style="padding:5px 0;color:#9ca3af;">SKU</td><td style="padding:5px 0;text-align:right;color:#6b7280;">${escapeHtml(claim.productSku)}</td></tr>` : ''}
+              <tr><td style="padding:5px 0;color:#9ca3af;">Quantity</td><td style="padding:5px 0;text-align:right;color:#111827;">${claim.quantity || 1}</td></tr>
+              <tr><td style="padding:5px 0;color:#9ca3af;">Issue Type</td><td style="padding:5px 0;text-align:right;font-weight:600;color:#d97706;">${escapeHtml(claim.issueType)}</td></tr>
+              <tr><td style="padding:5px 0;color:#9ca3af;">Date Submitted</td><td style="padding:5px 0;text-align:right;color:#6b7280;">${dateStr}</td></tr>
+            </table>
+          </div>
+
+          <!-- Description -->
+          <div style="background:#f9fafb;border:1px solid #eef0f3;border-radius:12px;padding:16px 20px;margin-bottom:20px;">
+            <h3 style="margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:#6b7280;">Issue Description</h3>
+            <p style="margin:0;font-size:13.5px;color:#1f2937;line-height:1.6;white-space:pre-wrap;">${escapeHtml(claim.description)}</p>
+          </div>
+
+          <!-- Next Steps -->
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px 20px;margin-bottom:24px;">
+            <h3 style="margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:0.04em;color:#15803d;">What Happens Next?</h3>
+            <ul style="margin:0;padding-left:18px;font-size:13.5px;color:#166534;line-height:1.6;">
+              <li>Our technical support team will examine your issue and submitted evidence within <strong>24 to 48 business hours</strong>.</li>
+              <li>A representative may reach out via WhatsApp or phone if further testing or photos are needed.</li>
+              <li>Once verified, we will arrange for warranty replacement, repair, or spare parts shipment right to your doorstep.</li>
+            </ul>
+          </div>
+
+          <!-- Contact Support -->
+          <p style="font-size:13px;color:#6b7280;margin:0;line-height:1.5;">
+            Need urgent assistance? Reach out directly to our customer support at <a href="mailto:comfortseats.pk@gmail.com" style="color:#2F6FED;text-decoration:none;font-weight:600;">comfortseats.pk@gmail.com</a>.
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="background:#f9fafb;padding:16px 32px;border-top:1px solid #eef0f3;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#9ca3af;">
+            &copy; ${new Date().getFullYear()} Comfort Seats PK. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+/**
+ * Send confirmation email to customer after warranty claim submission.
+ * @param {Object} claim - The WarrantyClaim document
+ */
+const sendWarrantyClaimCustomerEmail = async (claim) => {
+  try {
+    if (!claim.customerEmail) {
+      console.warn('[emailService] No customer email provided for warranty claim confirmation');
+      return { sent: false, reason: 'no-recipient' };
+    }
+
+    if (!process.env.SENDGRID_API_KEY && (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD)) {
+      console.warn('[emailService] Email credentials not configured; skipping warranty customer email.');
+      return { sent: false, reason: 'not-configured' };
+    }
+
+    const mailOptions = {
+      from: `"Comfort Seats Support" <${process.env.EMAIL_USER || 'support@comfortseatspk.com'}>`,
+      to: claim.customerEmail,
+      subject: `Warranty Claim Received — ${claim.claimId}`,
+      html: buildWarrantyClaimCustomerEmailHtml(claim),
+    };
+
+    const result = await sendEmail(mailOptions);
+    return result;
+  } catch (error) {
+    console.error('[emailService] Failed to send warranty claim customer email:', error.message);
+    return { sent: false, reason: error.message };
+  }
+};
+
+/**
+ * Build professional HTML email body for ADMIN notification of a new warranty claim.
+ * @param {Object} claim - The WarrantyClaim document
+ */
+const buildWarrantyClaimAdminEmailHtml = (claim) => {
+  const dateStr = claim.createdAt
+    ? new Date(claim.createdAt).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+    : new Date().toLocaleDateString();
+
+  const attachmentsList = Array.isArray(claim.attachments) && claim.attachments.length > 0
+    ? claim.attachments.map((att, idx) => `
+        <li style="margin-bottom:6px;">
+          <a href="${att.url}" target="_blank" rel="noopener noreferrer" style="color:#2F6FED;font-weight:600;text-decoration:none;">
+            [${att.fileType.toUpperCase()}] ${escapeHtml(att.filename || `Attachment #${idx + 1}`)}
+          </a>
+          <span style="color:#9ca3af;font-size:12px;">(${att.size ? `${(att.size / 1024 / 1024).toFixed(2)} MB` : 'View Media'})</span>
+        </li>
+      `).join('')
+    : '<li style="color:#9ca3af;">No files attached</li>';
+
+  return `
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; background:#f4f5f7; padding:24px;">
+      <div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg,#1e293b,#0f172a);padding:24px 32px;color:#ffffff;">
+          <span style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:0.05em;">New Claim</span>
+          <h1 style="margin:10px 0 0;font-size:20px;font-weight:700;">Warranty Claim &mdash; ${escapeHtml(claim.claimId)}</h1>
+          <p style="margin:4px 0 0;font-size:13px;color:#94a3b8;">Order: ${escapeHtml(claim.orderNumber)}</p>
+        </div>
+
+        <!-- Body -->
+        <div style="padding:28px 32px;">
+          <!-- Customer Info -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
+            <h3 style="margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;">Customer Details</h3>
+            <table style="width:100%;font-size:14px;color:#334155;border-collapse:collapse;">
+              <tr><td style="padding:4px 0;color:#94a3b8;width:120px;">Name</td><td style="padding:4px 0;font-weight:600;">${escapeHtml(claim.customerName)}</td></tr>
+              <tr><td style="padding:4px 0;color:#94a3b8;">Email</td><td style="padding:4px 0;"><a href="mailto:${escapeHtml(claim.customerEmail)}" style="color:#2F6FED;text-decoration:none;">${escapeHtml(claim.customerEmail)}</a></td></tr>
+              <tr><td style="padding:4px 0;color:#94a3b8;">Phone</td><td style="padding:4px 0;font-weight:600;"><a href="tel:${escapeHtml(claim.customerPhone)}" style="color:#334155;text-decoration:none;">${escapeHtml(claim.customerPhone)}</a></td></tr>
+              <tr><td style="padding:4px 0;color:#94a3b8;">Address</td><td style="padding:4px 0;">${escapeHtml(claim.address)}, ${escapeHtml(claim.city)}${claim.state ? `, ${escapeHtml(claim.state)}` : ''}</td></tr>
+            </table>
+          </div>
+
+          <!-- Order & Product Details -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
+            <h3 style="margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;">Order & Product Information</h3>
+            <table style="width:100%;font-size:14px;color:#334155;border-collapse:collapse;">
+              <tr><td style="padding:4px 0;color:#94a3b8;width:120px;">Order Number</td><td style="padding:4px 0;font-weight:600;color:#0f172a;">${escapeHtml(claim.orderNumber)}</td></tr>
+              <tr><td style="padding:4px 0;color:#94a3b8;">Order Date</td><td style="padding:4px 0;">${claim.orderDate ? new Date(claim.orderDate).toLocaleDateString() : 'N/A'}</td></tr>
+              <tr><td style="padding:4px 0;color:#94a3b8;">Product</td><td style="padding:4px 0;font-weight:600;color:#0f172a;">${escapeHtml(claim.productName)}</td></tr>
+              ${claim.productSku ? `<tr><td style="padding:4px 0;color:#94a3b8;">SKU</td><td style="padding:4px 0;">${escapeHtml(claim.productSku)}</td></tr>` : ''}
+              <tr><td style="padding:4px 0;color:#94a3b8;">Quantity</td><td style="padding:4px 0;">${claim.quantity || 1}</td></tr>
+            </table>
+          </div>
+
+          <!-- Claim Issue Details -->
+          <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <h3 style="margin:0;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#991b1b;">Issue: ${escapeHtml(claim.issueType)}</h3>
+              <span style="font-size:12px;color:#991b1b;font-weight:600;">${dateStr}</span>
+            </div>
+            <p style="margin:0;font-size:14px;color:#1f2937;line-height:1.6;white-space:pre-wrap;">${escapeHtml(claim.description)}</p>
+          </div>
+
+          <!-- Attachments -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
+            <h3 style="margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;">Uploaded Evidence (${claim.attachments ? claim.attachments.length : 0})</h3>
+            <ul style="margin:0;padding-left:18px;font-size:13.5px;">
+              ${attachmentsList}
+            </ul>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="background:#f1f5f9;padding:16px 32px;border-top:1px solid #e2e8f0;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#64748b;">
+            This is an automated notification from Comfort Seats admin system.
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+/**
+ * Send notification email to admin/seller when a new warranty claim is submitted.
+ * @param {Object} claim - The WarrantyClaim document
+ */
+const sendWarrantyClaimAdminEmail = async (claim) => {
+  try {
+    const adminEmail = process.env.ADMIN_NOTIFY_EMAIL || process.env.EMAIL_USER;
+    if (!adminEmail) {
+      console.warn('[emailService] No admin notify email configured.');
+      return { sent: false, reason: 'not-configured' };
+    }
+
+    const mailOptions = {
+      from: `"Comfort Seats Warranty Alert" <${process.env.EMAIL_USER || 'support@comfortseatspk.com'}>`,
+      to: adminEmail,
+      subject: `New Warranty Claim — ${claim.claimId} — Order ${claim.orderNumber}`,
+      html: buildWarrantyClaimAdminEmailHtml(claim),
+    };
+
+    const result = await sendEmail(mailOptions);
+    return result;
+  } catch (error) {
+    console.error('[emailService] Failed to send warranty claim admin email:', error.message);
+    return { sent: false, reason: error.message };
+  }
+};
+
+/**
+ * Escape HTML characters safely for email templates
+ */
+const escapeEmailHtml = (str) => {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+};
+
+/**
+ * Build professional HTML email for Customer Bulk Order Quote confirmation
+ */
+const buildBulkOrderCustomerEmailHtml = (order) => {
+  const dateStr = order.createdAt
+    ? new Date(order.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : new Date().toLocaleDateString();
+
+  const productsList = order.products && order.products.length > 0
+    ? order.products.map(p => `
+        <tr>
+          <td style="padding:10px 12px;border-bottom:1px solid #f1f5f9;">
+            <div style="font-weight:600;color:#1e293b;">${escapeEmailHtml(p.productName)}</div>
+            ${p.sku ? `<div style="font-size:12px;color:#64748b;">SKU: ${escapeEmailHtml(p.sku)}</div>` : ''}
+          </td>
+          <td style="padding:10px 12px;border-bottom:1px solid #f1f5f9;text-align:center;color:#475569;">
+            ${p.quantity || 1}
+          </td>
+          <td style="padding:10px 12px;border-bottom:1px solid #f1f5f9;text-align:right;color:#0f172a;font-weight:600;">
+            ${p.price ? `Rs. ${p.price.toLocaleString()}` : 'Custom'}
+          </td>
+        </tr>
+      `).join('')
+    : `<tr><td colspan="3" style="padding:10px 12px;color:#64748b;text-align:center;">Bulk Chairs Portfolio</td></tr>`;
+
+  return `
+    <div style="font-family:'Segoe UI',Arial,sans-serif;background:#f8fafc;padding:28px 16px;">
+      <div style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06);border:1px solid #e2e8f0;">
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg,#2F6FED 0%,#1d4ed8 100%);padding:28px 32px;color:#ffffff;">
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#93c5fd;margin-bottom:4px;">BULK ORDERS</div>
+          <h1 style="margin:0;font-size:24px;font-weight:700;letter-spacing:-0.02em;">Comfort Seats PK</h1>
+          <p style="margin:8px 0 0;font-size:14px;color:#e0e7ff;">Bulk Order Request Received &mdash; ${escapeEmailHtml(order.quoteId)}</p>
+        </div>
+
+        <!-- Body -->
+        <div style="padding:28px 32px;">
+          <p style="font-size:15px;color:#1e293b;margin:0 0 8px;">Dear <strong>${escapeEmailHtml(order.customerName)}</strong>,</p>
+          <p style="font-size:14px;color:#475569;margin:0 0 20px;line-height:1.6;">
+            Thank you for contacting <strong>ComfortSeats</strong> regarding your bulk order. We have received your request and our corporate sales team is currently reviewing your requirements. We will contact you shortly with customized corporate pricing, quantity discounts, and delivery timelines.
+          </p>
+
+          <!-- Quote Status Card -->
+          <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:16px 20px;margin-bottom:24px;">
+            <table style="width:100%;border-collapse:collapse;font-size:14px;">
+              <tr>
+                <td style="color:#3b82f6;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;font-weight:700;">Quote Reference ID</td>
+                <td style="text-align:right;font-weight:700;color:#1e40af;font-size:16px;">${escapeEmailHtml(order.quoteId)}</td>
+              </tr>
+              <tr>
+                <td style="padding-top:8px;color:#64748b;">Company / Organization</td>
+                <td style="padding-top:8px;text-align:right;font-weight:600;color:#1e293b;">${escapeEmailHtml(order.companyName)}</td>
+              </tr>
+              <tr>
+                <td style="padding-top:6px;color:#64748b;">Total Chairs Requested</td>
+                <td style="padding-top:6px;text-align:right;font-weight:700;color:#2F6FED;">${order.totalQuantity} Chairs</td>
+              </tr>
+              <tr>
+                <td style="padding-top:6px;color:#64748b;">Current Status</td>
+                <td style="padding-top:6px;text-align:right;font-weight:600;color:#059669;">${escapeEmailHtml(order.status || 'Pending')}</td>
+              </tr>
+              <tr>
+                <td style="padding-top:6px;color:#64748b;">Request Date</td>
+                <td style="padding-top:6px;text-align:right;color:#64748b;">${dateStr}</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Products Table -->
+          <div style="margin-bottom:24px;">
+            <h3 style="margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;font-weight:700;">Requested Products</h3>
+            <table style="width:100%;border-collapse:collapse;font-size:13.5px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+              <thead>
+                <tr style="background:#f8fafc;color:#64748b;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;">
+                  <th style="padding:10px 12px;text-align:left;">Item</th>
+                  <th style="padding:10px 12px;text-align:center;">Qty</th>
+                  <th style="padding:10px 12px;text-align:right;">Catalog Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${productsList}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Delivery Location -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px 20px;margin-bottom:24px;">
+            <h3 style="margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;font-weight:700;">Delivery Destination</h3>
+            <p style="margin:0;font-size:13.5px;color:#1e293b;line-height:1.5;">
+              ${escapeEmailHtml(order.deliveryAddress)}<br />
+              ${escapeEmailHtml(order.city)}${order.state ? `, ${escapeEmailHtml(order.state)}` : ''}${order.postalCode ? ` - ${escapeEmailHtml(order.postalCode)}` : ''}<br />
+              ${escapeEmailHtml(order.country || 'Pakistan')}
+            </p>
+          </div>
+
+          ${order.additionalDetails ? `
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px 20px;margin-bottom:24px;">
+              <h3 style="margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;font-weight:700;">Special Requirements & Notes</h3>
+              <p style="margin:0;font-size:13.5px;color:#334155;line-height:1.6;white-space:pre-wrap;">${escapeEmailHtml(order.additionalDetails)}</p>
+            </div>
+          ` : ''}
+
+          <!-- Support Notice -->
+          <div style="border-top:1px solid #e2e8f0;padding-top:18px;margin-top:12px;">
+            <p style="font-size:13px;color:#64748b;margin:0;line-height:1.6;">
+              Questions about your bulk inquiry? Contact our dedicated corporate support desk at <a href="mailto:support@comfortseatspk.com" style="color:#2F6FED;text-decoration:none;font-weight:600;">support@comfortseatspk.com</a> or call our team for expedited assistance.
+            </p>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="background:#f1f5f9;padding:16px 32px;border-top:1px solid #e2e8f0;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#64748b;">
+            &copy; ${new Date().getFullYear()} Comfort Seats PK. Ergonomic Seating & Furniture Solutions.
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+/**
+ * Send confirmation email to customer after bulk order submission
+ */
+const sendBulkOrderCustomerEmail = async (order) => {
+  try {
+    if (!order.email) {
+      console.warn('[emailService] No customer email provided for bulk order confirmation');
+      return { sent: false, reason: 'no-recipient' };
+    }
+
+    const mailOptions = {
+      from: `"Comfort Seats Bulk Orders" <${process.env.EMAIL_USER || 'support@comfortseatspk.com'}>`,
+      to: order.email,
+      subject: `Bulk Order Request Received — [${order.quoteId}]`,
+      html: buildBulkOrderCustomerEmailHtml(order),
+    };
+
+    const result = await sendEmail(mailOptions);
+    return result;
+  } catch (error) {
+    console.error('[emailService] Failed to send bulk order customer email:', error.message);
+    return { sent: false, reason: error.message };
+  }
+};
+
+/**
+ * Build HTML notification email for ADMIN when new bulk order is requested
+ */
+const buildBulkOrderAdminEmailHtml = (order) => {
+  const dateStr = order.createdAt
+    ? new Date(order.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : new Date().toLocaleDateString();
+
+  const productsList = order.products && order.products.length > 0
+    ? order.products.map(p => `
+        <tr>
+          <td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;font-weight:600;color:#0f172a;">${escapeEmailHtml(p.productName)}</td>
+          <td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;color:#64748b;">${escapeEmailHtml(p.sku || 'N/A')}</td>
+          <td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;text-align:center;font-weight:700;">${p.quantity || 1}</td>
+          <td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;text-align:right;">Rs. ${(p.price || 0).toLocaleString()}</td>
+        </tr>
+      `).join('')
+    : `<tr><td colspan="4" style="padding:8px 10px;text-align:center;color:#64748b;">No individual products specified</td></tr>`;
+
+  return `
+    <div style="font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;padding:28px 16px;">
+      <div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,0.18);">
+        <!-- Admin Alert Banner -->
+        <div style="background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);padding:24px 32px;color:#ffffff;border-bottom:4px solid #2F6FED;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#60a5fa;">NEW INQUIRY NOTIFICATION</div>
+          <h2 style="margin:4px 0 0;font-size:20px;color:#ffffff;">New Bulk Order Request &mdash; ${escapeEmailHtml(order.quoteId)}</h2>
+          <p style="margin:6px 0 0;font-size:13px;color:#94a3b8;">Received on ${dateStr}</p>
+        </div>
+
+        <div style="padding:28px 32px;">
+          <!-- Customer & Company Details -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
+            <div>
+              <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;">Client Name</span>
+              <p style="margin:2px 0 10px;font-size:14px;font-weight:700;color:#0f172a;">${escapeEmailHtml(order.customerName)}</p>
+
+              <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;">Email</span>
+              <p style="margin:2px 0 0;font-size:14px;color:#2F6FED;">${order.email ? `<a href="mailto:${order.email}" style="color:#2F6FED;text-decoration:none;">${escapeEmailHtml(order.email)}</a>` : '<span style="color:#94a3b8;font-style:italic;">Not provided</span>'}</p>
+            </div>
+            <div>
+              <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;">Company / Org</span>
+              <p style="margin:2px 0 10px;font-size:14px;font-weight:700;color:#0f172a;">${escapeEmailHtml(order.companyName || 'Individual / Not specified')}</p>
+
+              <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;">Phone / WhatsApp</span>
+              <p style="margin:2px 0 0;font-size:14px;font-weight:600;color:#0f172a;">${escapeEmailHtml(order.phone)}</p>
+            </div>
+          </div>
+
+          <!-- Order Summary & Volume -->
+          <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:16px 20px;margin-bottom:20px;">
+            <h3 style="margin:0 0 12px;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#1d4ed8;">Volume & Estimated Pricing</h3>
+            <table style="width:100%;font-size:13.5px;border-collapse:collapse;">
+              <tr>
+                <td style="padding:4px 0;color:#475569;">Total Quantity Requested</td>
+                <td style="padding:4px 0;text-align:right;font-weight:700;color:#1e40af;font-size:16px;">${order.totalQuantity} Chairs</td>
+              </tr>
+              <tr>
+                <td style="padding:4px 0;color:#475569;">Applicable Discount Tier</td>
+                <td style="padding:4px 0;text-align:right;font-weight:600;color:#059669;">${escapeEmailHtml(order.discountTier || `${order.discountPercentage}% OFF`)}</td>
+              </tr>
+              ${order.estimatedSubtotal ? `
+                <tr>
+                  <td style="padding:4px 0;color:#475569;">Estimated Subtotal</td>
+                  <td style="padding:4px 0;text-align:right;color:#64748b;">Rs. ${order.estimatedSubtotal.toLocaleString()}</td>
+                </tr>
+                <tr>
+                  <td style="padding:4px 0;color:#475569;">Estimated Bulk Discount (${order.discountPercentage}%)</td>
+                  <td style="padding:4px 0;text-align:right;color:#dc2626;font-weight:600;">- Rs. ${(order.estimatedDiscount || 0).toLocaleString()}</td>
+                </tr>
+                <tr style="border-top:1px solid #bfdbfe;">
+                  <td style="padding:8px 0 0;font-weight:700;color:#0f172a;">Estimated Total</td>
+                  <td style="padding:8px 0 0;text-align:right;font-weight:700;color:#2F6FED;font-size:16px;">Rs. ${(order.estimatedTotal || 0).toLocaleString()}</td>
+                </tr>
+              ` : ''}
+            </table>
+          </div>
+
+          <!-- Product Details -->
+          <div style="margin-bottom:20px;">
+            <h3 style="margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;">Products Breakdown</h3>
+            <table style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #e2e8f0;">
+              <thead>
+                <tr style="background:#f1f5f9;color:#475569;font-size:11px;text-transform:uppercase;">
+                  <th style="padding:8px 10px;text-align:left;">Product</th>
+                  <th style="padding:8px 10px;text-align:left;">SKU</th>
+                  <th style="padding:8px 10px;text-align:center;">Qty</th>
+                  <th style="padding:8px 10px;text-align:right;">Unit Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${productsList}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Delivery Location -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px 18px;margin-bottom:20px;">
+            <h3 style="margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;">Delivery Destination</h3>
+            <p style="margin:0;font-size:13.5px;color:#1e293b;">
+              ${escapeEmailHtml(order.deliveryAddress)}, ${escapeEmailHtml(order.city)}${order.state ? `, ${escapeEmailHtml(order.state)}` : ''}${order.postalCode ? ` - ${escapeEmailHtml(order.postalCode)}` : ''}, ${escapeEmailHtml(order.country || 'Pakistan')}
+            </p>
+          </div>
+
+          ${order.additionalDetails ? `
+            <!-- Client Additional Requirements -->
+            <div style="background:#fffbeb;border:1px solid #fef3c7;border-radius:12px;padding:16px 20px;margin-bottom:20px;">
+              <h3 style="margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#b45309;font-weight:700;">Customer Requirements & Delivery Details</h3>
+              <p style="margin:0;font-size:13.5px;color:#78350f;line-height:1.6;white-space:pre-wrap;">${escapeEmailHtml(order.additionalDetails)}</p>
+            </div>
+          ` : ''}
+
+          <div style="text-align:center;padding-top:12px;">
+            <p style="margin:0;font-size:12px;color:#94a3b8;">
+              Manage this quote directly from the ComfortSeats Admin Dashboard under Bulk Orders.
+            </p>
+          </div>
+        </div>
+
+        <div style="background:#f1f5f9;padding:14px 32px;border-top:1px solid #e2e8f0;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#64748b;">
+            Comfort Seats PK Internal Automation &bull; Automated Sales Notification
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+/**
+ * Send notification email to admin/seller when a new bulk order request is placed
+ */
+const sendBulkOrderAdminEmail = async (order) => {
+  try {
+    const adminEmail = process.env.ADMIN_NOTIFY_EMAIL || process.env.EMAIL_USER;
+    if (!adminEmail) {
+      console.warn('[emailService] No admin email configured for bulk order notification');
+      return { sent: false, reason: 'not-configured' };
+    }
+
+    const companyDisplay = order.companyName ? order.companyName : (order.customerName || 'Inquiry');
+    const qtyDisplay = order.totalQuantity ? `${order.totalQuantity} chairs` : 'Quantity open';
+
+    const mailOptions = {
+      from: `"Comfort Seats Corporate Leads" <${process.env.EMAIL_USER || 'support@comfortseatspk.com'}>`,
+      to: adminEmail,
+      subject: `New Bulk Order Request — [${order.quoteId}] — ${companyDisplay} (${qtyDisplay})`,
+      html: buildBulkOrderAdminEmailHtml(order),
+    };
+
+    const result = await sendEmail(mailOptions);
+    return result;
+  } catch (error) {
+    console.error('[emailService] Failed to send bulk order admin email:', error.message);
+    return { sent: false, reason: error.message };
+  }
+};
+
+module.exports = {
+  sendOrderConfirmationEmail,
+  buildOrderEmailHtml,
+  sendCustomerOrderEmail,
+  buildCustomerOrderEmailHtml,
+  sendOrderStatusUpdateEmails,
+  sendCustomizationEmail,
+  buildCustomizationEmailHtml,
+  sendCustomizationCustomerEmail,
+  buildCustomizationCustomerEmailHtml,
+  sendContactMessageEmail,
+  sendWarrantyClaimCustomerEmail,
+  buildWarrantyClaimCustomerEmailHtml,
+  sendWarrantyClaimAdminEmail,
+  buildWarrantyClaimAdminEmailHtml,
+  sendBulkOrderCustomerEmail,
+  buildBulkOrderCustomerEmailHtml,
+  sendBulkOrderAdminEmail,
+  buildBulkOrderAdminEmailHtml,
+};

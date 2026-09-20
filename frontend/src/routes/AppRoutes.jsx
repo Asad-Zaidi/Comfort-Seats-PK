@@ -14,6 +14,8 @@ import Checkout from "../pages/Checkout";
 import NotFound from "../pages/NotFound";
 import Blog from "../pages/Blog";
 import BlogDetail from "../pages/BlogDetail";
+import WarrantyClaim from "../pages/WarrantyClaim";
+import BulkOrder from "../pages/BulkOrder";
 
 const AppRoutes = () => {
     return (
@@ -38,6 +40,9 @@ const AppRoutes = () => {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogDetail />} />
+            <Route path="/warranty" element={<WarrantyClaim />} />
+            <Route path="/bulk-orders" element={<BulkOrder />} />
+            <Route path="/bulk-order" element={<BulkOrder />} />
 
             {/* Admin Login */}
             <Route path="/admin/login" element={<AdminLogin />} />

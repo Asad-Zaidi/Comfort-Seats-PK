@@ -399,7 +399,7 @@ const AdminOrders = () => {
                                                 <p className="text-xs text-gray-500">{order.customer?.phone}</p>
                                                 <p className="text-xs text-gray-500">{order.customer?.email}</p>
                                                 <p className="text-xs text-gray-500">{order.customer?.address}</p>
-                                                <p className="text-xs text-gray-500">{order.customer?.city}</p>
+                                                <p className="text-xs text-gray-500">{[order.customer?.city, order.customer?.province || order.customer?.state].filter(Boolean).join(", ")}</p>
                                             </div>
 
                                             {/* Status Update */}

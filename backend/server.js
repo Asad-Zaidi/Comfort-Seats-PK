@@ -16,4 +16,8 @@ server.listen(PORT, () => {
     console.log(`Server and Socket.IO running on port ${PORT}`);
 });
 
+process.on("unhandledRejection", (err) => {
+    console.warn("Unhandled Promise Rejection:", err?.message || err);
+});
+
 module.exports = server;

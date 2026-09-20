@@ -147,6 +147,8 @@ const createOrder = async (req, res) => {
                 email: customer.email || '',
                 address: customer.address,
                 city: customer.city,
+                province: customer.province || customer.state || '',
+                state: customer.state || customer.province || '',
             },
             paymentMethod: paymentMethod || 'cod',
             selectedOnlineMethod: selectedOnlineMethod ? {

@@ -22,6 +22,8 @@ import {
     FiCreditCard,
     FiStar,
     FiMessageSquare,
+    FiLayers,
+    FiShield,
 } from "react-icons/fi";
 import { FaBlog } from "react-icons/fa6";
 
@@ -78,6 +80,16 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, on
             name: "Customizations",
             path: "/admin/customizations",
             icon: <FiEdit3 />,
+        },
+        {
+            name: "Bulk Orders",
+            path: "/admin/bulk-orders",
+            icon: <FiLayers />,
+        },
+        {
+            name: "Warranty Claims",
+            path: "/admin/warranty-claims",
+            icon: <FiShield />,
         },
         {
             name: "Announcement",

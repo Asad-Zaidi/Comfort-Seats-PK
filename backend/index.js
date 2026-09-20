@@ -17,6 +17,8 @@ const announcementRoutes = require("./routes/announcementRoutes");
 const blogRoutes = require("./routes/blogRoutes");
 const sitemapRoutes = require("./routes/sitemapRoutes");
 const themeRoutes = require("./routes/themeRoutes");
+const warrantyClaimRoutes = require("./routes/warrantyClaimRoutes");
+const bulkOrderRoutes = require("./routes/bulkOrderRoutes");
 const analyticsRoutes = require("./analytics/routes/analyticsRoutes");
 const { getIO } = require("./analytics/socket/analyticsSocket");
 
@@ -93,6 +95,8 @@ app.use("/api/customizations", customizationRoutes);
 app.use("/api/announcement", announcementRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/themes", themeRoutes);
+app.use("/api/warranty-claims", warrantyClaimRoutes);
+app.use("/api/bulk-orders", bulkOrderRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
 module.exports = app;
