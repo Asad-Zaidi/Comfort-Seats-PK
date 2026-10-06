@@ -20,6 +20,7 @@ const themeRoutes = require("./routes/themeRoutes");
 const warrantyClaimRoutes = require("./routes/warrantyClaimRoutes");
 const bulkOrderRoutes = require("./routes/bulkOrderRoutes");
 const analyticsRoutes = require("./analytics/routes/analyticsRoutes");
+const salesRoutes = require("./routes/salesRoutes");
 const { getIO } = require("./analytics/socket/analyticsSocket");
 
 
@@ -98,5 +99,6 @@ app.use("/api/themes", themeRoutes);
 app.use("/api/warranty-claims", warrantyClaimRoutes);
 app.use("/api/bulk-orders", bulkOrderRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/sales", salesRoutes);
 
 module.exports = app;

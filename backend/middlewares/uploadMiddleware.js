@@ -42,6 +42,9 @@ exports.uploadCategoryImage = upload.single('image');
 // Middleware to handle single review image upload (field name: 'reviewImage')
 exports.uploadReviewImage = upload.single('reviewImage');
 
+// Middleware to handle sales campaign promotional image upload (field name: 'image')
+exports.uploadSalesImage = upload.single('image');
+
 // Middleware to handle single order payment receipt upload (field name: 'receipt')
 exports.uploadReceipt = upload.single('receipt');
 

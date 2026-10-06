@@ -176,10 +176,19 @@ const ProductDetail = () => {
     // Extract color options (memoized)
     const productColorOptions = useMemo(() => extractColorOptions(product), [product]);
 
-    // Extract general product images (memoized) using shared utility
+    // Extract true general (non-variant) product images for fallback
     const productGeneralImages = useMemo(() => {
         if (!product) return [];
-        return getProductImageObjects(product).map(img => img.url);
+        if (Array.isArray(product.productImages) && product.productImages.length > 0) {
+            return product.productImages.map(img => img.url || img).filter(Boolean);
+        }
+        if (Array.isArray(product.images) && product.images.length > 0) {
+            return product.images.filter(Boolean);
+        }
+        if (product.imageUrl) {
+            return [product.imageUrl];
+        }
+        return [];
     }, [product]);
 
     // Determine which images to show based on selected color, stand type, and activeVariantSource
@@ -189,12 +198,14 @@ const ProductDetail = () => {
         const variantImageObjs = getProductImageObjects(product, { selectedColor, selectedStandType, activeVariantSource });
         const variantImageUrls = variantImageObjs.map(img => img.url).filter(Boolean);
 
+        // When a specific color is selected, show ONLY that color's images (do not append default color images)
         if (variantImageUrls.length > 0) {
-            const merged = [...variantImageUrls, ...productGeneralImages];
-            return [...new Set(merged)];
+            return variantImageUrls;
         }
 
-        return productGeneralImages;
+        return productGeneralImages.length > 0 
+            ? productGeneralImages 
+            : getProductImageObjects(product).map(img => img.url).filter(Boolean);
     }, [product, selectedColor, selectedStandType, activeVariantSource, productGeneralImages]);
 
     // Get selected color variant data

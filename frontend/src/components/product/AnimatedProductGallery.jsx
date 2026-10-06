@@ -221,7 +221,7 @@ const AnimatedProductGallery = ({
                     )}
 
                     {/* Fullscreen button */}
-                    {hasMultipleImages && (
+                    {images.length > 0 && (
                         <motion.button
                             whileHover={shouldAnimate ? { scale: 1.1, backgroundColor: 'rgba(255,255,255,1)' } : {}}
                             whileTap={shouldAnimate ? { scale: 0.95 } : {}}
@@ -236,8 +236,8 @@ const AnimatedProductGallery = ({
                 </div>
             </div>
 
-            {/* Thumbnails Strip */}
-            {hasMultipleImages && (
+            {/* Thumbnails Strip - always show even if single image */}
+            {images.length > 0 && (
                 <motion.div
                     initial={shouldAnimate ? { opacity: 0, y: 10 } : { opacity: 1 }}
                     animate={{ opacity: 1, y: 0 }}

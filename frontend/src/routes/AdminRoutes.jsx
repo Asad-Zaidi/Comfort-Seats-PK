@@ -20,6 +20,7 @@ import AdminMessages from "../pages/admin/AdminMessages";
 import AdminBlog from "../pages/admin/AdminBlog";
 import AdminBulkOrders from "../pages/admin/AdminBulkOrders";
 import AdminWarrantyClaims from "../pages/admin/AdminWarrantyClaims";
+import AdminSales from "../pages/admin/AdminSales";
 
 const AdminRoutes = () => {
     const isAuthenticated = typeof window !== "undefined" && !!localStorage.getItem("adminToken");
@@ -44,6 +45,7 @@ const AdminRoutes = () => {
                 <Route path="colors" element={<AdminColor />} />
                 <Route path="checkout" element={<AdminCheckout />} />
                 <Route path="blogs" element={<AdminBlog />} />
+                <Route path="sales" element={<AdminSales />} />
                 <Route path="bulk-orders" element={<AdminBulkOrders />} />
                 <Route path="warranty-claims" element={<AdminWarrantyClaims />} />
                 <Route path="warranty" element={<AdminWarrantyClaims />} />

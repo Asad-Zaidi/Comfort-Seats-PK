@@ -13,6 +13,7 @@
 import { useEffect } from "react";
 import Navbar from "./components/Navbar";
 import AnnouncementBar from "./components/AnnouncementBar";
+import SalesPopup from "./components/SalesPopup";
 import AppRoutes from "./routes/AppRoutes";
 import { setAuthToken } from "./api/api";
 
@@ -80,6 +81,7 @@ function App() {
               <FaviconUpdater />
               <LegacyColorApplier />
               <AnnouncementBar />
+              <SalesPopup />
               <Navbar />
               <AppRoutes />
             </AnalyticsProvider>

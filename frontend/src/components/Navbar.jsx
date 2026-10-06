@@ -4,6 +4,7 @@ import { NavLink } from "react-router-dom";
 import { HiX, HiChevronDown } from "react-icons/hi";
 import { FaBars } from "react-icons/fa";
 import { FaCartShopping, FaHeart } from "react-icons/fa6";
+import { FiPercent } from "react-icons/fi";
 import Logo from "../assets/Logo.png";
 import { useSiteConfig } from "../utils/siteConfig";
 import { useShop } from "../context/ShopContext";
@@ -16,6 +17,7 @@ const Navbar = () => {
     const [policyDropdownOpen, setPolicyDropdownOpen] = useState(false);
     const [mobilePoliciesOpen, setMobilePoliciesOpen] = useState(false);
     const [categories, setCategories] = useState([]);
+    const [hasActiveSale, setHasActiveSale] = useState(false);
     const location = useLocation();
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
     const dropdownItemRefs = useRef([]);
@@ -56,6 +58,27 @@ const Navbar = () => {
         };
         fetchCategories();
     }, []);
+
+    // Check if an active sales campaign is running to conditionally show the Sale navbar link
+    useEffect(() => {
+        let isMounted = true;
+        const checkActiveSale = async () => {
+            try {
+                const res = await api.get("/sales/active");
+                if (res.data?.success && res.data?.data && isMounted) {
+                    const s = res.data.data;
+                    const isLive = s.isSalePageEnabled !== false && s.isPopupEnabled !== false && s.status === "ACTIVE" && s.effectiveStatus === "ACTIVE";
+                    setHasActiveSale(isLive);
+                } else if (isMounted) {
+                    setHasActiveSale(false);
+                }
+            } catch (e) {
+                if (isMounted) setHasActiveSale(false);
+            }
+        };
+        checkActiveSale();
+        return () => { isMounted = false; };
+    }, [location.pathname]);
 
     // Reset mobile dropdown collapses whenever the menu itself closes
     useEffect(() => {
@@ -181,6 +204,7 @@ const Navbar = () => {
                         >
                             Home
                         </NavLink>
+
 
                         {/* Products with Dropdown */}
                         <div
@@ -371,6 +395,24 @@ const Navbar = () => {
                         >
                             Bulk Order
                         </NavLink>
+                        {/* Active Sale Link (automatically disappears when sale is off) */}
+                        {hasActiveSale && (
+                            <NavLink
+                                to="/sale"
+                                style={({ isActive }) => ({
+                                    backgroundColor: isActive ? 'var(--secondary, #F5A524)' : undefined,
+                                    color: isActive ? '#12131A' : 'var(--secondary, #F5A524)',
+                                })}
+                                className="relative flex items-center gap-1.5 px-3 py-1 xl:py-1.5 rounded-full text-xs xl:text-sm font-extrabold transition-all duration-300 hover:bg-[color-mix(in_srgb,var(--secondary,#F5A524)_15%,transparent)] whitespace-nowrap"
+                            >
+                                <span>Sale</span>
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--secondary,#F5A524)] opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--secondary,#F5A524)]"></span>
+                                </span>
+                            </NavLink>
+                        )}
+
                     </nav>
 
                     {/* Right Side Icons & Mobile Menu Button */}
@@ -441,6 +483,29 @@ const Navbar = () => {
                 }}
             >
                 <nav className="overflow-y-auto max-h-[32rem]">
+                    {/* Active Sale Link for Mobile (disappears when sale campaign is off) */}
+                    {hasActiveSale && (
+                        <div className="border-b" style={{ borderColor: 'var(--border)' }}>
+                            <NavLink
+                                to="/sale"
+                                onClick={closeAll}
+                                className="flex items-center justify-between px-6 py-4 text-base font-extrabold transition-colors"
+                                style={({ isActive }) => ({
+                                    backgroundColor: isActive ? 'color-mix(in srgb, var(--secondary, #F5A524) 18%, transparent)' : 'color-mix(in srgb, var(--secondary, #F5A524) 8%, transparent)',
+                                    color: 'var(--secondary, #F5A524)',
+                                })}
+                            >
+                                <span className="flex items-center gap-2.5">
+                                    <FiPercent size={18} className="animate-pulse" />
+                                    <span>Special Sale Deals</span>
+                                </span>
+                                <span className="text-[10px] uppercase font-black px-2.5 py-0.5 rounded-full bg-[var(--secondary,#F5A524)] text-[#12131A] shadow-xs">
+                                    ON SALE
+                                </span>
+                            </NavLink>
+                        </div>
+                    )}
+
                     {navItems.map((item) => {
                         const isProducts = item.path === "/products";
                         const isPolicies = item.path === "/policy";

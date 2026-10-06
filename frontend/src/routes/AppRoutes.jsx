@@ -16,12 +16,15 @@ import Blog from "../pages/Blog";
 import BlogDetail from "../pages/BlogDetail";
 import WarrantyClaim from "../pages/WarrantyClaim";
 import BulkOrder from "../pages/BulkOrder";
+import SalePage from "../pages/SalePage";
 
 const AppRoutes = () => {
     return (
         <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/home" element={<Navigate to="/" replace />} />
+            <Route path="/sale" element={<SalePage />} />
+            <Route path="/sales" element={<Navigate to="/sale" replace />} />
             <Route path="/products" element={<Products />} />
             <Route path="/search" element={<Products />} />
             {/* SEO-friendly product detail URLs: /products/category-slug/product-name */}

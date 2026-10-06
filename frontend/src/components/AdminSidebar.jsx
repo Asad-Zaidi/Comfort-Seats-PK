@@ -24,6 +24,7 @@ import {
     FiMessageSquare,
     FiLayers,
     FiShield,
+    FiPercent,
 } from "react-icons/fi";
 import { FaBlog } from "react-icons/fa6";
 
@@ -120,6 +121,11 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, on
             name: "Blog",
             path: "/admin/blogs",
             icon: <FaBlog />,
+        },
+        {
+            name: "Sales",
+            path: "/admin/sales",
+            icon: <FiPercent />,
         },
     ];
 
