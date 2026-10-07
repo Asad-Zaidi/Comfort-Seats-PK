@@ -233,6 +233,16 @@ const Home = () => {
     setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
 
+  useEffect(() => {
+    if (testimonials.length <= 1) return undefined;
+
+    const autoAdvance = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    }, 2500);
+
+    return () => clearInterval(autoAdvance);
+  }, [testimonials.length]);
+
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
 
