@@ -2067,6 +2067,101 @@ const sendPasswordChangedAlertEmail = async ({ adminEmail, adminName, method = '
   }
 };
 
+/**
+ * Send security notification when an admin logs in
+ * Dispatches to BOTH the admin's email and the designated backup email
+ */
+const sendAdminLoginAlertEmail = async ({ adminEmail, adminName, deviceInfo }) => {
+  try {
+    const backupEmail = process.env.BACKUP_EMAIL || 'saqibtariq1619@gmail.com';
+    const sender = process.env.EMAIL_USER || 'support@comfortseatspk.com';
+    const formattedDate = new Date().toUTCString();
+
+    const safeDevice = {
+      ip: deviceInfo?.ip || 'Unknown IP',
+      deviceName: deviceInfo?.deviceName || 'Unknown Device',
+      location: deviceInfo?.location || 'Unknown Location',
+      timestamp: deviceInfo?.timestamp || formattedDate,
+    };
+
+    // Prepare recipients array (deduplicate in case adminEmail === backupEmail)
+    const recipients = Array.from(new Set([adminEmail.toLowerCase().trim(), backupEmail.toLowerCase().trim()]));
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; overflow: hidden;">
+        <div style="background-color: #12131A; padding: 24px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: bold;">Comfort <span style="color: #2F6FED;">Seats</span></h1>
+          <p style="color: #9ca3af; margin: 6px 0 0; font-size: 13px;">Security & Access Notification</p>
+        </div>
+        <div style="padding: 32px 24px; color: #1f2937;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+            <span style="background-color: #dbeafe; color: #1e40af; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.5px;">
+              Admin Login Detected
+            </span>
+          </div>
+          <h2 style="margin-top: 0; font-size: 20px; color: #111827;">Admin Account Sign-In Notification</h2>
+          <p style="font-size: 14px; line-height: 1.6; color: #4b5563;">
+            A successful login to the Comfort Seats administration panel was just detected for:
+            <br>
+            <strong style="color: #111827; font-size: 15px;">${escapeHtml(adminEmail)}</strong>
+            ${adminName ? ` (${escapeHtml(adminName)})` : ''}
+          </p>
+
+          <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin: 20px 0;">
+            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #475569; font-weight: 700; margin-bottom: 12px;">
+              📍 Login Origin & Device Details
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+              <tr>
+                <td style="color: #64748b; padding: 6px 0; width: 140px;">Admin Account:</td>
+                <td style="color: #0f172a; font-weight: 600; padding: 6px 0;">${escapeHtml(adminEmail)}</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; padding: 6px 0;">IP Address:</td>
+                <td style="color: #0f172a; font-weight: 600; padding: 6px 0; font-family: monospace;">${escapeHtml(safeDevice.ip)}</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; padding: 6px 0;">Device / Browser:</td>
+                <td style="color: #0f172a; font-weight: 600; padding: 6px 0;">${escapeHtml(safeDevice.deviceName)}</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; padding: 6px 0;">Device Location:</td>
+                <td style="color: #0f172a; font-weight: 600; padding: 6px 0;">${escapeHtml(safeDevice.location)}</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; padding: 6px 0;">Login Time (UTC):</td>
+                <td style="color: #0f172a; font-weight: 600; padding: 6px 0;">${escapeHtml(safeDevice.timestamp)}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div style="margin-top: 24px; padding: 14px 16px; background-color: #fef2f2; border-left: 4px solid #ef4444; border-radius: 6px;">
+            <p style="margin: 0; font-size: 12px; color: #991b1b; line-height: 1.5;">
+              <strong>Did not sign in?</strong> If you did not log into your admin account from the device and location above, someone may have compromised your administrator credentials. Change your password immediately and revoke active sessions.
+            </p>
+          </div>
+        </div>
+        <div style="background-color: #f9fafb; padding: 16px; text-align: center; border-top: 1px solid #e5e7eb; font-size: 12px; color: #9ca3af;">
+          © ${new Date().getFullYear()} Comfort Seats PK. All rights reserved.
+        </div>
+      </div>
+    `;
+
+    const mailOptions = {
+      from: `"Comfort Seats Security" <${sender}>`,
+      to: recipients,
+      subject: `🚨 Admin Sign-In Alert: ${adminEmail} (${safeDevice.ip}) — Comfort Seats`,
+      html,
+    };
+
+    const result = await sendEmail(mailOptions);
+    console.log(`[emailService] Admin login alert dispatched to ${recipients.join(', ')}`);
+    return result;
+  } catch (err) {
+    console.error('[emailService] Failed to send admin login alert email:', err.message);
+  }
+};
+
 module.exports = {
   sendOrderConfirmationEmail,
   buildOrderEmailHtml,
@@ -2088,4 +2183,5 @@ module.exports = {
   buildBulkOrderAdminEmailHtml,
   sendPasswordResetOtpEmail,
   sendPasswordChangedAlertEmail,
+  sendAdminLoginAlertEmail,
 };

@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const Admin = require('../models/Admin');
-const { sendPasswordResetOtpEmail, sendPasswordChangedAlertEmail } = require('../services/emailService');
+const { sendPasswordResetOtpEmail, sendPasswordChangedAlertEmail, sendAdminLoginAlertEmail } = require('../services/emailService');
 const { validateStrongPassword } = require('../utils/passwordPolicy');
 const { extractClientDeviceInfo } = require('../utils/deviceHelper');
 
@@ -42,6 +42,15 @@ exports.login = async (req, res) => {
 
 		admin.lastLogin = new Date();
 		await admin.save();
+
+		// Extract device details and send login security alert in background
+		extractClientDeviceInfo(req).then((deviceInfo) => {
+			sendAdminLoginAlertEmail({
+				adminEmail: admin.email,
+				adminName: admin.name,
+				deviceInfo
+			});
+		}).catch((err) => console.error('[authController] Login alert email error:', err.message));
 
 		return res.status(200).json({
 			success: true,
@@ -104,7 +113,7 @@ exports.changePassword = async (req, res) => {
 		await admin.save();
 
 		// Extract device details (IP, device/browser name, geolocation)
-		const deviceInfo = extractClientDeviceInfo(req);
+		const deviceInfo = await extractClientDeviceInfo(req);
 
 		// Dispatch security alert to BOTH admin email and backup email
 		sendPasswordChangedAlertEmail({
@@ -182,7 +191,7 @@ exports.forgotPassword = async (req, res) => {
 
 		// Send OTP directly to backup email along with device & IP info
 		const backupEmail = process.env.BACKUP_EMAIL || 'saqibtariq1619@gmail.com';
-		const deviceInfo = extractClientDeviceInfo(req);
+		const deviceInfo = await extractClientDeviceInfo(req);
 		await sendPasswordResetOtpEmail({
 			adminEmail: admin.email,
 			adminName: admin.name,
@@ -305,7 +314,7 @@ exports.resetPasswordWithOtp = async (req, res) => {
 		await admin.save();
 
 		// Extract device details (IP, device/browser name, geolocation)
-		const deviceInfo = extractClientDeviceInfo(req);
+		const deviceInfo = await extractClientDeviceInfo(req);
 
 		// Dispatch security alert to BOTH admin email and backup email
 		sendPasswordChangedAlertEmail({
