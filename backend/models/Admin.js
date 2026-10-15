@@ -17,7 +17,7 @@ const AdminSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        minlength: 6,
+        minlength: 12,
         select: false // never return password by default on queries
     },
     role: {
@@ -31,6 +31,14 @@ const AdminSchema = new mongoose.Schema({
     },
     lastLogin: {
         type: Date
+    },
+    resetPasswordOtp: {
+        type: String,
+        select: false
+    },
+    resetPasswordOtpExpires: {
+        type: Date,
+        select: false
     },
     createdAt: {
         type: Date,

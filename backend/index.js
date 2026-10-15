@@ -24,7 +24,18 @@ const salesRoutes = require("./routes/salesRoutes");
 const { getIO } = require("./analytics/socket/analyticsSocket");
 
 
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
+
 const app = express();
+
+// Trust proxy header from reverse proxies / Cloudflare
+app.set("trust proxy", 1);
+
+// HTTP Security Headers
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
 // Define the allowed origin
 const allowedOrigins = [
@@ -67,6 +78,9 @@ app.use(cookieParser());
 // Middleware for parsing JSON and urlencoded request bodies (50mb limit for image payloads & branding settings)
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// Sanitize request data against NoSQL query injection
+app.use(mongoSanitize());
 
 // HTTP request logger middleware
 app.use(morgan("dev"));

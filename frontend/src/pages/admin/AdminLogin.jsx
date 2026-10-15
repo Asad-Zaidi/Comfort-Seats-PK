@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api, { setAuthToken } from "../../api/api";
 import { useToast } from "../../components/ToastNotification";
+import ForgotPasswordModal from "../../components/ForgotPasswordModal";
 
 import {
     FiMail,
@@ -17,6 +18,7 @@ const AdminLogin = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [forgotModalOpen, setForgotModalOpen] = useState(false);
 
     const navigate = useNavigate();
 
@@ -172,12 +174,13 @@ const AdminLogin = () => {
 
                             </label>
 
-                            <Link
-                                to="#"
-                                className="text-blue-600 text-sm hover:underline"
+                            <button
+                                type="button"
+                                onClick={() => setForgotModalOpen(true)}
+                                className="text-blue-600 text-sm hover:underline font-medium"
                             >
                                 Forgot Password?
-                            </Link>
+                            </button>
 
                         </div>
 
@@ -206,6 +209,13 @@ const AdminLogin = () => {
                 </p>
 
             </div>
+
+            {/* Forgot Password Verification Modal */}
+            <ForgotPasswordModal
+                isOpen={forgotModalOpen}
+                onClose={() => setForgotModalOpen(false)}
+                initialEmail={email}
+            />
 
         </div>
     );

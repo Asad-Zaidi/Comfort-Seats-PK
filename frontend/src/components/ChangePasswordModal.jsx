@@ -85,14 +85,45 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
 
     if (!isOpen) return null;
 
+    const passwordRequirements = [
+        {
+            id: "length",
+            label: "At least 12 characters",
+            valid: form.newPassword.length >= 12,
+        },
+        {
+            id: "uppercase",
+            label: "One uppercase letter (A-Z)",
+            valid: /[A-Z]/.test(form.newPassword),
+        },
+        {
+            id: "lowercase",
+            label: "One lowercase letter (a-z)",
+            valid: /[a-z]/.test(form.newPassword),
+        },
+        {
+            id: "number",
+            label: "One number (0-9)",
+            valid: /[0-9]/.test(form.newPassword),
+        },
+        {
+            id: "special",
+            label: "One special character",
+            valid: /[^A-Za-z0-9]/.test(form.newPassword),
+        },
+    ];
+
+    const isAllRequirementsMet = passwordRequirements.every((req) => req.valid);
+
     const validate = () => {
         const newErrors = {};
         if (!form.currentPassword)
             newErrors.currentPassword = "Current password is required.";
-        if (!form.newPassword)
+        if (!form.newPassword) {
             newErrors.newPassword = "New password is required.";
-        else if (form.newPassword.length < 6)
-            newErrors.newPassword = "New password must be at least 6 characters.";
+        } else if (!isAllRequirementsMet) {
+            newErrors.newPassword = "All password requirements must be satisfied (min 12 characters).";
+        }
         if (!form.confirmPassword)
             newErrors.confirmPassword = "Please confirm your new password.";
         else if (form.newPassword && form.confirmPassword !== form.newPassword)
@@ -119,7 +150,12 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!validate()) return;
+        if (!validate()) {
+            if (!isAllRequirementsMet) {
+                toast.error("All 5 password requirements must be met before updating.");
+            }
+            return;
+        }
         setSaving(true);
         try {
             const res = await api.put("/auth/change-password", {
@@ -145,8 +181,8 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col my-auto max-h-[92vh]">
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
                     <div className="flex items-center gap-2">
@@ -167,7 +203,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* Body */}
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
                     <PasswordInput
                         label="Current Password"
                         name="currentPassword"
@@ -184,12 +220,63 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                         name="newPassword"
                         value={form.newPassword}
                         showKey="new"
-                        placeholder="At least 6 characters"
+                        placeholder="Enter new password (min 12 characters)"
                         show={show}
                         errors={errors}
                         onChange={handleChange}
                         onToggleShow={toggleShow}
                     />
+
+                    {/* Password Requirements Box */}
+                    <div className="rounded-2xl bg-gray-50/90 border border-gray-200/90 p-4 transition-all">
+                        <h4 className="text-xs sm:text-sm font-bold text-gray-800 mb-2.5">
+                            Password Requirements
+                        </h4>
+                        <div className="space-y-2">
+                            {passwordRequirements.map((req) => (
+                                <div
+                                    key={req.id}
+                                    className={`flex items-center gap-2.5 text-xs sm:text-[13px] font-medium transition-colors duration-150 ${
+                                        req.valid ? "text-emerald-600 font-semibold" : "text-gray-500"
+                                    }`}
+                                >
+                                    {req.valid ? (
+                                        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white shadow-xs">
+                                            <svg
+                                                className="h-2.5 w-2.5 stroke-[3.5]"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M5 13l4 4L19 7"
+                                                />
+                                            </svg>
+                                        </span>
+                                    ) : (
+                                        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gray-200 text-gray-400">
+                                            <svg
+                                                className="h-2.5 w-2.5 stroke-[2.5]"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M5 13l4 4L19 7"
+                                                />
+                                            </svg>
+                                        </span>
+                                    )}
+                                    <span>{req.label}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
                     <PasswordInput
                         label="Confirm New Password"
                         name="confirmPassword"
@@ -212,7 +299,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                         </button>
                         <button
                             type="submit"
-                            disabled={saving}
+                            disabled={saving || !isAllRequirementsMet}
                             className="flex-1 rounded-xl bg-[#2F6FED] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#2F6FED]/90 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             {saving ? "Saving..." : "Update Password"}

@@ -22,7 +22,7 @@ const { protect, admin } = require('../middlewares/authMiddleware');
 const { uploadBannerImage, uploadHomeBannerImages, uploadCategoryImage, uploadAny } = require('../middlewares/uploadMiddleware');
 
 router.get('/', getSiteContent);
-router.post('/upload', uploadAny, uploadSiteImage);
+router.post('/upload', protect, admin(), uploadAny, uploadSiteImage);
 router.put('/home-banner', protect, admin(), uploadHomeBannerImages, updateHomeBanner);
 router.put('/categories', protect, admin(), updateCategories);
 router.post('/categories', protect, admin(), uploadCategoryImage, addCategory);

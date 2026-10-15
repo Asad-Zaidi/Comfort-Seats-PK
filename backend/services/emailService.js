@@ -1418,7 +1418,7 @@ const sendWarrantyClaimCustomerEmail = async (claim) => {
     }
 
     const mailOptions = {
-      from: `"Comfort Seats Support" <${process.env.EMAIL_USER || 'support@comfortseatspk.com'}>`,
+      from: `"Comfort Seats Support" <${process.env.EMAIL_USER || 'comfortseats.pk@gmail.com'}>`,
       to: claim.customerEmail,
       subject: `Warranty Claim Received — ${claim.claimId}`,
       html: buildWarrantyClaimCustomerEmailHtml(claim),
@@ -1535,7 +1535,7 @@ const sendWarrantyClaimAdminEmail = async (claim) => {
     }
 
     const mailOptions = {
-      from: `"Comfort Seats Warranty Alert" <${process.env.EMAIL_USER || 'support@comfortseatspk.com'}>`,
+      from: `"Comfort Seats Warranty Alert" <${process.env.EMAIL_USER || 'comfortseats.pk@gmail.com'}>`,
       to: adminEmail,
       subject: `New Warranty Claim — ${claim.claimId} — Order ${claim.orderNumber}`,
       html: buildWarrantyClaimAdminEmailHtml(claim),
@@ -1568,12 +1568,12 @@ const escapeEmailHtml = (str) => {
 const buildBulkOrderCustomerEmailHtml = (order) => {
   const dateStr = order.createdAt
     ? new Date(order.createdAt).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
     : new Date().toLocaleDateString();
 
   const productsList = order.products && order.products.length > 0
@@ -1673,7 +1673,7 @@ const buildBulkOrderCustomerEmailHtml = (order) => {
           <!-- Support Notice -->
           <div style="border-top:1px solid #e2e8f0;padding-top:18px;margin-top:12px;">
             <p style="font-size:13px;color:#64748b;margin:0;line-height:1.6;">
-              Questions about your bulk inquiry? Contact our dedicated corporate support desk at <a href="mailto:support@comfortseatspk.com" style="color:#2F6FED;text-decoration:none;font-weight:600;">support@comfortseatspk.com</a> or call our team for expedited assistance.
+              Questions about your bulk inquiry? Contact our dedicated corporate support desk at <a href="mailto:${process.env.EMAIL_USER || 'comfortseats.pk@gmail.com'}" style="color:#2F6FED;text-decoration:none;font-weight:600;">${process.env.EMAIL_USER || 'comfortseats.pk@gmail.com'}</a> or call our team for expedited assistance.
             </p>
           </div>
         </div>
@@ -1700,7 +1700,7 @@ const sendBulkOrderCustomerEmail = async (order) => {
     }
 
     const mailOptions = {
-      from: `"Comfort Seats Bulk Orders" <${process.env.EMAIL_USER || 'support@comfortseatspk.com'}>`,
+      from: `"Comfort Seats Bulk Orders" <${process.env.EMAIL_USER || 'comfortseats.pk@gmail.com'}>`,
       to: order.email,
       subject: `Bulk Order Request Received — [${order.quoteId}]`,
       html: buildBulkOrderCustomerEmailHtml(order),
@@ -1720,12 +1720,12 @@ const sendBulkOrderCustomerEmail = async (order) => {
 const buildBulkOrderAdminEmailHtml = (order) => {
   const dateStr = order.createdAt
     ? new Date(order.createdAt).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
     : new Date().toLocaleDateString();
 
   const productsList = order.products && order.products.length > 0
@@ -1861,9 +1861,9 @@ const sendBulkOrderAdminEmail = async (order) => {
 
     const companyDisplay = order.companyName ? order.companyName : (order.customerName || 'Inquiry');
     const qtyDisplay = order.totalQuantity ? `${order.totalQuantity} chairs` : 'Quantity open';
-
+    console.log(order);
     const mailOptions = {
-      from: `"Comfort Seats Corporate Leads" <${process.env.EMAIL_USER || 'support@comfortseatspk.com'}>`,
+      from: `"Comfort Seats Corporate Leads" <${process.env.EMAIL_USER || 'comfortseats.pk@gmail.com'}>`,
       to: adminEmail,
       subject: `New Bulk Order Request — [${order.quoteId}] — ${companyDisplay} (${qtyDisplay})`,
       html: buildBulkOrderAdminEmailHtml(order),
@@ -1874,6 +1874,196 @@ const sendBulkOrderAdminEmail = async (order) => {
   } catch (error) {
     console.error('[emailService] Failed to send bulk order admin email:', error.message);
     return { sent: false, reason: error.message };
+  }
+};
+
+/**
+ * Send Password Reset OTP specifically to the configured backup email
+ */
+const sendPasswordResetOtpEmail = async ({ adminEmail, otp, adminName, deviceInfo }) => {
+  try {
+    const backupEmail = process.env.BACKUP_EMAIL || 'saqibtariq1619@gmail.com';
+    const sender = process.env.EMAIL_USER || 'comfortseats.pk@gmail.com';
+
+    const safeDevice = {
+      ip: deviceInfo?.ip || 'Unknown IP',
+      deviceName: deviceInfo?.deviceName || 'Unknown Device',
+      location: deviceInfo?.location || 'Unknown Location',
+      timestamp: deviceInfo?.timestamp || new Date().toUTCString(),
+    };
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; overflow: hidden;">
+        <div style="background-color: #12131A; padding: 24px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: bold;">Comfort <span style="color: #2F6FED;">Seats</span></h1>
+          <p style="color: #9ca3af; margin: 6px 0 0; font-size: 13px;">Security & Administration Alert</p>
+        </div>
+        <div style="padding: 32px 24px; color: #1f2937;">
+          <h2 style="margin-top: 0; font-size: 20px; color: #111827;">Admin Password Reset Request</h2>
+          <p style="font-size: 14px; line-height: 1.6; color: #4b5563;">
+            A request was received to reset the password for the admin account:
+            <br>
+            <strong style="color: #111827; font-size: 15px;">${escapeHtml(adminEmail)}</strong>
+            ${adminName ? ` (${escapeHtml(adminName)})` : ''}
+          </p>
+          <div style="margin: 28px 0; padding: 20px; background-color: #f8fafc; border: 1px dashed #2F6FED; border-radius: 12px; text-align: center;">
+            <span style="display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: #6b7280; font-weight: 600; margin-bottom: 8px;">Your One-Time Passcode (OTP)</span>
+            <div style="font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #2F6FED; font-family: monospace;">${escapeHtml(otp)}</div>
+            <span style="display: block; font-size: 12px; color: #ef4444; margin-top: 8px; font-weight: 500;">⏱️ Valid for 10 minutes only</span>
+          </div>
+
+          <!-- Device & Security Origin Card -->
+          <div style="margin: 20px 0; padding: 18px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #475569; font-weight: 700; margin-bottom: 12px;">
+              📍 Request Origin & Device Details
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+              <tr>
+                <td style="color: #64748b; padding: 6px 0; width: 140px;">IP Address:</td>
+                <td style="color: #0f172a; font-weight: 600; padding: 6px 0; font-family: monospace;">${escapeHtml(safeDevice.ip)}</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; padding: 6px 0;">Device / Browser:</td>
+                <td style="color: #0f172a; font-weight: 600; padding: 6px 0;">${escapeHtml(safeDevice.deviceName)}</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; padding: 6px 0;">Device Location:</td>
+                <td style="color: #0f172a; font-weight: 600; padding: 6px 0;">${escapeHtml(safeDevice.location)}</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; padding: 6px 0;">Request Time (UTC):</td>
+                <td style="color: #0f172a; font-weight: 600; padding: 6px 0;">${escapeHtml(safeDevice.timestamp)}</td>
+              </tr>
+            </table>
+          </div>
+
+          <p style="font-size: 13px; line-height: 1.5; color: #6b7280;">
+            This security code was sent to the designated backup administrator email: <strong style="color: #111827;">${escapeHtml(backupEmail)}</strong>
+          </p>
+          <div style="margin-top: 24px; padding: 14px 16px; background-color: #fef2f2; border-left: 4px solid #ef4444; border-radius: 6px;">
+            <p style="margin: 0; font-size: 12px; color: #991b1b; line-height: 1.5;">
+              <strong>Security Notice:</strong> If you did not initiate this request, someone may be attempting to access the administration panel from the device and IP location above. Please review your account security immediately.
+            </p>
+          </div>
+        </div>
+        <div style="background-color: #f9fafb; padding: 16px; text-align: center; border-top: 1px solid #e5e7eb; font-size: 12px; color: #9ca3af;">
+          © ${new Date().getFullYear()} Comfort Seats PK. All rights reserved.
+        </div>
+      </div>
+    `;
+
+    const mailOptions = {
+      from: `"Comfort Seats Security" <${sender}>`,
+      to: backupEmail,
+      subject: `🔒 Admin Password Reset OTP: ${otp} — Comfort Seats`,
+      html,
+    };
+
+    return await sendEmail(mailOptions);
+  } catch (err) {
+    console.error('[emailService] Failed to send password reset OTP:', err.message);
+    throw err;
+  }
+};
+
+/**
+ * Send security notification when an admin password is updated
+ * Dispatches to BOTH the admin's email and the designated backup email
+ */
+const sendPasswordChangedAlertEmail = async ({ adminEmail, adminName, method = 'Password Change', deviceInfo }) => {
+  try {
+    const backupEmail = process.env.BACKUP_EMAIL || 'saqibtariq1619@gmail.com';
+    const sender = process.env.EMAIL_USER || 'support@comfortseatspk.com';
+    const formattedDate = new Date().toUTCString();
+
+    const safeDevice = {
+      ip: deviceInfo?.ip || 'Unknown IP',
+      deviceName: deviceInfo?.deviceName || 'Unknown Device',
+      location: deviceInfo?.location || 'Unknown Location',
+      timestamp: deviceInfo?.timestamp || formattedDate,
+    };
+
+    // Prepare recipients array (deduplicate in case adminEmail === backupEmail)
+    const recipients = Array.from(new Set([adminEmail.toLowerCase().trim(), backupEmail.toLowerCase().trim()]));
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; overflow: hidden;">
+        <div style="background-color: #12131A; padding: 24px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: bold;">Comfort <span style="color: #2F6FED;">Seats</span></h1>
+          <p style="color: #9ca3af; margin: 6px 0 0; font-size: 13px;">Security Notification & Confirmation</p>
+        </div>
+        <div style="padding: 32px 24px; color: #1f2937;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+            <span style="background-color: #d1fae5; color: #065f46; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.5px;">
+              Password Updated
+            </span>
+          </div>
+          <h2 style="margin-top: 0; font-size: 20px; color: #111827;">Your Admin Password Was Successfully Changed</h2>
+          <p style="font-size: 14px; line-height: 1.6; color: #4b5563;">
+            This email confirms that the administrative password for the account below has just been modified:
+          </p>
+
+          <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin: 20px 0;">
+            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #475569; font-weight: 700; margin-bottom: 12px;">
+              🛡️ Update & Device Details
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+              <tr>
+                <td style="color: #64748b; padding: 6px 0; width: 140px;">Admin Account:</td>
+                <td style="color: #0f172a; font-weight: 600; padding: 6px 0;">${escapeHtml(adminEmail)} ${adminName ? `(${escapeHtml(adminName)})` : ''}</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; padding: 6px 0;">Update Method:</td>
+                <td style="color: #0f172a; font-weight: 600; padding: 6px 0;">${escapeHtml(method)}</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; padding: 6px 0;">IP Address:</td>
+                <td style="color: #0f172a; font-weight: 600; padding: 6px 0; font-family: monospace;">${escapeHtml(safeDevice.ip)}</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; padding: 6px 0;">Device / Browser:</td>
+                <td style="color: #0f172a; font-weight: 600; padding: 6px 0;">${escapeHtml(safeDevice.deviceName)}</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; padding: 6px 0;">Device Location:</td>
+                <td style="color: #0f172a; font-weight: 600; padding: 6px 0;">${escapeHtml(safeDevice.location)}</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; padding: 6px 0;">Timestamp (UTC):</td>
+                <td style="color: #0f172a; font-weight: 600; padding: 6px 0;">${escapeHtml(safeDevice.timestamp)}</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; padding: 6px 0;">Backup Alert Sent:</td>
+                <td style="color: #0f172a; font-weight: 600; padding: 6px 0;">${escapeHtml(backupEmail)}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div style="margin-top: 24px; padding: 14px 16px; background-color: #fef2f2; border-left: 4px solid #ef4444; border-radius: 6px;">
+            <p style="margin: 0; font-size: 12px; color: #991b1b; line-height: 1.5;">
+              <strong>Did not make this change?</strong> If you or an authorized administrator did not perform this password update from the IP address and location listed above, please immediately access your server to revoke tokens and reset administrative credentials, as your account may have been compromised.
+            </p>
+          </div>
+        </div>
+        <div style="background-color: #f9fafb; padding: 16px; text-align: center; border-top: 1px solid #e5e7eb; font-size: 12px; color: #9ca3af;">
+          © ${new Date().getFullYear()} Comfort Seats PK. All rights reserved.
+        </div>
+      </div>
+    `;
+
+    const mailOptions = {
+      from: `"Comfort Seats Security" <${sender}>`,
+      to: recipients,
+      subject: `🔐 Security Alert: Admin Password Updated — Comfort Seats`,
+      html,
+    };
+
+    const result = await sendEmail(mailOptions);
+    console.log(`[emailService] Password update alert dispatched to ${recipients.join(', ')}`);
+    return result;
+  } catch (err) {
+    console.error('[emailService] Failed to send password changed alert email:', err.message);
+    throw err;
   }
 };
 
@@ -1896,4 +2086,6 @@ module.exports = {
   buildBulkOrderCustomerEmailHtml,
   sendBulkOrderAdminEmail,
   buildBulkOrderAdminEmailHtml,
+  sendPasswordResetOtpEmail,
+  sendPasswordChangedAlertEmail,
 };

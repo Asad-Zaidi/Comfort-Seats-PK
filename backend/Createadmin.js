@@ -24,7 +24,7 @@ const getCredentials = async () => {
     console.log('--- Create Admin User ---');
     const name = await ask('Name: ');
     const email = await ask('Email: ');
-    const password = await ask('Password (min 6 characters): ');
+    const password = await ask('Password (min 12 characters): ');
     const roleInput = await ask('Role [admin] (default: admin): ');
 
     return {
@@ -52,8 +52,10 @@ const createAdmin = async () => {
             process.exit(1);
         }
 
-        if (password.length < 6) {
-            console.error('Error: password must be at least 6 characters.');
+        const { validateStrongPassword } = require('./utils/passwordPolicy');
+        const passwordCheck = validateStrongPassword(password, { email, name });
+        if (!passwordCheck.isValid) {
+            console.error(`Error: ${passwordCheck.message}`);
             process.exit(1);
         }
 
